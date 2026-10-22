@@ -105,7 +105,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     sec = uefi / 'Silicon/Silicium/SiliciumPkg/Sec'
     dxe = core / 'MdeModulePkg/Core/Dxe'
     for path in (sec/'Sec.c', sec/'Sec.inf', dxe/'DxeMain/DxeMain.c',
-                 dxe/'DxeMain.inf', dxe/'Dispatcher/Dispatcher.c'):
+                 dxe/'DxeMain.inf', dxe/'Dispatcher/Dispatcher.c', dxe/'Image/Image.c'):
         path.write_bytes(path.read_bytes().replace(b'\r\n', b'\n'))
     # Remove previous diagnostic patches left by the legacy builder. The official
     # backend applies this series and reverts it in finally on every build.

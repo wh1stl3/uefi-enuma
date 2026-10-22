@@ -13,6 +13,7 @@
   "diagnostic_baseline_lf_sha256": {
     "MdeModulePkg/Core/Dxe/DxeMain/DxeMain.c": "baa2b6c6c201afaa06d044ea1f15f26c48f2133821d347a0d42f54e4aed231ba",
     "MdeModulePkg/Core/Dxe/DxeMain.inf": "bf4428e658be43bc5b54000897b28d87ea1314f57721d3b02a5152d681a832da",
-    "MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c": "24f50beeab071c52acbcbdabf8b282a2edcd7963a8744bb586950f607cc0b9bf"
+    "MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c": "24f50beeab071c52acbcbdabf8b282a2edcd7963a8744bb586950f607cc0b9bf",
+    "MdeModulePkg/Core/Dxe/Image/Image.c": "869a950195558132884e461dcd1a17f2426318d71561f4d6503bdfff21416962"
   }
 }
