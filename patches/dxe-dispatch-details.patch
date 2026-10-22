@@ -62,3 +62,33 @@
 
    //
    // Image has completed.  Verify the tpl is the same
+--- a/UefiCpuPkg/Library/CpuExceptionHandlerLib/AArch64/CpuExceptionHandlerLib.c
++++ b/UefiCpuPkg/Library/CpuExceptionHandlerLib/AArch64/CpuExceptionHandlerLib.c
+@@ -9,6 +9,7 @@
+
+ **/
+
++#include "EnumaUnhandledExceptionCheckpoint.h"
+ #include <Uefi.h>
+ #include <Library/ArmLib.h>
+ #include <Library/BaseLib.h>
+@@ -295,6 +296,8 @@
+   CHAR16  UnicodeBuffer[MAX_PRINT_CHARS];
+   UINTN   CharCount;
+   INT32   Offset;
++
++  EnumaUnhandledExceptionCheckpoint ();
+
+   if (mRecursiveException) {
+     STATIC CHAR8 CONST  Message[] = "\nRecursive exception occurred while dumping the CPU state\n";
+--- a/UefiCpuPkg/Library/CpuExceptionHandlerLib/DxeCpuExceptionHandlerLib.inf
++++ b/UefiCpuPkg/Library/CpuExceptionHandlerLib/DxeCpuExceptionHandlerLib.inf
+@@ -98,6 +98,8 @@
+
+ [LibraryClasses.AARCH64]
+   ArmLib
++  TimerLib
++  ResetSystemLib
+
+ [Guids.RISCV64, Guids.AARCH64]
+   gEfiDebugImageInfoTableGuid

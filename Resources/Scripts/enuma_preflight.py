@@ -104,8 +104,10 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
         shutil.copyfile(vendor / name, includes / name)
     sec = uefi / 'Silicon/Silicium/SiliciumPkg/Sec'
     dxe = core / 'MdeModulePkg/Core/Dxe'
+    exception = core/'UefiCpuPkg/Library/CpuExceptionHandlerLib'
     for path in (sec/'Sec.c', sec/'Sec.inf', dxe/'DxeMain/DxeMain.c',
-                 dxe/'DxeMain.inf', dxe/'Dispatcher/Dispatcher.c', dxe/'Image/Image.c'):
+                 dxe/'DxeMain.inf', dxe/'Dispatcher/Dispatcher.c', dxe/'Image/Image.c',
+                 exception/'AArch64/CpuExceptionHandlerLib.c', exception/'DxeCpuExceptionHandlerLib.inf'):
         path.write_bytes(path.read_bytes().replace(b'\r\n', b'\n'))
     # Remove previous diagnostic patches left by the legacy builder. The official
     # backend applies this series and reverts it in finally on every build.
@@ -119,7 +121,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
         if digest(core / relative) != wanted:
             raise ValueError('Reset implementation changed: ' + relative)
     for relative, wanted in reset['diagnostic_baseline_lf_sha256'].items():
-        if relative.startswith('MdeModulePkg/'):
+        if relative.startswith(('MdeModulePkg/', 'UefiCpuPkg/')):
             if digest(core / relative) != wanted:
                 raise ValueError('Mu diagnostic baseline changed: ' + relative)
     apply_patch_series([(uefi, source/'patches'/name) for name in (
@@ -130,6 +132,8 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     shutil.copyfile(source/'diagnostics/EnumaDispatchCheckpoint.h', dxe/'Dispatcher/EnumaDispatchCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchDetailCheckpoint.h', dxe/'Dispatcher/EnumaDispatchDetailCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaImageEntryCheckpoint.h', dxe/'Dispatcher/EnumaImageEntryCheckpoint.h')
+    for name in ('EnumaStageCheckpoint.h', 'EnumaUnhandledExceptionCheckpoint.h'):
+        shutil.copyfile(source/'diagnostics'/name, exception/'AArch64'/name)
     report = {'scope': 'fixed inputs and writable staging, no firmware execution',
               'vendor_files_checked': len(vendor_lock), 'reference_gitlinks': dependencies,
               'probe_upstream_sha256': reused, 'core_ready_for_official_patch_series': True}

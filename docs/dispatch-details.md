@@ -43,3 +43,10 @@ Points 20/21/22 extend the existing stage13 detail selection. Dispatcher sets th
 The bridge delegates to the same Dispatcher ordinal/GUID filter; it does not create a per-translation-unit counter. Different handles from nested StartImage are ignored. CoreDispatcher already refuses reentrant dispatch. Null/cleared context does not match. No timer, reset, allocation, MMIO or persistent-memory implementation is replaced.
 
 A match at 20 supports readiness for the PE call only. A PE may run constructors inside its own entry stub. Point21 is absent if the image calls Exit instead of returning directly, while point22 may still run. None proves successful device initialization, GOP, or an exact fault cause. Use same-source complete GUID and 2/7/2 timing controls; retain all observations. Default detail13 and stage0/12 behavior remains.
+
+
+## Global unhandled exception point 23
+
+Point23 is independent of driver dispatch. It runs at the beginning of the fixed AArch64 DumpCpuContext path, before formatting or console operations, using the same real TimerLib and PSCI ResetCold. AArch64 library dependencies are declared explicitly. It is disabled unless stage13/detail23 are selected; dispatch/image gates never synthesize point23.
+
+This is global to the default unhandled-exception dump, not tied to a driver handle, GUID or ordinal. The device builder must reject a driver GUID or ordinal other than the placeholder1 in this mode. Registered exception handlers, secure-world failures, a stopped CPU before this hook, or failure of the timer/reset itself can bypass observation; negative evidence does not exclude all exceptions. Preserve 2/7 timing controls and separate this source/layout from the earlier PE-specific samples.
