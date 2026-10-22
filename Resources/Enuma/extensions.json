@@ -6,8 +6,9 @@
     "diagnostics/EnumaDispatchDetailCheckpoint.h": "ee4953700e8e308a947b7ae29e92b2f638006a23c9ed5ccc213a6173c4b00650",
     "patches/dxe-dispatch-details.patch": "e75e481422f456869d726368ebed6851423d1a30e4e62876b535aa54b55e27b5",
     "patches/dispatch-detail-options.patch": "f0e38b16a5a26730d5de057ead268f30d8f2675a6c66a900c693e1943e8878b3",
-    "Resources/Scripts/enuma_preflight.py": "3630d3e074c7784e956664059b7f6b88e58bee63fe514092ffd11d4c498a9391",
+    "Resources/Scripts/enuma_preflight.py": "842e756b90f43eff8b257469cd924a53ff561a768dda2a5c24f8b42902c0f219",
     "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af",
-    "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f"
+    "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f",
+    "patches/diagnostic-ufs-selection.patch": "b79be283dc09951a91aa6fc99ec26aea7187f9845080d28445bf6dd50db5a523"
   }
 }
