@@ -129,6 +129,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
         shutil.copyfile(source/'diagnostics/EnumaStageCheckpoint.h', target/'EnumaStageCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchCheckpoint.h', dxe/'Dispatcher/EnumaDispatchCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchDetailCheckpoint.h', dxe/'Dispatcher/EnumaDispatchDetailCheckpoint.h')
+    shutil.copyfile(source/'diagnostics/EnumaImageEntryCheckpoint.h', dxe/'Dispatcher/EnumaImageEntryCheckpoint.h')
     report = {'scope': 'fixed inputs and writable staging, no firmware execution',
               'vendor_files_checked': len(vendor_lock), 'reference_gitlinks': dependencies,
               'probe_upstream_sha256': reused, 'core_ready_for_official_patch_series': True}

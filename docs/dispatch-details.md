@@ -34,3 +34,12 @@ These gates reuse the original running counter, Mu TimerLib and PSCI reset.
 Stage 0 remains inactive; stage 12 retains its original load-before gate. No
 address marker, partition/NVRAM logging, protocol stub or memory-map change is
 introduced. Firmware success must still be established on hardware.
+
+
+## Direct PE entry bridge (2026-10-23)
+
+Points 20/21/22 extend the existing stage13 detail selection. Dispatcher sets the current scheduled image handle and original file GUID immediately around CoreStartImage and clears them after return. Image.c calls a DxeCore-local bridge before the actual Image->EntryPoint call (20), after a direct C return but before CoreExit (21), and after Exit/LongJump but before post-image TPL restoration/cleanup (22).
+
+The bridge delegates to the same Dispatcher ordinal/GUID filter; it does not create a per-translation-unit counter. Different handles from nested StartImage are ignored. CoreDispatcher already refuses reentrant dispatch. Null/cleared context does not match. No timer, reset, allocation, MMIO or persistent-memory implementation is replaced.
+
+A match at 20 supports readiness for the PE call only. A PE may run constructors inside its own entry stub. Point21 is absent if the image calls Exit instead of returning directly, while point22 may still run. None proves successful device initialization, GOP, or an exact fault cause. Use same-source complete GUID and 2/7/2 timing controls; retain all observations. Default detail13 and stage0/12 behavior remains.

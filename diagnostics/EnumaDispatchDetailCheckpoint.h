@@ -15,7 +15,7 @@
 #ifndef ENUMA_DIAG_GUID_HIGH64
 #define ENUMA_DIAG_GUID_HIGH64 0
 #endif
-#if ENUMA_DIAG_DETAIL_POINT < 13 || ENUMA_DIAG_DETAIL_POINT > 19
+#if ENUMA_DIAG_DETAIL_POINT < 13 || ENUMA_DIAG_DETAIL_POINT > 22
 #error Unsupported enuma dispatch detail point
 #endif
 #if ENUMA_DIAG_GUID_ENABLED != 0 && ENUMA_DIAG_GUID_ENABLED != 1
@@ -33,6 +33,7 @@ STATIC VOID EnumaDispatchDetailCheckpoint (
   SelectedPoint = Point;
   // 13: any StartImage return; 14: any LoadImage return; 15: before StartImage.
   // 16/17: failed/successful StartImage; 18/19: failed/successful LoadImage.
+  // 20: before the PE entry call; 21: direct PE return; 22: after Exit/LongJump.
   if (Point == 13 && ENUMA_DIAG_DETAIL_POINT == 16 && EFI_ERROR (Status)) {
     SelectedPoint = 16;
   }

@@ -1,29 +1,64 @@
 --- a/MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c
 +++ b/MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c
-@@ -33,6 +33,7 @@
- 
+@@ -33,6 +33,8 @@
+
  #include "DxeMain.h"
  #include "EnumaDispatchCheckpoint.h"
 +#include "EnumaDispatchDetailCheckpoint.h"
- 
++#include "EnumaImageEntryCheckpoint.h"
+
  //
  // The Driver List contains one copy of every driver that has been discovered.
-@@ -469,6 +470,7 @@
+@@ -463,6 +465,7 @@
                     0,
                     &DriverEntry->ImageHandle
                     );
 +        EnumaDispatchDetailCheckpoint (14, &DriverEntry->FileName, Status);
- 
+
          //
          // Update the driver state to reflect that it's been loaded
-@@ -519,8 +521,9 @@
+@@ -519,8 +522,13 @@
            );
          ASSERT (DriverEntry->ImageHandle != NULL);
- 
+
 +        EnumaDispatchDetailCheckpoint (15, &DriverEntry->FileName, EFI_SUCCESS);
++        EnumaStartingImage = DriverEntry->ImageHandle;
++        EnumaStartingFile  = &DriverEntry->FileName;
          Status = CoreStartImage (DriverEntry->ImageHandle, NULL, NULL);
 -        EnumaDispatchCheckpoint (13);
++        EnumaStartingImage = NULL;
++        EnumaStartingFile  = NULL;
 +        EnumaDispatchDetailCheckpoint (13, &DriverEntry->FileName, Status);
- 
+
          REPORT_STATUS_CODE_WITH_EXTENDED_DATA (
            EFI_PROGRESS_CODE,
+--- a/MdeModulePkg/Core/Dxe/Image/Image.c
++++ b/MdeModulePkg/Core/Dxe/Image/Image.c
+@@ -8,6 +8,9 @@
+
+ #include "DxeMain.h"
+ #include "Image.h"
++
++// DxeCore-local bridge; selection/ordinal/GUID live in Dispatcher.c only.
++VOID EnumaImageEntryCheckpoint (UINTN Point, EFI_HANDLE Handle, EFI_STATUS Status);
+ #include "MemoryProtectionSupport.h" // MU_CHANGE
+
+ //
+@@ -1742,13 +1745,17 @@
+     // Call the image's entry point
+     //
+     Image->Started = TRUE;
++    EnumaImageEntryCheckpoint (20, ImageHandle, EFI_SUCCESS);
+     Image->Status  = Image->EntryPoint (ImageHandle, Image->Info.SystemTable);
++    EnumaImageEntryCheckpoint (21, ImageHandle, Image->Status);
+
+     //
+     // If the image returns, exit it through Exit()
+     //
+     CoreExit (ImageHandle, Image->Status, 0, NULL);
+   }
++
++  EnumaImageEntryCheckpoint (22, ImageHandle, Image->Status);
+
+   //
+   // Image has completed.  Verify the tpl is the same
