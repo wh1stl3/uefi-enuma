@@ -1,0 +1,73 @@
+--- a/Silicon/Silicium/SiliciumPkg/Sec/Sec.c
++++ b/Silicon/Silicium/SiliciumPkg/Sec/Sec.c
+@@ -17,6 +17,7 @@
+ #include <Library/HobLib.h>
+
+ #include "Sec.h"
++#include "EnumaStageCheckpoint.h"
+
+ // First argument (x0) of the previous stage, saved by ModuleEntryPoint.S
+ extern UINT64  gSecEntryArg0;
+@@ -105,6 +106,7 @@
+
+   // Do Platform Specific Initialization
+   PlatformInitialize ();
++  EnumaStageCheckpoint (4);
+
+ #ifndef MDEPKG_NDEBUG
+   // Initialize Serial Port
+@@ -127,6 +129,8 @@
+     return;
+   }
+
++  EnumaStageCheckpoint (5);
++
+   // Build CPU HOB
+   BuildCpuHob (ArmGetPhysicalAddressBits (), PcdGet8 (PcdPrePiCpuIoSize));
+
+@@ -138,6 +142,8 @@
+   if (EFI_ERROR (Status)) {
+     return;
+   }
++
++  EnumaStageCheckpoint (6);
+
+   // Pass on what the previous stage handed over in x0 (a DT address for a
+   // Linux-style boot loader), so a DXE driver can use it.
+@@ -150,6 +156,8 @@
+   // Run Library Cconstructors
+   ProcessLibraryConstructorList ();
+
++  EnumaStageCheckpoint (7);
++
+   // Decompress all FVs
+   Status = DecompressFirstFv ();
+   if (EFI_ERROR (Status)) {
+@@ -157,6 +165,8 @@
+     return;
+   }
+
++  EnumaStageCheckpoint (8);
++
+   // Load DXE Core
+   Status = LoadDxeCoreFromFv (NULL, 0);
+   if (EFI_ERROR (Status)) {
+@@ -167,6 +177,8 @@
+ VOID
+ SecEntry (VOID)
+ {
++  EnumaStageCheckpoint (3);
++
+   // Disable Data Cache
+   ArmDisableDataCache ();
+
+--- a/Silicon/Silicium/SiliciumPkg/Sec/Sec.inf
++++ b/Silicon/Silicium/SiliciumPkg/Sec/Sec.inf
+@@ -45,6 +45,7 @@
+   SerialPortLib
+   PrintLib
+   TimerLib
++  ResetSystemLib
+   HobLib
+
+ [Ppis]

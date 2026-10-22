@@ -1,0 +1,14 @@
+--- a/Silicon/Qualcomm/KonaPkg/Library/PlatformSecLib/PlatformSec.c
++++ b/Silicon/Qualcomm/KonaPkg/Library/PlatformSecLib/PlatformSec.c
+@@ -32,9 +32,11 @@
+   // Disable WatchDog Timer
+   DisableWatchDogTimer ();
+
++#if !defined(ENUMA_PRESERVE_DISPLAY) || !ENUMA_PRESERVE_DISPLAY
+   // Set MDP SIDs
+   CONST UINT16 MdpStreams[] = { 0x820, 0x821, 0x822, 0xC20, 0xC21, 0xC22 };
+
+   // Detach IOMMU Domains
+   ArmSmmuDetach (MdpStreams, ARRAY_SIZE (MdpStreams));
++#endif
+ }

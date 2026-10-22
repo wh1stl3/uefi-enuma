@@ -9,3 +9,14 @@ BootShim.elf
 
 Mu-*.*
 *:Zone.Identifier
+
+# Private enuma inputs and generated artifacts
+/Binaries/
+/raw/
+/EnumaInputs/
+out/
+.cache/
+*.img
+*.fd
+*.efi
+*.local.json

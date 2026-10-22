@@ -1,0 +1,15 @@
+{
+  "archive_sha256": {
+    "uefi-source.tar.gz": "7118851d4e46f6f3336c82bcad4ee5820cb7a2079103e075c9961e3f1c3a3a27",
+    "mu-basecore.tar.gz": "fddef5a195e8b947579e35726830cfb72ae562a877f77854280d6d6ce3e9d826"
+  },
+  "archives": {
+    "uefi-source.tar.gz": "https://codeload.github.com/UniXNU/uefi-sheng/tar.gz/329b473df1e53a3bfa64b2b39b79670c4c02279b",
+    "mu-basecore.tar.gz": "https://codeload.github.com/microsoft/mu_basecore/tar.gz/cfb93724a06ff86ff5ba971413368a7809ee42a5"
+  },
+  "reference_gitlinks": {
+    "Mu_Basecore": "cfb93724a06ff86ff5ba971413368a7809ee42a5",
+    "Common/Mu": "b8d46c71610318e36a661819e1e3c0b8bdda413a",
+    "Common/Mu_OEM_Sample": "b70b4b7bb02c43bf9db2172dfb3ed0457e2361d6"
+  }
+}

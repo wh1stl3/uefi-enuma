@@ -1,40 +1,15 @@
-# Project Silicium UEFI for ARM64-Based Devices
+# uefi-enuma
 
-[![Documentation](https://img.shields.io/badge/docs-unixnu.com-2A5BD7?logo=readthedocs&logoColor=white)](https://unixnu.com)
+Mu-Silicium firmware source for Xiaomi Pad 5 Pro 5G (enuma / SM8250). Companion device repository: [UniXNU-enuma](https://github.com/wh1stl3/UniXNU-enuma).
 
-UniXNU device documentation: [unixnu.com](https://unixnu.com).
+Based on UniXNU/uefi-sheng `329b473df1e53a3bfa64b2b39b79670c4c02279b`. Existing enuma platform files, six patches and diagnostic headers are imported from device commit `1ab7ee8`, with file hashes in `Resources/Enuma/migration.json`. The upstream root license is preserved; device additions retain `LICENSE.enuma` and their SPDX notices.
 
-<!-- ![Banner](https://github.com/Project-Silicium/Mu-Silicium/blob/main/Resources/Pictures/Banner.png) -->
+This repository owns `Platforms/Xiaomi/enumaPkg`, `Resources/Configs/enuma.toml`, `diagnostics/`, `patches/` and the enuma preflight. Mu submodules remain pinned. No enuma OEM binaries, raw XBL, XML/config originals, device backups or serial numbers are published. The foreign Device-Binaries/ACPI/OpenSSL gitlinks are removed from the enuma dependency graph.
 
-## Description
+Build through the companion device repository's `board.toml [firmware]` and `scripts/build_enuma_firmware.py`. It stages sources under the device's ignored `out/`, runs the official UniXNU firmware backend and invokes this repository's preflight. Mu core patches are applied and reverted by that backend. The preflight verifies local vendor hashes before staging private inputs.
 
-This Project focuses on Making ARM-Based Devices Boot Operating Systems like Windows or Linux using Custom UEFI Firmware.
+The wrapper accepts `--unixnu`, `--reference` (a checkout containing the pinned Mu submodules; defaults to the firmware source) and diagnostic `--stop-stage`, `--stop-delay`, `--dispatch-ordinal`. Private vendor inputs must already be extracted into the device repository's `out/firmware-vendor`.
 
-## Resources
+The device remains `example=true`: the official top-level build guard still rejects an incomplete full-device build. The explicitly scoped wrapper builds firmware only; it does not prelink XNU, boot a device, change memory values or set verification flags. Android boot v3 packaging remains in the device repository; generic gzip/v0 packaging must not replace it.
 
-- [Status](Status.md)
-- [Building](Building.md)
-- [Guides](https://github.com/Project-Silicium/Guides/blob/main/README.md)
-- [Discord Server](https://discord.gg/Dx2QgMx7Sv)
-
-## Frequently asked Questions
-
-### **Is my Device Supported in this Project?**
-- To Check if your Device is Supported, Take a Look at the Status Page Referenced in the Section Above.
-
-### **What do I do if my Device isn't Supported in this Project?**
-- We made some Guides that Explain How to Port your Device that are Referenced in the Section Above.
-
-## Credits
-
-[Microsoft](https://github.com/microsoft/) for their [Project Mu](https://microsoft.github.io/mu/) which Powers this Project. <br>
-[WOA-Project](https://github.com/WOA-Project/) for their [mu_andromeda_platforms](https://github.com/WOA-Project/mu_andromeda_platforms/) which is used as Base for this Project. <br>
-[Project Aloha](https://github.com/Project-Aloha/) for their [mu_aloha_platforms](https://github.com/Project-Aloha/mu_aloha_platforms/) which is used as Reference for some SoCs. <br>
-[Open Surface RT](https://openrt.gitbook.io/open-surfacert/) for their Help on Tegra Related Stuff.
-
-[sonic011gamer](https://github.com/sonic011gamer/) and [halal-beef](https://github.com/halal-beef/) for their Amazing Work on Exynos Related Stuff.
-
-## License
-
-All code except drivers in `GPLDrivers` & `GPLApplications` & `GPLLibrary` directories are licensed under BSD-2-Clause. <br />
-GPL Drivers are licensed under `GPLv2` or later license.
+Status, recovery rules and evidence: [device STATUS](https://github.com/wh1stl3/UniXNU-enuma/blob/main/docs/STATUS.md). Current physical evidence reaches the first scheduled queue entry before loading; GOP and dispatch completion are unproven. Imported `docs/enuma-overlay.md` is historical prototype documentation, not the current status.

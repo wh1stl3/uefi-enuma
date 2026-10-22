@@ -1,0 +1,13 @@
+{
+  "diagnostic_baseline_sha256": {
+    "Silicon/Silicium/SiliciumPkg/Sec/Sec.c": "09f5374d1da2f8fad4897ec0554a9d70045b9253d723b63b3192662743bd75db",
+    "Silicon/Silicium/SiliciumPkg/Sec/Sec.inf": "0d4a9f6a1896cdd65491db3effa5c638b3a8a171be1d192651835738767ed392",
+    "MdeModulePkg/Core/Dxe/DxeMain/DxeMain.c": "3679d1a6fbf77411b6aec6d93ca33f92745a6c0e61c7ddd6192c3e42671332f9",
+    "MdeModulePkg/Core/Dxe/DxeMain.inf": "4fcda58b87e1030bcdcdddbcbf12eac2275e0b48fb5a2bc9896cdc763c1db69d"
+  },
+  "mu_reset_sha256": {
+    "MdePkg/Include/IndustryStandard/ArmStdSmc.h": "a08ca729644fc238757ef5b4fe4c8c8ad483c1d7df986dd42f537cdbd34745d8",
+    "ArmPkg/Library/ArmPsciResetSystemLib/ArmPsciResetSystemLib.c": "32dd3f12e4606489df2bd967670bd191057493c67073a83f159e14828a08b9f6",
+    "ArmPkg/Library/ArmMonitorLib/AArch64/ArmMonitorLib.S": "31bc773bbaf8a43d36a8dac371a50639a14f8afb01f61db12165fd3e7bff0eb7"
+  }
+}

@@ -1,0 +1,14 @@
+[Defines]
+  INF_VERSION = 0x00010005
+  BASE_NAME = EnumaConfigurationMapLib
+  FILE_GUID = 07299917-d5d4-43bc-b9c8-b85a93c5b250
+  MODULE_TYPE = BASE
+  VERSION_STRING = 1.0
+  LIBRARY_CLASS = ConfigurationMapLib
+
+[Sources]
+  ConfigurationMapLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  QcomPkg/QcomPkg.dec

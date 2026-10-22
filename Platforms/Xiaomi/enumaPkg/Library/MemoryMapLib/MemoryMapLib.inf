@@ -1,0 +1,15 @@
+[Defines]
+  INF_VERSION = 0x00010005
+  BASE_NAME = EnumaMemoryMapLib
+  FILE_GUID = 895c7dc3-d160-45e1-a5bd-91a4c8900088
+  MODULE_TYPE = BASE
+  VERSION_STRING = 1.0
+  LIBRARY_CLASS = MemoryMapLib
+
+[Sources]
+  MemoryMapLib.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  SiliciumPkg/SiliciumPkg.dec

@@ -1,0 +1,38 @@
+--- a/MdeModulePkg/Core/Dxe/DxeMain/DxeMain.c
++++ b/MdeModulePkg/Core/Dxe/DxeMain/DxeMain.c
+@@ -7,6 +7,7 @@
+ **/
+
+ #include "DxeMain.h"
++#include "EnumaStageCheckpoint.h"
+
+ //
+ // DXE Core Global Variables for Protocols from PEI
+@@ -246,6 +247,8 @@
+   EFI_VECTOR_HANDOFF_INFO       *VectorInfo;
+   VOID                          *EntryPoint;
+
++  EnumaStageCheckpoint (9);
++
+   //
+   // Setup the default exception handlers
+   //
+@@ -547,6 +550,7 @@
+   //
+   // Invoke the DXE Dispatcher
+   //
++  EnumaStageCheckpoint (10);
+   CoreDispatcher ();
+
+   //
+--- a/MdeModulePkg/Core/Dxe/DxeMain.inf
++++ b/MdeModulePkg/Core/Dxe/DxeMain.inf
+@@ -76,6 +76,8 @@
+   MdeModulePkg/MdeModulePkg.dec
+
+ [LibraryClasses]
++  ResetSystemLib
++  TimerLib
+   BaseMemoryLib
+   CacheMaintenanceLib
+   UefiDecompressLib

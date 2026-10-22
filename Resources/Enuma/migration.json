@@ -1,0 +1,107 @@
+{
+  "device_repository": "https://github.com/wh1stl3/UniXNU-enuma.git",
+  "device_commit": "1ab7ee8",
+  "upstream_commit": "329b473df1e53a3bfa64b2b39b79670c4c02279b",
+  "files": {
+    "LICENSE": {
+      "destination": "LICENSE.enuma",
+      "sha256": "2c5a25036e382b259a871cffdcb52bf571f5b0f7b27bf061dc12effa6ed460c0"
+    },
+    "README.md": {
+      "destination": "docs/enuma-overlay.md",
+      "sha256": "251ac414a319ffb44d1717ab29e5138afc2c14b73f841b571547ee8ea66fdaa7"
+    },
+    "THIRD-PARTY.md": {
+      "destination": "THIRD-PARTY.md",
+      "sha256": "281c9bfda789b6251021fc1e76039a6677f2178ab121aefeef8a7bd898833126"
+    },
+    "diagnostics/EnumaDispatchCheckpoint.h": {
+      "destination": "diagnostics/EnumaDispatchCheckpoint.h",
+      "sha256": "123a723027de167c8fa5d2ce8de2d5716c663b0518f16139a6e8b6fdf683836d"
+    },
+    "diagnostics/EnumaStageCheckpoint.h": {
+      "destination": "diagnostics/EnumaStageCheckpoint.h",
+      "sha256": "8c5dc48ce920167a1e36400d0ce1298f0bc39ae1c11e876ceb21a93f521fbf39"
+    },
+    "patches/dxe-dispatch-return.patch": {
+      "destination": "patches/dxe-dispatch-return.patch",
+      "sha256": "c82bf3f7ca763d98b0435909ba77d2a16c670fd934c71a26ae160d3510525c70"
+    },
+    "patches/dxe-driver-checkpoints.patch": {
+      "destination": "patches/dxe-driver-checkpoints.patch",
+      "sha256": "bc64616f6c3f0f7269c942078ab0bd5366674058df7c1af4384d51f6ba7f41fa"
+    },
+    "patches/dxe-stage-checkpoints.patch": {
+      "destination": "patches/dxe-stage-checkpoints.patch",
+      "sha256": "41b0e6c4c33d9f74d112e8fb65681dec0d9a74fbd34dec54dd0b83c876fcae3e"
+    },
+    "patches/kona-preserve-display.patch": {
+      "destination": "patches/kona-preserve-display.patch",
+      "sha256": "5a13ce912afc79e998f71a7065ced7b3a9786bbb4e78f0301fefc2081975e524"
+    },
+    "patches/sec-preserve-display.patch": {
+      "destination": "patches/sec-preserve-display.patch",
+      "sha256": "eb91098bf2cd2fae24be4d8460e11b46f4c24587560061512c6542818369dfeb"
+    },
+    "patches/sec-stage-checkpoints.patch": {
+      "destination": "patches/sec-stage-checkpoints.patch",
+      "sha256": "8e7fae5710a9d57cb5dbfdda672c92d74d44f69ba380e02abbdc2868786f69a7"
+    },
+    "Resources/Configs/enuma.toml": {
+      "destination": "Resources/Configs/enuma.toml",
+      "sha256": "2d7e9bc772eda9269dd6bbd6f5e3a3d07ddada8f3a02cde6808b51c10ae1e497"
+    },
+    "Platforms/Xiaomi/enumaPkg/enuma.dsc": {
+      "destination": "Platforms/Xiaomi/enumaPkg/enuma.dsc",
+      "sha256": "1b5168906d4d93a8580921591c6ad2f3799b410f2de1f2f0c5b56de091b4ced8"
+    },
+    "Platforms/Xiaomi/enumaPkg/enuma.fdf": {
+      "destination": "Platforms/Xiaomi/enumaPkg/enuma.fdf",
+      "sha256": "c3e0377449f7833a57d098b2d8da0bb1f585470828674e5e062724a98dbca8f7"
+    },
+    "Platforms/Xiaomi/enumaPkg/Include/APRIORI.inc": {
+      "destination": "Platforms/Xiaomi/enumaPkg/Include/APRIORI.inc",
+      "sha256": "d20b2329812681e76a5b9ff530c34c6dc05c81216a15ef5dd39a5873e36ebce4"
+    },
+    "Platforms/Xiaomi/enumaPkg/Include/DXE.inc": {
+      "destination": "Platforms/Xiaomi/enumaPkg/Include/DXE.inc",
+      "sha256": "af06280fa95beb6702b138fc2cd64753284685947a2dee800b1a3c7d8bed0afe"
+    },
+    "Platforms/Xiaomi/enumaPkg/Include/PlatformConfig.inc": {
+      "destination": "Platforms/Xiaomi/enumaPkg/Include/PlatformConfig.inc",
+      "sha256": "4cc4845fd092d2c24a702fcc5592d3ad867a92a9e8a4b51bf95aa2152220efbd"
+    },
+    "Platforms/Xiaomi/enumaPkg/Include/UniXNU.dsc.inc": {
+      "destination": "Platforms/Xiaomi/enumaPkg/Include/UniXNU.dsc.inc",
+      "sha256": "58fa405a615b4638e308c8e4a97d545088b320504a8b840900dbda411aa9a824"
+    },
+    "Platforms/Xiaomi/enumaPkg/Include/UniXNU.fdf.inc": {
+      "destination": "Platforms/Xiaomi/enumaPkg/Include/UniXNU.fdf.inc",
+      "sha256": "cdbd8813fb5dbb1372e211f889ac9b7a512ede75f2a3cb3626be60087ddaf2ee"
+    },
+    "Platforms/Xiaomi/enumaPkg/Library/ConfigurationMapLib/ConfigurationMapLib.c": {
+      "destination": "Platforms/Xiaomi/enumaPkg/Library/ConfigurationMapLib/ConfigurationMapLib.c",
+      "sha256": "59c112ce58bb1469ff7ab5f24f34e3bdc47bb8728469c711b26b678c0dfcd17e"
+    },
+    "Platforms/Xiaomi/enumaPkg/Library/ConfigurationMapLib/ConfigurationMapLib.inf": {
+      "destination": "Platforms/Xiaomi/enumaPkg/Library/ConfigurationMapLib/ConfigurationMapLib.inf",
+      "sha256": "df54486d9fadee158dbbd3048370ebebdd8900202daeb47ccd8199951e6d7004"
+    },
+    "Platforms/Xiaomi/enumaPkg/Library/MemoryMapLib/MemoryMapLib.c": {
+      "destination": "Platforms/Xiaomi/enumaPkg/Library/MemoryMapLib/MemoryMapLib.c",
+      "sha256": "d6ba2fd379001a7a5a1764d19a4cd2cb95818312692566087f12f2a7969958d3"
+    },
+    "Platforms/Xiaomi/enumaPkg/Library/MemoryMapLib/MemoryMapLib.inf": {
+      "destination": "Platforms/Xiaomi/enumaPkg/Library/MemoryMapLib/MemoryMapLib.inf",
+      "sha256": "19e9594c2eb18c511d942aa9121beed12f060d1c6c52070ff63c893c2266b4a4"
+    },
+    "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.c": {
+      "destination": "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.c",
+      "sha256": "91577520b587083572a491b2501b54af6eebc855140b091030fe472030306da4"
+    },
+    "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.inf": {
+      "destination": "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.inf",
+      "sha256": "2e53e16f0bfcc33aef41bdef535ec2ebfc7503b431eaf51ce460ec14b76e900e"
+    }
+  }
+}

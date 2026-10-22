@@ -1,0 +1,28 @@
+--- a/Silicon/Silicium/SiliciumPkg/Sec/Sec.c
++++ b/Silicon/Silicium/SiliciumPkg/Sec/Sec.c
+@@ -22,6 +22,8 @@
+ extern UINT64  gSecEntryArg0;
+
+ #ifndef MDEPKG_NDEBUG
++
++#if !defined(ENUMA_PRESERVE_DISPLAY) || !ENUMA_PRESERVE_DISPLAY
+ STATIC
+ VOID
+ ClearFrameBuffer (VOID)
+@@ -38,12 +40,16 @@
+   }
+ }
+
++#endif
++
+ STATIC
+ VOID
+ PrintFirmwareVersion (VOID)
+ {
+   // Clear Frame Buffer
++#if !defined(ENUMA_PRESERVE_DISPLAY) || !ENUMA_PRESERVE_DISPLAY
+   ClearFrameBuffer ();
++#endif
+
+   // Print UEFI Version Message
+   DEBUG ((EFI_D_WARN, "\n"));

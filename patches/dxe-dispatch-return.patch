@@ -1,0 +1,10 @@
+--- a/MdeModulePkg/Core/Dxe/DxeMain/DxeMain.c
++++ b/MdeModulePkg/Core/Dxe/DxeMain/DxeMain.c
+@@ -552,6 +552,7 @@
+   //
+   EnumaStageCheckpoint (10);
+   CoreDispatcher ();
++  EnumaStageCheckpoint (11);
+ 
+   //
+   // Display Architectural protocols that were not loaded if this is DEBUG build

@@ -1,0 +1,26 @@
+--- a/MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c
++++ b/MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c
+@@ -32,6 +32,7 @@
+ **/
+ 
+ #include "DxeMain.h"
++#include "EnumaDispatchCheckpoint.h"
+ 
+ //
+ // The Driver List contains one copy of every driver that has been discovered.
+@@ -451,6 +452,7 @@
+                       EFI_CORE_DRIVER_ENTRY_SIGNATURE
+                       );
+ 
++      EnumaDispatchCheckpoint (12);
+       //
+       // Load the DXE Driver image into memory. If the Driver was transitioned from
+       // Untrused to Scheduled it would have already been loaded so we may need to
+@@ -518,6 +520,7 @@
+         ASSERT (DriverEntry->ImageHandle != NULL);
+ 
+         Status = CoreStartImage (DriverEntry->ImageHandle, NULL, NULL);
++        EnumaDispatchCheckpoint (13);
+ 
+         REPORT_STATUS_CODE_WITH_EXTENDED_DATA (
+           EFI_PROGRESS_CODE,
