@@ -9,5 +9,10 @@
     "MdePkg/Include/IndustryStandard/ArmStdSmc.h": "a08ca729644fc238757ef5b4fe4c8c8ad483c1d7df986dd42f537cdbd34745d8",
     "ArmPkg/Library/ArmPsciResetSystemLib/ArmPsciResetSystemLib.c": "32dd3f12e4606489df2bd967670bd191057493c67073a83f159e14828a08b9f6",
     "ArmPkg/Library/ArmMonitorLib/AArch64/ArmMonitorLib.S": "31bc773bbaf8a43d36a8dac371a50639a14f8afb01f61db12165fd3e7bff0eb7"
+  },
+  "diagnostic_baseline_lf_sha256": {
+    "MdeModulePkg/Core/Dxe/DxeMain/DxeMain.c": "baa2b6c6c201afaa06d044ea1f15f26c48f2133821d347a0d42f54e4aed231ba",
+    "MdeModulePkg/Core/Dxe/DxeMain.inf": "bf4428e658be43bc5b54000897b28d87ea1314f57721d3b02a5152d681a832da",
+    "MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c": "24f50beeab071c52acbcbdabf8b282a2edcd7963a8744bb586950f607cc0b9bf"
   }
 }

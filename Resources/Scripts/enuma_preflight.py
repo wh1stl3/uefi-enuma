@@ -108,7 +108,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     for relative, wanted in reset['mu_reset_sha256'].items():
         if digest(core / relative) != wanted:
             raise ValueError('Reset implementation changed: ' + relative)
-    for relative, wanted in reset['diagnostic_baseline_sha256'].items():
+    for relative, wanted in reset['diagnostic_baseline_lf_sha256'].items():
         if relative.startswith('MdeModulePkg/'):
             if digest(core / relative) != wanted:
                 raise ValueError('Mu diagnostic baseline changed: ' + relative)
