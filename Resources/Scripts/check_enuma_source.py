@@ -9,6 +9,9 @@ lock = json.loads((ROOT / 'Resources/Enuma/migration.json').read_text())
 for item in lock['files'].values():
     path = ROOT / item['destination']
     assert hashlib.sha256(path.read_bytes()).hexdigest() == item['sha256'], item['destination']
+extensions = json.loads((ROOT / 'Resources/Enuma/extensions.json').read_text())['files']
+for name, wanted in extensions.items():
+    assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == wanted, name
 for path in (ROOT / 'Resources/Scripts').glob('*enuma*.py'):
     ast.parse(path.read_text(), filename=str(path))
 expected = json.loads((ROOT / 'Resources/Enuma/dependencies.json').read_text())['reference_gitlinks']

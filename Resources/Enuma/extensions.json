@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "baseline_uefi_commit": "3376c4411e08442f45f4120ed6d96f2e302c51e8",
+  "original_migration_files_unchanged": true,
+  "files": {
+    "diagnostics/EnumaDispatchDetailCheckpoint.h": "ee4953700e8e308a947b7ae29e92b2f638006a23c9ed5ccc213a6173c4b00650",
+    "patches/dxe-dispatch-details.patch": "e75e481422f456869d726368ebed6851423d1a30e4e62876b535aa54b55e27b5",
+    "patches/dispatch-detail-options.patch": "f0e38b16a5a26730d5de057ead268f30d8f2675a6c66a900c693e1943e8878b3",
+    "Resources/Scripts/enuma_preflight.py": "39cc3025dbc00e7204798a27acd009f69095012982d633f9d2936a93242da4a9",
+    "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af"
+  }
+}

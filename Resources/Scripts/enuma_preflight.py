@@ -44,6 +44,10 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     for item in migration['files'].values():
         if digest(source / item['destination']) != item['sha256']:
             raise ValueError('Migrated firmware input changed: ' + item['destination'])
+    extensions = json.loads((meta / 'extensions.json').read_text())['files']
+    for relative, wanted in extensions.items():
+        if digest(source / relative) != wanted:
+            raise ValueError('Firmware extension changed: ' + relative)
     vendor_lock = json.loads((meta / 'vendor.json').read_text())['files']
     for relative, wanted in vendor_lock.items():
         if digest(vendor / relative) != wanted:
@@ -67,6 +71,11 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     for item in migration['files'].values():
         relative = item['destination']
         if relative.startswith(('Platforms/', 'Resources/Configs/', 'patches/', 'diagnostics/')):
+            target = uefi / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source / relative, target)
+    for relative in extensions:
+        if relative.startswith(('patches/', 'diagnostics/')):
             target = uefi / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source / relative, target)
@@ -102,7 +111,8 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     # backend applies this series and reverts it in finally on every build.
     core_patches = [(core, uefi / name) for name in (
         'patches/dxe-stage-checkpoints.patch', 'patches/dxe-dispatch-return.patch',
-        'patches/dxe-driver-checkpoints.patch', 'Resources/MuPatches/Gic-Spurious.patch')]
+        'patches/dxe-driver-checkpoints.patch', 'patches/dxe-dispatch-details.patch',
+        'Resources/MuPatches/Gic-Spurious.patch')]
     reverse_patches(core_patches)
     reset = json.loads((meta / 'reset.json').read_text())
     for relative, wanted in reset['mu_reset_sha256'].items():
@@ -113,10 +123,12 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
             if digest(core / relative) != wanted:
                 raise ValueError('Mu diagnostic baseline changed: ' + relative)
     apply_patch_series([(uefi, source/'patches'/name) for name in (
-        'kona-preserve-display.patch', 'sec-preserve-display.patch', 'sec-stage-checkpoints.patch')])
+        'kona-preserve-display.patch', 'sec-preserve-display.patch', 'sec-stage-checkpoints.patch',
+        'dispatch-detail-options.patch')])
     for target in (sec, dxe/'DxeMain', dxe/'Dispatcher'):
         shutil.copyfile(source/'diagnostics/EnumaStageCheckpoint.h', target/'EnumaStageCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchCheckpoint.h', dxe/'Dispatcher/EnumaDispatchCheckpoint.h')
+    shutil.copyfile(source/'diagnostics/EnumaDispatchDetailCheckpoint.h', dxe/'Dispatcher/EnumaDispatchDetailCheckpoint.h')
     report = {'scope': 'fixed inputs and writable staging, no firmware execution',
               'vendor_files_checked': len(vendor_lock), 'reference_gitlinks': dependencies,
               'probe_upstream_sha256': reused, 'core_ready_for_official_patch_series': True}

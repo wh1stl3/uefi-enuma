@@ -1,0 +1,29 @@
+--- a/MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c
++++ b/MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c
+@@ -33,6 +33,7 @@
+ 
+ #include "DxeMain.h"
+ #include "EnumaDispatchCheckpoint.h"
++#include "EnumaDispatchDetailCheckpoint.h"
+ 
+ //
+ // The Driver List contains one copy of every driver that has been discovered.
+@@ -469,6 +470,7 @@
+                    0,
+                    &DriverEntry->ImageHandle
+                    );
++        EnumaDispatchDetailCheckpoint (14, &DriverEntry->FileName, Status);
+ 
+         //
+         // Update the driver state to reflect that it's been loaded
+@@ -519,8 +521,9 @@
+           );
+         ASSERT (DriverEntry->ImageHandle != NULL);
+ 
++        EnumaDispatchDetailCheckpoint (15, &DriverEntry->FileName, EFI_SUCCESS);
+         Status = CoreStartImage (DriverEntry->ImageHandle, NULL, NULL);
+-        EnumaDispatchCheckpoint (13);
++        EnumaDispatchDetailCheckpoint (13, &DriverEntry->FileName, Status);
+ 
+         REPORT_STATUS_CODE_WITH_EXTENDED_DATA (
+           EFI_PROGRESS_CODE,
