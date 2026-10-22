@@ -1,0 +1,12 @@
+--- a/Platforms/Xiaomi/enumaPkg/Include/APRIORI.inc
++++ b/Platforms/Xiaomi/enumaPkg/Include/APRIORI.inc
+@@ -6,6 +6,9 @@
+   INF MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
+   INF ArmPkg/Drivers/CpuDxe/CpuDxe.inf
+   INF ArmPkg/Drivers/ArmGicDxe/ArmGicDxe.inf
++  # OEM APRIORI provides Metronome before Timer and its hardware drivers.
++  # CoreStall returns EFI_NOT_AVAILABLE_YET until this real Mu service exists.
++  INF EmbeddedPkg/MetronomeDxe/MetronomeDxe.inf
+   INF ArmPkg/Drivers/TimerDxe/TimerDxe.inf
+   # Must list qualified enuma vendor protocols and their dependency order.
+ !ifndef ENUMA_VENDOR_APRIORI

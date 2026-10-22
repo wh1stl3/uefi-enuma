@@ -124,7 +124,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
                 raise ValueError('Mu diagnostic baseline changed: ' + relative)
     apply_patch_series([(uefi, source/'patches'/name) for name in (
         'kona-preserve-display.patch', 'sec-preserve-display.patch', 'sec-stage-checkpoints.patch',
-        'dispatch-detail-options.patch')])
+        'dispatch-detail-options.patch', 'apriori-metronome.patch')])
     for target in (sec, dxe/'DxeMain', dxe/'Dispatcher'):
         shutil.copyfile(source/'diagnostics/EnumaStageCheckpoint.h', target/'EnumaStageCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchCheckpoint.h', dxe/'Dispatcher/EnumaDispatchCheckpoint.h')
