@@ -2,6 +2,8 @@
 
 2026-10-24 authorization update: the user explicitly stated “批准R005” and confirmed onsite recovery with camera use. The companion approval ledger records this authorization and binds only the fully qualified final image. This document describes the implementation; current exact digests, matched-control results, runtime evidence and recovery state remain in the companion STATUS/HANDOFF/NEED-REVIEW. The qualified runtime source is c73eb6e; subsequent documentation-only commits are not different runtime candidates.
 
+Execution update: the single approved preview returned with user-confirmed no buttons, Android completion/root/original hashes passing. Reviewed video did not confirm a white bar; bright points were identified by the user as keyboard reflections. The companion ledger is consumed, so the image must not be replayed under that authorization. Short return alone does not establish successful stores/restoration or a visible active scanout. See companion reports/enuma-r005-device.json for exact image/video digests and timings.
+
 Step12 has a user-confirmed no-button controlled Android return. Its timing supports one bounded descriptor hypothesis; it does not prove activity, uniqueness, physical/IOVA identity or channel order. R-004 explicitly excluded pixel writes. This implementation is prepared offline for a separate, exact-image R-005 review.
 
 The proposed step13 needs both its step number and the explicit --diagnostic-pixel-preview build flag with query1 and the existing GUID/delay2/fallback profile. Defaults and steps0..12 do not write pixels. Packaging must tag the image hardware_review=R-005; the companion runner rejects pending/missing approval or a non-matching image before calling any device tool.
