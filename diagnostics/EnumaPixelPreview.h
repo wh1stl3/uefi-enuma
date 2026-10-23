@@ -52,6 +52,7 @@ STATIC inline EFI_STATUS EnumaPixelPreview (
   if (!EnumaPixelDescriptorBounded (&Before)) { return EFI_UNSUPPORTED; }
   N = 0;
   for (Row = 0; Row < ENUMA_PIXEL_HEIGHT; Row++) {
+    Sync ((UINTN)(Before.Start + Row * (UINT64)Before.Pitch), ENUMA_PIXEL_WIDTH * sizeof (UINT32));
     for (Column = 0; Column < ENUMA_PIXEL_WIDTH; Column++) {
       Scratch[N++] = Read ((UINTN)(Before.Start + Row * (UINT64)Before.Pitch + Column * 4));
     }

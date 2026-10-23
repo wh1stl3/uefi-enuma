@@ -27,7 +27,7 @@
     "patches/display-mdp-map.patch": "5aa0f4e584349354000c50a181fb7a0aa31c43b1f4128a72bc35469e90fd14b4",
     "patches/sec-fixed-epoch-banner.patch": "37bbf193ffd4d2cd38a8a782a7fc584becde14bdfe649cc338f13f0f36f08d2f",
     "diagnostics/EnumaScanoutDescriptor.h": "add6ce58d96b7a37d2dd04b48dfff1f266e0af7862c552e5d8990a93839b7314",
-    "diagnostics/EnumaPixelPreview.h": "ef5f4eebaa90c10ae194448fc064b0f044fc7106de861e65241e919978d321f8",
+    "diagnostics/EnumaPixelPreview.h": "a8448cface6bdc236ec33090e3097e06051930a91e104d686a941086b3928035",
     "diagnostics/EnumaPixelPreviewArm.h": "b2ce10ba9a9296d14b31375c9c3eff451cc22cc3fbeadf577570313c684401ca"
   }
 }
