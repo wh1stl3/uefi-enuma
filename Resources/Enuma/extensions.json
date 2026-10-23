@@ -19,11 +19,11 @@
     "patches/simplefb-diagnostic-selection.patch": "a4dc584cf7e50833d095d8a6e0b4b5951fc88d74b771144f4383aa38002fe364",
     "diagnostics/EnumaDispatchCompletionCheckpoint.h": "863facc343dac1aa1b2a2b00a91a729f2014f5ef5c45ee5f1d919b5e4bf59b00",
     "diagnostics/EnumaGopAudit.h": "e6db3b2794b9dc49a5c98790ef2cfcf900af1126b3c2f20ebb30297c5eba46e5",
-    "patches/simplefb-gop-query.patch": "086566ef497d214fbb6abf72366268396d162192ed443b4b71a74c12cdf892db",
+    "patches/simplefb-gop-query.patch": "b6071ec000c41cd755e7fa2b8536ad4798abaa0fec1ce708df3b13864cc92250",
     "diagnostics/EnumaGopResult.h": "15439f96c32387cccd57c8f40d5a703600af6478c616eebe896b6a5fb536d184",
-    "Resources/Scripts/build_enuma_firmware.py": "8d3421d4994088aa541d79404dec133a72a108c7814dd76ffdb8a4eddff1e8ba",
+    "Resources/Scripts/build_enuma_firmware.py": "ef05705a3a4295799da9c8903a36eab1bded51efcadc7284e2bb65a0f7f5f151",
     "Resources/Scripts/enuma_firmware_preflight.py": "eb9af118480cf90166854337ed76cf850485b6e2f890e592ed7a339fbc39521a",
-    "diagnostics/EnumaScanoutAudit.h": "96f13baf393b6782a58d4ee5cc31fbfd6e7128a1efa995fac5c2a226aa439ab8",
+    "diagnostics/EnumaScanoutAudit.h": "cdf6ef74f6309c069fb4ac73f83e5393726f59274cec7021e95fbe3c5b4e7b90",
     "patches/display-mdp-map.patch": "5aa0f4e584349354000c50a181fb7a0aa31c43b1f4128a72bc35469e90fd14b4"
   }
 }

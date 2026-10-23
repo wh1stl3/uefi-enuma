@@ -88,7 +88,7 @@ def main(device_root=None):
     selection.add_argument('--diagnostic-simplefb',action='store_true',help='metadata-only SimpleFb; omit exact CPR/Display/UFS set, no pixel drawing')
     selection.add_argument('--diagnostic-without-ufs',action='store_true',help='GOP isolation only; default firmware retains OEM UFSDxe')
     parser.add_argument('--diagnostic-gop-query', type=int, choices=(0,1,2), default=0, help='1: reset on read-only GOP audit pass; 2: reset on failure; 0: disabled')
-    parser.add_argument('--diagnostic-gop-step', type=int, choices=range(10), default=0, help='0: control; 1: enumerate/free; 2: HandleProtocol; 3: full Mode/span; 4: QueryMode; 5: Mode pointer presence; 6: Mode header; 7: Info fields; 8: read-only MDP descriptor predicate; 9: splash source address presence')
+    parser.add_argument('--diagnostic-gop-step', type=int, choices=range(11), default=0, help='0: control; 1: enumerate/free; 2: HandleProtocol; 3: full Mode/span; 4: QueryMode; 5: Mode pointer presence; 6: Mode header; 7: Info fields; 8: read-only MDP descriptor predicate; 9: splash source address presence; 10: candidate linear packing')
     args = parser.parse_args()
     ROOT = args.device_root.resolve()
     WORK = ROOT / 'out/firmware-build'
