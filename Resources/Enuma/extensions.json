@@ -3,14 +3,14 @@
   "baseline_uefi_commit": "3376c4411e08442f45f4120ed6d96f2e302c51e8",
   "original_migration_files_unchanged": true,
   "files": {
-    "diagnostics/EnumaDispatchDetailCheckpoint.h": "428a5d094d4064cbf6085ac55d9c828313da1e63169150b15d3139e3ccb26b7e",
-    "patches/dxe-dispatch-details.patch": "a558c26136195ff47bd9d06af5e2912388e4c58f7f602e2bed6adaa199188026",
+    "diagnostics/EnumaDispatchDetailCheckpoint.h": "7d88cb33d77f5d00343dc3e58fd1421cb23f13b2d606ecacaa67cd7917a2a355",
+    "patches/dxe-dispatch-details.patch": "5fd086e94002b02364ae6f45cf2a88210528b1c6ea0ae71bbdfa7bd3fe084926",
     "patches/dispatch-detail-options.patch": "f0e38b16a5a26730d5de057ead268f30d8f2675a6c66a900c693e1943e8878b3",
     "Resources/Scripts/enuma_preflight.py": "2eaaf3a3652f796a6e0c3d2bf35547b86590957adfbaece0555d18d99005da4f",
     "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af",
     "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f",
     "patches/diagnostic-ufs-selection.patch": "b79be283dc09951a91aa6fc99ec26aea7187f9845080d28445bf6dd50db5a523",
-    "diagnostics/EnumaImageEntryCheckpoint.h": "0a44e20d2f9592fb8dfb9becb225e7038ec0cfb98eb9170843db209ab2f015e1",
+    "diagnostics/EnumaImageEntryCheckpoint.h": "ddbdf7f1dd8ddae5fff68ecf1236ee5576c9f0297942763f94ac5ba08842a96a",
     "Resources/Enuma/reset.json": "511c4946e2eefa4fd2b2bc0cfedfd4bcd34e5bde30c4010d7ee2ab683e29d52c",
     "diagnostics/EnumaUnhandledExceptionCheckpoint.h": "e43adea43888932a3e690b2cc5c6481ecc4bb3359b9989213a8129b623cde6d6"
   }

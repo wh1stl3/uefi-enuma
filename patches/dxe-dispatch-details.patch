@@ -34,20 +34,22 @@
            EFI_PROGRESS_CODE,
 --- a/MdeModulePkg/Core/Dxe/Image/Image.c
 +++ b/MdeModulePkg/Core/Dxe/Image/Image.c
-@@ -8,6 +8,9 @@
+@@ -8,6 +8,10 @@
 
  #include "DxeMain.h"
  #include "Image.h"
 +
 +// DxeCore-local bridge; selection/ordinal/GUID live in Dispatcher.c only.
 +VOID EnumaImageEntryCheckpoint (UINTN Point, EFI_HANDLE Handle, EFI_STATUS Status);
++VOID EnumaImageCanaryTableCheckpoint (EFI_HANDLE Handle, EFI_SYSTEM_TABLE *SystemTable);
  #include "MemoryProtectionSupport.h" // MU_CHANGE
 
  //
-@@ -1742,13 +1745,17 @@
+@@ -1742,13 +1746,18 @@
      // Call the image's entry point
      //
      Image->Started = TRUE;
++    EnumaImageCanaryTableCheckpoint (ImageHandle, Image->Info.SystemTable);
 +    EnumaImageEntryCheckpoint (20, ImageHandle, EFI_SUCCESS);
      Image->Status  = Image->EntryPoint (ImageHandle, Image->Info.SystemTable);
 +    EnumaImageEntryCheckpoint (21, ImageHandle, Image->Status);
