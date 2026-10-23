@@ -191,3 +191,17 @@
    }
 
    return EFI_SUCCESS;
+--- a/Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.c
++++ b/Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.c
+@@ -25,6 +25,11 @@
+
+ EFI_STATUS EFIAPI EnumaProbeEntry (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
+ {
++#if defined(ENUMA_DIAG_SIMPLEFB) && ENUMA_DIAG_SIMPLEFB
++  // Do not let a missed core gate fall through to direct framebuffer drawing.
++  (VOID) ImageHandle; (VOID) SystemTable;
++  return EFI_UNSUPPORTED;
++#endif
+   EFI_GRAPHICS_OUTPUT_PROTOCOL *Gop;
+   EFI_MEMORY_DESCRIPTOR *Map, *Descriptor;
+   EFI_STATUS Status, VideoStatus;

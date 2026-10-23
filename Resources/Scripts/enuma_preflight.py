@@ -126,6 +126,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
         if relative.startswith(('MdeModulePkg/', 'UefiCpuPkg/')):
             if digest(core / relative) != wanted:
                 raise ValueError('Mu diagnostic baseline changed: ' + relative)
+    (probe/'EnumaProbe.c').write_bytes((probe/'EnumaProbe.c').read_bytes().replace(b'\r\n', b'\n'))
     apply_patch_series([(uefi, source/'patches'/name) for name in (
         'kona-preserve-display.patch', 'sec-preserve-display.patch', 'sec-stage-checkpoints.patch',
         'dispatch-detail-options.patch', 'apriori-metronome.patch', 'diagnostic-ufs-selection.patch',
