@@ -1,6 +1,6 @@
 --- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
 +++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
-@@ -7,6 +7,32 @@
+@@ -7,6 +7,36 @@
  #include <Library/PcdLib.h>
 
  #include <Configuration/BootDevices.h>
@@ -10,7 +10,7 @@
 +#ifndef ENUMA_DIAG_GOP_STEP
 +#define ENUMA_DIAG_GOP_STEP 0
 +#endif
-+#if ENUMA_DIAG_GOP_QUERY < 0 || ENUMA_DIAG_GOP_QUERY > 2 || ENUMA_DIAG_GOP_STEP < 0 || ENUMA_DIAG_GOP_STEP > 11
++#if ENUMA_DIAG_GOP_QUERY < 0 || ENUMA_DIAG_GOP_QUERY > 2 || ENUMA_DIAG_GOP_STEP < 0 || ENUMA_DIAG_GOP_STEP > 12
 +#error Unsupported GOP audit selector or step
 +#endif
 +#if !ENUMA_DIAG_GOP_QUERY && ENUMA_DIAG_GOP_STEP
@@ -23,7 +23,11 @@
 +#include "EnumaGopResult.h"
 +#if ENUMA_DIAG_GOP_STEP > 0
 +#if ENUMA_DIAG_GOP_STEP >= 8
++#if ENUMA_DIAG_GOP_STEP == 12
++#include "EnumaScanoutDescriptor.h"
++#else
 +#include "EnumaScanoutAudit.h"
++#endif
 +STATIC UINT32 EnumaScanoutRead32 (UINTN Address) { return *(volatile UINT32 *)Address; }
 +#else
 +#include "EnumaGopAudit.h"
@@ -33,7 +37,7 @@
 
  //
  // Global Variables
-@@ -333,6 +359,28 @@
+@@ -333,6 +363,31 @@
      goto cleanup;
    }
 
@@ -42,7 +46,10 @@
 +  // driver resident; installation errors above never become audit markers.
 +#if ENUMA_DIAG_GOP_STEP > 0
 +#if ENUMA_DIAG_GOP_STEP >= 8
-+#if ENUMA_DIAG_GOP_STEP == 11
++#if ENUMA_DIAG_GOP_STEP == 12
++  { ENUMA_SCANOUT_DESCRIPTOR Descriptor;
++    Status = EnumaScanoutFindBoundedDescriptor (EnumaScanoutRead32, &Descriptor); }
++#elif ENUMA_DIAG_GOP_STEP == 11
 +  Status = EnumaScanoutGeometryCandidates (EnumaScanoutRead32);
 +#elif ENUMA_DIAG_GOP_STEP == 10
 +  Status = EnumaScanoutLinearCandidates (EnumaScanoutRead32);
