@@ -131,11 +131,12 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
         'kona-preserve-display.patch', 'sec-preserve-display.patch', 'sec-stage-checkpoints.patch',
         'dispatch-detail-options.patch', 'apriori-metronome.patch', 'diagnostic-ufs-selection.patch',
         'simplefb-contract.patch', 'simplefb-diagnostic-selection.patch', 'simplefb-gop-query.patch')])
-    for name in ('EnumaGopAudit.h', 'EnumaStageCheckpoint.h'):
+    for name in ('EnumaGopAudit.h', 'EnumaGopResult.h'):
         shutil.copyfile(source/'diagnostics'/name, (uefi/simplefb).parent/name)
     for target in (sec, dxe/'DxeMain', dxe/'Dispatcher', dxe/'Mem'):
         shutil.copyfile(source/'diagnostics/EnumaStageCheckpoint.h', target/'EnumaStageCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchCheckpoint.h', dxe/'Dispatcher/EnumaDispatchCheckpoint.h')
+    shutil.copyfile(source/'diagnostics/EnumaGopResult.h', dxe/'Dispatcher/EnumaGopResult.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchDetailCheckpoint.h', dxe/'Dispatcher/EnumaDispatchDetailCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaImageEntryCheckpoint.h', dxe/'Dispatcher/EnumaImageEntryCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchCompletionCheckpoint.h', dxe/'DxeMain/EnumaDispatchCompletionCheckpoint.h')

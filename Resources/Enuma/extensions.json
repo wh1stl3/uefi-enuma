@@ -3,10 +3,10 @@
   "baseline_uefi_commit": "3376c4411e08442f45f4120ed6d96f2e302c51e8",
   "original_migration_files_unchanged": true,
   "files": {
-    "diagnostics/EnumaDispatchDetailCheckpoint.h": "abf1b975e49842bbc7c8e188154b7812a96634c5c6c11588979393c8fbc46eea",
+    "diagnostics/EnumaDispatchDetailCheckpoint.h": "d5d0e4875d8331e3d8f516f5c38a97c51e8cf5766d7fca7441f4965aea83ea41",
     "patches/dxe-dispatch-details.patch": "49a051195269054894262788f65883c4665db5eec170db2f457e265b523be94d",
-    "patches/dispatch-detail-options.patch": "48ccad217e520b9695d2e0f1f66db5e3f81e685e4cd4aadbf42527d984713e42",
-    "Resources/Scripts/enuma_preflight.py": "f791b81735cc403eb4cb79802b1cd04ff198e178f64323a596357e3460168f5c",
+    "patches/dispatch-detail-options.patch": "7dbd09f9016ae939d58774ea7941318cfbd96c5d07cb14059f40f1c456e49df9",
+    "Resources/Scripts/enuma_preflight.py": "2b0bd1116482519f9f207a8d85fd7ca197335d433ca6dc15ec5792a50f0d6163",
     "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af",
     "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f",
     "patches/diagnostic-ufs-selection.patch": "b79be283dc09951a91aa6fc99ec26aea7187f9845080d28445bf6dd50db5a523",
@@ -18,7 +18,8 @@
     "patches/simplefb-contract.patch": "1d23beb189b4aa14808e15f6cdb60e3d3580c6b9353a17ea60dbd3e49a38ffea",
     "patches/simplefb-diagnostic-selection.patch": "a4dc584cf7e50833d095d8a6e0b4b5951fc88d74b771144f4383aa38002fe364",
     "diagnostics/EnumaDispatchCompletionCheckpoint.h": "863facc343dac1aa1b2a2b00a91a729f2014f5ef5c45ee5f1d919b5e4bf59b00",
-    "diagnostics/EnumaGopAudit.h": "317dc3488e695db4c45e8b0dbc813960d608862ae2e661f9e8b13eee895ffd19",
-    "patches/simplefb-gop-query.patch": "fdfbb0bfa7d0b766dd7000777d8f4723a70357076365191ab5f1ef5303779554"
+    "diagnostics/EnumaGopAudit.h": "d97e058fea990a1122f5fb44839b1e0270917ade8c22a59ca796e6ce8b5fad1c",
+    "patches/simplefb-gop-query.patch": "aaf5bb6a39a0057f38858aaa1ef84ea7a97ec4e8a1bbdebfd36f2e9922a7bd79",
+    "diagnostics/EnumaGopResult.h": "15439f96c32387cccd57c8f40d5a703600af6478c616eebe896b6a5fb536d184"
   }
 }

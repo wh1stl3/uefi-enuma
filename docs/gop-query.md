@@ -1,26 +1,35 @@
-# Read-only SimpleFb GOP audit
+# Staged GOP diagnostics with Core-owned reset
 
-Default disabled (`ENUMA_DIAG_GOP_QUERY=0`). This extends the existing
-metadata-only SimpleFb diagnostic, not the display driver or memory map.
-The companion build wrapper permits selector 1 (audit pass) or 2 (audit
-failure) only with stage13, delay2, detail16, the full SimpleFb file GUID,
-GUID-only selection and the existing normal-dispatch completion fallback.
+Current transport: core-warning-v2. Replaces the provider-local reset used by
+250849f (that candidate failed automatic return; cause remains unknown).
 
-After successful protocol installation the provider enumerates GOP handles,
-requires exactly its installed handle and protocol instance, validates current
-single-mode BGRX metadata/span arithmetic, calls QueryMode and compares every
-defined information field. Temporary handle/query buffers are freed before the
-gate. No framebuffer dereference, Blt, SetMode or new address is used.
+Default ENUMA_DIAG_GOP_QUERY=0 and ENUMA_DIAG_GOP_STEP=0. No new dependencies
+are added to SimpleFbDxe.inf. The provider never calls TimerLib or ResetSystemLib.
+The existing Core final StartImage hook, GUID filter, Timer/PSCI checkpoint and
+normal-dispatch completion fallback perform all result selection and reset.
 
-The selected predicate uses the existing TimerLib/PSCI two-second reset gate.
-Core detail gates are suppressed for both selectors: otherwise an installation
-failure could impersonate query success through the existing status gate.
-An unmatched predicate continues with the original successful entry return and
-the seven-second normal-dispatch fallback. The driver does not return a new
-error after publishing protocols, because image unload could leave dangling
-protocol functions. Hangs are not covered by this synchronous fallback.
+Steps are cumulative, and every allocated temporary buffer is freed before
+returning. Step 0 runs after installation without any GOP audit service call;
+1 enumerates the unique expected GOP handle and frees the list; 2 also calls
+HandleProtocol and matches the instance; 3 also validates Mode/Info/span;
+4 also calls QueryMode, compares defined fields and frees the returned info.
+Steps 1/2 still cannot distinguish a service hang from its list cleanup.
 
-Timing can support the predicate, not numeric metadata capture, physical scanout,
-pixel ownership, menu visibility or XNU entry. Companion reports own host and
-device evidence. Original SimpleFb provider and its existing contract patch are
-reused; the new helper is diagnostic instrumentation, not borrowed panel data.
+The provider returns warning value 1 for stage pass, 5 for stage error. These
+are private diagnostic markers, not glyph/stale-data diagnoses. Both are
+non-errors: the fixed Mu UefiDriverEntryPoint preserves the status, CoreExit
+copies it, and CoreStartImage unloads a driver only on EFI_ERROR. Actual driver
+entry and Core return excerpts are host-tested against the pinned archive.
+Installation errors do not become markers and follow the original cleanup.
+
+Query selector 1/2 means match pass/error marker respectively at Core point13,
+using detail16, exact SimpleFb GUID, stage13, delay2, GUID-only and completion
+fallback. EFI_SUCCESS, other warnings, errors and other hook locations do not
+match. Existing full GUID filtering and no-ordinal-guess rules remain intact.
+An unmatched result may reach the seven-second normal-dispatch fallback; it is
+not an asynchronous watchdog and cannot recover a hung operation.
+
+No framebuffer dereference, Blt, SetMode, MMIO, new physical reservation or
+verified flag. Metadata consistency does not establish physical scanout or
+safe pixel ownership. All new stages remain hardware-unverified until separately
+tested with current recovery guards. Old 250849f images must not be retried.

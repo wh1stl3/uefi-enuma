@@ -26,7 +26,8 @@ STATIC EFI_STATUS
 EnumaGopAudit (
   EFI_BOOT_SERVICES *Services,
   EFI_HANDLE ExpectedHandle,
-  EFI_GRAPHICS_OUTPUT_PROTOCOL *ExpectedGop
+  EFI_GRAPHICS_OUTPUT_PROTOCOL *ExpectedGop,
+  UINTN Step
   )
 {
   EFI_HANDLE *Handles = NULL;
@@ -38,7 +39,8 @@ EnumaGopAudit (
   UINTN Count = 0, Size = 0;
   UINT64 Required;
 
-  if (Services == NULL || ExpectedHandle == NULL || ExpectedGop == NULL) {
+  if (Services == NULL || ExpectedHandle == NULL || ExpectedGop == NULL ||
+      Step < 1 || Step > 4) {
     return EFI_INVALID_PARAMETER;
   }
   Status = Services->LocateHandleBuffer (ByProtocol,
@@ -50,13 +52,24 @@ EnumaGopAudit (
   if (Handles == NULL || Count != 1 || Handles[0] != ExpectedHandle) {
     goto Done;
   }
+  if (Step == 1) {
+    Status = EFI_SUCCESS;
+    goto Done;
+  }
   Status = Services->HandleProtocol (Handles[0],
     &gEfiGraphicsOutputProtocolGuid, (VOID **)&Gop);
   if (EFI_ERROR (Status)) {
     goto Done;
   }
   Status = EFI_COMPROMISED_DATA;
-  if (Gop != ExpectedGop || Gop->Mode == NULL || Gop->QueryMode == NULL) {
+  if (Gop != ExpectedGop) {
+    goto Done;
+  }
+  if (Step == 2) {
+    Status = EFI_SUCCESS;
+    goto Done;
+  }
+  if (Gop->Mode == NULL || Gop->QueryMode == NULL) {
     goto Done;
   }
   Mode = Gop->Mode;
@@ -77,6 +90,10 @@ EnumaGopAudit (
   Required *= 4;
   if (Required > Mode->FrameBufferSize ||
       Mode->FrameBufferBase > MAX_UINT64 - Mode->FrameBufferSize) {
+    goto Done;
+  }
+  if (Step == 3) {
+    Status = EFI_SUCCESS;
     goto Done;
   }
   Status = Gop->QueryMode (Gop, Mode->Mode, &Size, &Query);

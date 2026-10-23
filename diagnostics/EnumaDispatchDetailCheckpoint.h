@@ -3,6 +3,7 @@
 #ifndef ENUMA_DISPATCH_DETAIL_CHECKPOINT_H
 #define ENUMA_DISPATCH_DETAIL_CHECKPOINT_H
 #include "EnumaDispatchCheckpoint.h"
+#include "EnumaGopResult.h"
 #ifndef ENUMA_DIAG_DETAIL_POINT
 #define ENUMA_DIAG_DETAIL_POINT 13
 #endif
@@ -43,10 +44,15 @@ STATIC VOID EnumaDispatchDetailCheckpoint (
   UINTN SelectedPoint;
   (VOID) FileName;
   SelectedPoint = Point;
-  // Query variants reset inside the provider after observation. Suppress Core
-  // status gates so a load/install failure cannot impersonate an audit result.
+  // Only the final CoreStartImage return and an exact diagnostic marker count.
+  // EFI_SUCCESS, unrelated warnings and install/load failures are not markers.
   if (ENUMA_DIAG_GOP_QUERY != 0) {
-    return;
+    if (Point != 13 || ENUMA_DIAG_DETAIL_POINT != 16 ||
+        Status != (ENUMA_DIAG_GOP_QUERY == 1 ?
+          ENUMA_GOP_RESULT_PASS : ENUMA_GOP_RESULT_FAIL)) {
+      return;
+    }
+    SelectedPoint = 16;
   }
   // 13: any StartImage return; 14: any LoadImage return; 15: before StartImage.
   // 16/17: failed/successful StartImage; 18/19: failed/successful LoadImage.

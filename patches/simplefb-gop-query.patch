@@ -1,50 +1,47 @@
 --- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
 +++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
-@@ -7,6 +7,19 @@
+@@ -7,6 +7,27 @@
  #include <Library/PcdLib.h>
 
  #include <Configuration/BootDevices.h>
 +#ifndef ENUMA_DIAG_GOP_QUERY
 +#define ENUMA_DIAG_GOP_QUERY 0
 +#endif
-+#if ENUMA_DIAG_GOP_QUERY < 0 || ENUMA_DIAG_GOP_QUERY > 2
-+#error Unsupported GOP audit selector
++#ifndef ENUMA_DIAG_GOP_STEP
++#define ENUMA_DIAG_GOP_STEP 0
++#endif
++#if ENUMA_DIAG_GOP_QUERY < 0 || ENUMA_DIAG_GOP_QUERY > 2 || ENUMA_DIAG_GOP_STEP < 0 || ENUMA_DIAG_GOP_STEP > 4
++#error Unsupported GOP audit selector or step
++#endif
++#if !ENUMA_DIAG_GOP_QUERY && ENUMA_DIAG_GOP_STEP
++#error GOP steps require a query profile
 +#endif
 +#if ENUMA_DIAG_GOP_QUERY
 +#if !ENUMA_DIAG_SIMPLEFB || ENUMA_DIAG_STAGE != 13 || ENUMA_DIAG_DETAIL_POINT != 16 || !ENUMA_DIAG_GUID_ONLY || !ENUMA_DIAG_GUID_ENABLED || !ENUMA_DIAG_DISPATCH_FALLBACK || ENUMA_DIAG_DELAY_US != 2000000
 +#error GOP audit requires the bounded metadata-only query profile
 +#endif
++#include "EnumaGopResult.h"
++#if ENUMA_DIAG_GOP_STEP > 0
 +#include "EnumaGopAudit.h"
-+#include "EnumaStageCheckpoint.h"
++#endif
 +#endif
 
  //
  // Global Variables
-@@ -333,6 +346,15 @@
+@@ -333,6 +354,16 @@
      goto cleanup;
    }
 
 +#if ENUMA_DIAG_GOP_QUERY
-+  // Keep installation/entry status intact: returning failure here could unload
-+  // the image while the installed protocol still references its functions.
-+  Status = EnumaGopAudit (gBS, ImageHandle, &mFrameBuffer);
-+  if ((!EFI_ERROR (Status) && ENUMA_DIAG_GOP_QUERY == 1) ||
-+      (EFI_ERROR (Status) && ENUMA_DIAG_GOP_QUERY == 2)) {
-+    EnumaStageCheckpoint (13);
-+  }
++  // Core owns all timing/reset logic. A non-error marker keeps the published
++  // driver resident; installation errors above never become audit markers.
++#if ENUMA_DIAG_GOP_STEP > 0
++  Status = EnumaGopAudit (gBS, ImageHandle, &mFrameBuffer, ENUMA_DIAG_GOP_STEP);
++#else
++  Status = EFI_SUCCESS; // post-install control: no GOP service or extra pool call
++#endif
++  return ENUMA_GOP_RESULT (Status);
 +#endif
    return EFI_SUCCESS;
 
  cleanup:
---- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
-+++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
-@@ -17,6 +17,9 @@
-
- [LibraryClasses]
-   DebugLib
-+  BaseLib
-+  TimerLib
-+  ResetSystemLib
-   FrameBufferBltLib
-   UefiBootServicesTableLib
-   UefiDriverEntryPoint
