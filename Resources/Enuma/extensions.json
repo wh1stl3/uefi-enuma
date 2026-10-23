@@ -15,7 +15,7 @@
     "diagnostics/EnumaUnhandledExceptionCheckpoint.h": "e43adea43888932a3e690b2cc5c6481ecc4bb3359b9989213a8129b623cde6d6",
     "diagnostics/EnumaPoolSearchCheckpoint.h": "42ade1af349e16287e1198814aea079bbc7a846a9b3053ff105d33929053715b",
     "Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c": "926136fbf45aef45fda9a18c797e21cc361c2dbe34003176eadf9e98034a05d6",
-    "patches/simplefb-contract.patch": "334bd21e74b868078e7793d0142158f920c39e7782d0f265277cede88c1b2d0f",
+    "patches/simplefb-contract.patch": "1d23beb189b4aa14808e15f6cdb60e3d3580c6b9353a17ea60dbd3e49a38ffea",
     "patches/simplefb-diagnostic-selection.patch": "a4dc584cf7e50833d095d8a6e0b4b5951fc88d74b771144f4383aa38002fe364",
     "diagnostics/EnumaDispatchCompletionCheckpoint.h": "863facc343dac1aa1b2a2b00a91a729f2014f5ef5c45ee5f1d919b5e4bf59b00"
   }

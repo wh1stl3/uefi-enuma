@@ -72,7 +72,7 @@
    // Raise TPL Level
    Tpl = gBS->RaiseTPL (TPL_NOTIFY);
 
-@@ -92,14 +97,19 @@
+@@ -92,14 +97,21 @@
    OUT UINT32               *ColorDepth)
  {
    EFI_MEMORY_REGION_DESCRIPTOR FrameBufferRegion;
@@ -85,6 +85,8 @@
 -  if (!FrameBufferRegion.Address) {
 -    DEBUG ((EFI_D_ERROR, "Failed to Locate \"Display Reserved\" Memory Region!\n"));
 +  EFI_STATUS Status;
++  UINT64 RowBytes;
++  UINT64 Span;
 +  if (BaseAddress == NULL || Width == NULL || Height == NULL || ColorDepth == NULL) {
 +    return EFI_INVALID_PARAMETER;
 +  }
@@ -100,18 +102,28 @@
      return EFI_NOT_FOUND;
    }
 
-@@ -113,6 +123,10 @@
-     DEBUG ((EFI_D_ERROR, "Frame Buffer Resolution is too Small!\n"));
+@@ -114,6 +126,20 @@
      DEBUG ((EFI_D_ERROR, "Minimal Supported Resolution = 640x475\n"));
 
-+    return EFI_UNSUPPORTED;
+     return EFI_UNSUPPORTED;
 +  }
 +
 +  if (*ColorDepth != 16 && *ColorDepth != 24 && *ColorDepth != 32) {
-     return EFI_UNSUPPORTED;
++    return EFI_UNSUPPORTED;
++  }
++
++  // This bounds the advertised span to the declared region only.
++  // It does not establish actual scanout geometry or pixel ownership.
++  RowBytes = (UINT64) *Width * (*ColorDepth / 8);
++  if ((UINT64) *Height > MAX_UINT64 / RowBytes) { return EFI_BAD_BUFFER_SIZE; }
++  Span = RowBytes * *Height;
++  if (Span > MAX_UINTN || Span > FrameBufferRegion.Length ||
++      FrameBufferRegion.Address > MAX_UINT64 - FrameBufferRegion.Length) {
++    return EFI_BAD_BUFFER_SIZE;
    }
 
-@@ -157,6 +171,16 @@
+   // Pass Frame Buffer Address
+@@ -157,6 +183,16 @@
    IN UINT32               Height,
    IN UINT32               ColorDepth)
  {
@@ -128,7 +140,7 @@
    // Set Info Size
    mFrameBuffer.Mode->SizeOfInfo = sizeof (EFI_GRAPHICS_OUTPUT_MODE_INFORMATION);
 
-@@ -166,7 +190,7 @@
+@@ -166,7 +202,7 @@
 
    // Set Frame Buffer Range
    mFrameBuffer.Mode->FrameBufferBase = BaseAddress;
@@ -137,8 +149,13 @@
 
    // Set Mode Info Version
    mFrameBuffer.Mode->Info->Version = 0;
-@@ -215,7 +239,10 @@
-   STATIC UINTN FrameBufferConfigurationSize = 0;
+@@ -212,10 +248,14 @@
+   EFI_STATUS Status;
+
+   // Set Configuration Size
+-  STATIC UINTN FrameBufferConfigurationSize = 0;
++  // A fresh sizing query is required on every attempt, including retries.
++  UINTN FrameBufferConfigurationSize = 0;
 
    // Get Frame Buffer Configuration Size
 -  FrameBufferBltConfigure ((VOID *)(UINTN)BaseAddress, mFrameBuffer.Mode->Info, FrameBufferConfiguration, &FrameBufferConfigurationSize);
@@ -149,7 +166,7 @@
 
    // Allocate Memory
    FrameBufferConfiguration = AllocatePool (FrameBufferConfigurationSize);
-@@ -237,19 +264,14 @@
+@@ -237,19 +277,14 @@
  VOID
  FreeMemoryBuffers ()
  {
@@ -173,7 +190,7 @@
    }
  }
 
-@@ -265,6 +287,8 @@
+@@ -265,6 +300,8 @@
    UINT32               Height;
    UINT32               ColorDepth;
 
@@ -182,7 +199,7 @@
    // Get Frame Buffer Infos
    Status = GetFrameBufferInfos (&BaseAddress, &Width, &Height, &ColorDepth);
    if (EFI_ERROR (Status)) {
-@@ -293,7 +317,7 @@
+@@ -293,7 +330,7 @@
    Status = gBS->InstallMultipleProtocolInterfaces (&ImageHandle, &gEfiDevicePathProtocolGuid, &DisplayDevicePath, &gEfiGraphicsOutputProtocolGuid, &mFrameBuffer, NULL);
    if (EFI_ERROR (Status)) {
      DEBUG ((EFI_D_ERROR, "Failed to Register GOP Protocol!\n"));
