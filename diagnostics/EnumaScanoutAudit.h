@@ -4,7 +4,20 @@
 #define ENUMA_SCANOUT_AUDIT_H
 #include <Uefi.h>
 typedef UINT32 (*ENUMA_SCANOUT_READ32)(UINTN Address);
-STATIC EFI_STATUS
+// Step9: inspect source-address registers only; no geometry/format reads.
+STATIC inline EFI_STATUS
+EnumaScanoutAddressPresent (ENUMA_SCANOUT_READ32 Read)
+{
+  CONST UINT32 Pipes[8] = {0x5000,0x7000,0x9000,0xb000,0x25000,0x27000,0x29000,0x2b000};
+  UINTN I;
+  if (Read == NULL) { return EFI_INVALID_PARAMETER; }
+  for (I = 0; I < 8; I++) {
+    UINT32 Base = Read(0x0ae00000U + Pipes[I] + 0x14);
+    if (Base >= 0x9c000000U && Base < 0x9e300000U) { return EFI_SUCCESS; }
+  }
+  return EFI_UNSUPPORTED;
+}
+STATIC inline EFI_STATUS
 EnumaScanoutCheck (ENUMA_SCANOUT_READ32 Read)
 {
   CONST UINT32 Pipes[8] = {0x5000,0x7000,0x9000,0xb000,0x25000,0x27000,0x29000,0x2b000};
