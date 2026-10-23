@@ -106,7 +106,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     dxe = core / 'MdeModulePkg/Core/Dxe'
     exception = core/'UefiCpuPkg/Library/CpuExceptionHandlerLib'
     for path in (sec/'Sec.c', sec/'Sec.inf', dxe/'DxeMain/DxeMain.c',
-                 dxe/'DxeMain.inf', dxe/'Dispatcher/Dispatcher.c', dxe/'Image/Image.c',
+                 dxe/'DxeMain.inf', dxe/'Dispatcher/Dispatcher.c', dxe/'Image/Image.c', dxe/'Mem/Page.c',
                  exception/'AArch64/CpuExceptionHandlerLib.c', exception/'DxeCpuExceptionHandlerLib.inf'):
         path.write_bytes(path.read_bytes().replace(b'\r\n', b'\n'))
     # Remove previous diagnostic patches left by the legacy builder. The official
@@ -127,13 +127,14 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     apply_patch_series([(uefi, source/'patches'/name) for name in (
         'kona-preserve-display.patch', 'sec-preserve-display.patch', 'sec-stage-checkpoints.patch',
         'dispatch-detail-options.patch', 'apriori-metronome.patch', 'diagnostic-ufs-selection.patch')])
-    for target in (sec, dxe/'DxeMain', dxe/'Dispatcher'):
+    for target in (sec, dxe/'DxeMain', dxe/'Dispatcher', dxe/'Mem'):
         shutil.copyfile(source/'diagnostics/EnumaStageCheckpoint.h', target/'EnumaStageCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchCheckpoint.h', dxe/'Dispatcher/EnumaDispatchCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchDetailCheckpoint.h', dxe/'Dispatcher/EnumaDispatchDetailCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaImageEntryCheckpoint.h', dxe/'Dispatcher/EnumaImageEntryCheckpoint.h')
     for name in ('EnumaStageCheckpoint.h', 'EnumaUnhandledExceptionCheckpoint.h'):
         shutil.copyfile(source/'diagnostics'/name, exception/'AArch64'/name)
+    shutil.copyfile(source/'diagnostics/EnumaPoolSearchCheckpoint.h', dxe/'Mem/EnumaPoolSearchCheckpoint.h')
     report = {'scope': 'fixed inputs and writable staging, no firmware execution',
               'vendor_files_checked': len(vendor_lock), 'reference_gitlinks': dependencies,
               'probe_upstream_sha256': reused, 'core_ready_for_official_patch_series': True}

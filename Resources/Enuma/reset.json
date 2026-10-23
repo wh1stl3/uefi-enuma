@@ -16,6 +16,7 @@
     "MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c": "24f50beeab071c52acbcbdabf8b282a2edcd7963a8744bb586950f607cc0b9bf",
     "MdeModulePkg/Core/Dxe/Image/Image.c": "869a950195558132884e461dcd1a17f2426318d71561f4d6503bdfff21416962",
     "UefiCpuPkg/Library/CpuExceptionHandlerLib/AArch64/CpuExceptionHandlerLib.c": "053e9269323a2c23918a31280d7b4670f843c372495840eb2f2d1eae36369b9d",
-    "UefiCpuPkg/Library/CpuExceptionHandlerLib/DxeCpuExceptionHandlerLib.inf": "cec9e5659cd7b0c5d25a58faa6b81ab916f01b63ab91ada9ceb34e54c350f7d0"
+    "UefiCpuPkg/Library/CpuExceptionHandlerLib/DxeCpuExceptionHandlerLib.inf": "cec9e5659cd7b0c5d25a58faa6b81ab916f01b63ab91ada9ceb34e54c350f7d0",
+    "MdeModulePkg/Core/Dxe/Mem/Page.c": "d0d0a2db4e3956c4cffd81a68efc705212ebdbe0ea2f0e7d1fffbe358bb82dd7"
   }
 }

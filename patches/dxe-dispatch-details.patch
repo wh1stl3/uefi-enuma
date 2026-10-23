@@ -94,3 +94,21 @@
 
  [Guids.RISCV64, Guids.AARCH64]
    gEfiDebugImageInfoTableGuid
+--- a/MdeModulePkg/Core/Dxe/Mem/Page.c
++++ b/MdeModulePkg/Core/Dxe/Mem/Page.c
+@@ -8,6 +8,7 @@
+
+ #include "DxeMain.h"
+ #include "Imem.h"
++#include "EnumaPoolSearchCheckpoint.h"
+ #include "HeapGuard.h"
+ #include <Pi/PiDxeCis.h>
+
+@@ -2375,6 +2376,7 @@
+   //
+   // Convert it to boot services data
+   //
++  EnumaPoolSearchCheckpoint (Start);
+   if (Start == 0) {
+     DEBUG ((DEBUG_ERROR | DEBUG_PAGE, "AllocatePoolPages: failed to allocate %d pages\n", (UINT32)NumberOfPages));
+   } else {
