@@ -1,5 +1,7 @@
 # uefi-enuma
 
+Counter follow-up (2026-10-24): explicit step15 tests read-only counter eligibility; step16 performs two eligible frame samples around one existing-Boot-Services 100ms Stall, with unchanged-configuration and modulo-delta bounds. Maximums are four/twelve MMIO reads. No enable/register/pixel write or new mapping/dependency is added. Disabled/changed/ambiguous counters are unknown, not inactivity proof. See [counter contract](docs/dsi-counters.md) and companion STATUS for qualified images and runtime results.
+
 Current read-only software (2026-10-24): step14 adds exactly two DSI timing-enable reads with the existing Core warning return path. It does not write pixels/registers or add mappings/dependencies; nonzero means configured timing enable only. Host/AArch64 qualification and matching full-build/runtime status are maintained by the companion. See [DSI timing contract](docs/dsi-timing.md). R-005 stays consumed.
 
 Mu-Silicium firmware source for Xiaomi Pad 5 Pro 5G (enuma / SM8250). Companion device repository: [UniXNU-enuma](https://github.com/wh1stl3/UniXNU-enuma).
