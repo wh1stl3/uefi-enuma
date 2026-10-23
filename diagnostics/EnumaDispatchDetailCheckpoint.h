@@ -12,6 +12,9 @@
 #ifndef ENUMA_DIAG_GUID_ONLY
 #define ENUMA_DIAG_GUID_ONLY 0
 #endif
+#ifndef ENUMA_DIAG_GOP_QUERY
+#define ENUMA_DIAG_GOP_QUERY 0
+#endif
 #if ENUMA_DIAG_GUID_ONLY != 0 && ENUMA_DIAG_GUID_ONLY != 1
 #error Unsupported enuma GUID-only selection
 #endif
@@ -40,6 +43,11 @@ STATIC VOID EnumaDispatchDetailCheckpoint (
   UINTN SelectedPoint;
   (VOID) FileName;
   SelectedPoint = Point;
+  // Query variants reset inside the provider after observation. Suppress Core
+  // status gates so a load/install failure cannot impersonate an audit result.
+  if (ENUMA_DIAG_GOP_QUERY != 0) {
+    return;
+  }
   // 13: any StartImage return; 14: any LoadImage return; 15: before StartImage.
   // 16/17: failed/successful StartImage; 18/19: failed/successful LoadImage.
   // 20: before the PE entry call; 21: direct PE return; 22: after Exit/LongJump.

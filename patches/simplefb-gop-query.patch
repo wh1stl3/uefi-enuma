@@ -1,0 +1,52 @@
+--- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
++++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
+@@ -7,6 +7,19 @@
+ #include <Library/PcdLib.h>
+
+ #include <Configuration/BootDevices.h>
++#ifndef ENUMA_DIAG_GOP_QUERY
++#define ENUMA_DIAG_GOP_QUERY 0
++#endif
++#if ENUMA_DIAG_GOP_QUERY < 0 || ENUMA_DIAG_GOP_QUERY > 2
++#error Unsupported GOP audit selector
++#endif
++#if ENUMA_DIAG_GOP_QUERY
++#if !ENUMA_DIAG_SIMPLEFB || ENUMA_DIAG_STAGE != 13 || ENUMA_DIAG_DETAIL_POINT != 16 || !ENUMA_DIAG_GUID_ONLY || !ENUMA_DIAG_GUID_ENABLED || !ENUMA_DIAG_DISPATCH_FALLBACK || ENUMA_DIAG_DELAY_US != 2000000
++#error GOP audit requires the bounded metadata-only query profile
++#endif
++#include "EnumaGopAudit.h"
++#include "EnumaStageCheckpoint.h"
++#endif
+
+ //
+ // Global Variables
+@@ -333,6 +346,15 @@
+     goto cleanup;
+   }
+
++#if ENUMA_DIAG_GOP_QUERY
++  // Keep installation/entry status intact: returning failure here could unload
++  // the image while the installed protocol still references its functions.
++  Status = EnumaGopAudit (gBS, ImageHandle, &mFrameBuffer);
++  if ((!EFI_ERROR (Status) && ENUMA_DIAG_GOP_QUERY == 1) ||
++      (EFI_ERROR (Status) && ENUMA_DIAG_GOP_QUERY == 2)) {
++    EnumaStageCheckpoint (13);
++  }
++#endif
+   return EFI_SUCCESS;
+
+ cleanup:
+--- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
++++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
+@@ -17,6 +17,11 @@
+
+ [LibraryClasses]
+   DebugLib
++!if $(ENUMA_DIAG_GOP_QUERY) != 0
++  BaseLib
++  TimerLib
++  ResetSystemLib
++!endif
+   FrameBufferBltLib
+   UefiBootServicesTableLib
+   UefiDriverEntryPoint

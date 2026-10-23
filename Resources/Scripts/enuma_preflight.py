@@ -130,7 +130,9 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     apply_patch_series([(uefi, source/'patches'/name) for name in (
         'kona-preserve-display.patch', 'sec-preserve-display.patch', 'sec-stage-checkpoints.patch',
         'dispatch-detail-options.patch', 'apriori-metronome.patch', 'diagnostic-ufs-selection.patch',
-        'simplefb-contract.patch', 'simplefb-diagnostic-selection.patch')])
+        'simplefb-contract.patch', 'simplefb-diagnostic-selection.patch', 'simplefb-gop-query.patch')])
+    for name in ('EnumaGopAudit.h', 'EnumaStageCheckpoint.h'):
+        shutil.copyfile(source/'diagnostics'/name, (uefi/simplefb).parent/name)
     for target in (sec, dxe/'DxeMain', dxe/'Dispatcher', dxe/'Mem'):
         shutil.copyfile(source/'diagnostics/EnumaStageCheckpoint.h', target/'EnumaStageCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchCheckpoint.h', dxe/'Dispatcher/EnumaDispatchCheckpoint.h')
