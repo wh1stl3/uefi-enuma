@@ -2,7 +2,7 @@
 
 Human approval on 2026-10-23 authorizes only a device mapping at 0x0ae00000 / 0x85000 and bounded read-only probes. The staged display-mdp-map.patch adds NS_DEVICE/UNCACHEABLE/MMIO; original imported table bytes and prior migration hashes remain preserved. No RAM/heap/owned-memory or verification flags change.
 
-Step 3 is the same-source non-MMIO return control. Additive step 8 reads SRC0_ADDR for eight live-DT pipe offsets, then up to eight extra fields only for addresses in the live splash interval [0x9c000000,0x9e300000). Maximum 72 32-bit reads. No register writes, pixel access, QueryMode, allocation or new constructor/library dependency.
+Historical step8 used step3 as its non-MMIO control. Current step12 qualification uses the same-source packing step10 control after verified step0 installation return; scanout steps do not call the GOP Mode audit. Additive step 8 reads SRC0_ADDR for eight live-DT pipe offsets, then up to eight extra fields only for addresses in the live splash interval [0x9c000000,0x9e300000). Maximum 72 32-bit reads. No register writes, pixel access, QueryMode, allocation or new constructor/library dependency.
 
 The return predicate requires exactly one candidate with a conservative 1600x2560, 6400-byte pitch, linear single-plane 4-byte layout, no crop/rotation/solid-fill/compression or nonzero additional planes, and span inside the smaller live splash range. A successful predicate is not a numeric snapshot, not proof a descriptor is active, and not permission to render. Color channel order remains unknown. Core warning transport and fallback remain synchronous and cannot recover a stalled MMIO access.
 

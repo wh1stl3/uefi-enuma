@@ -49,3 +49,7 @@ be isolated before proceeding; cleanup and altered layout remain confounders.
 Host poison-pointer cases explicitly verify that step5 avoids Mode dereferences,
 step6 avoids Info dereferences, and step7 does not evaluate the final span.
 No QueryMode, pixel access, local reset library or new memory reservation is added.
+
+## Evidence update (2026-10-24)
+
+Metadata steps have individually controlled returns, but two historical step3 images timed out and required manual recovery. They are not retried unchanged; the fault PC/root cause remains unknown. Step0 and scanout steps avoid the GOP Mode audit. Current bounded read-only steps8..12 are described in scanout-probe.md; metadata consistency is not pixel ownership or activity proof. Authoritative current state and exact per-image evidence stay in the companion STATUS/reports.
