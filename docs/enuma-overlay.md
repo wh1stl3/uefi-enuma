@@ -1,6 +1,4 @@
-# enuma 固件接入（历史导入说明）
-
-本文记录初始OEM接入，不是当前测试配置。当前只读诊断省略DisplayDxe/CPRDxe/UFSDxe；状态、批准和恢复以设备仓STATUS/AGENTS为准，不能把本页原型配置当实机通过。
+# enuma 固件接入
 
 底座为 UniXNU/uefi-sheng 329b473df1e53a3bfa64b2b39b79670c4c02279b 的 KonaPkg，Mu_Basecore cfb93724 与 UniXNU feeds 一致。设备增量在 Platforms/Xiaomi/enumaPkg；完整源码和输出只放忽略的 out/。
 
