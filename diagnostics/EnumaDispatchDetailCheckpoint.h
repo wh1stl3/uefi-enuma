@@ -9,6 +9,15 @@
 #ifndef ENUMA_DIAG_GUID_ENABLED
 #define ENUMA_DIAG_GUID_ENABLED 0
 #endif
+#ifndef ENUMA_DIAG_GUID_ONLY
+#define ENUMA_DIAG_GUID_ONLY 0
+#endif
+#if ENUMA_DIAG_GUID_ONLY != 0 && ENUMA_DIAG_GUID_ONLY != 1
+#error Unsupported enuma GUID-only selection
+#endif
+#if ENUMA_DIAG_GUID_ONLY && (!ENUMA_DIAG_GUID_ENABLED || ENUMA_DIAG_STAGE != 13 || ENUMA_DIAG_DETAIL_POINT == 23 || ENUMA_DIAG_DETAIL_POINT >= 26)
+#error GUID-only requires a stage 13 driver detail and a complete GUID
+#endif
 #ifndef ENUMA_DIAG_GUID_LOW64
 #define ENUMA_DIAG_GUID_LOW64 0
 #endif
@@ -50,7 +59,7 @@ STATIC VOID EnumaDispatchDetailCheckpoint (
     SelectedPoint = 19;
   }
   if (ENUMA_DIAG_STAGE != 13 || SelectedPoint != ENUMA_DIAG_DETAIL_POINT ||
-      EnumaDispatchOrdinal != ENUMA_DIAG_DISPATCH_ORDINAL) {
+      (!ENUMA_DIAG_GUID_ONLY && EnumaDispatchOrdinal != ENUMA_DIAG_DISPATCH_ORDINAL)) {
     return;
   }
 #if ENUMA_DIAG_GUID_ENABLED

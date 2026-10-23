@@ -112,3 +112,21 @@
    if (Start == 0) {
      DEBUG ((DEBUG_ERROR | DEBUG_PAGE, "AllocatePoolPages: failed to allocate %d pages\n", (UINT32)NumberOfPages));
    } else {
+--- a/MdeModulePkg/Core/Dxe/DxeMain/DxeMain.c
++++ b/MdeModulePkg/Core/Dxe/DxeMain/DxeMain.c
+@@ -8,6 +8,7 @@
+
+ #include "DxeMain.h"
+ #include "EnumaStageCheckpoint.h"
++#include "EnumaDispatchCompletionCheckpoint.h"
+
+ //
+ // DXE Core Global Variables for Protocols from PEI
+@@ -551,6 +552,7 @@
+   EnumaStageCheckpoint (10);
+   CoreDispatcher ();
+   EnumaStageCheckpoint (11);
++  EnumaDispatchCompletionCheckpoint ();
+
+   //
+   // Display Architectural protocols that were not loaded if this is DEBUG build

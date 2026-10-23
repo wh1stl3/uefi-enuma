@@ -3,10 +3,10 @@
   "baseline_uefi_commit": "3376c4411e08442f45f4120ed6d96f2e302c51e8",
   "original_migration_files_unchanged": true,
   "files": {
-    "diagnostics/EnumaDispatchDetailCheckpoint.h": "ea0e367d8bdaf020a21d9f351f03c5d3ef31d5c1d2233a2280141aa2fb521291",
-    "patches/dxe-dispatch-details.patch": "e2d6f60c9aa672bb7db0d39ca7564ce7e4e00ce8d885039d82c8fdfd708ce1b3",
-    "patches/dispatch-detail-options.patch": "1d2751ed718e8d6cd3fa3b7225588188d891f60c8640d76fa5cfe5f9d219c702",
-    "Resources/Scripts/enuma_preflight.py": "d02a4bcd34655aee17a7a92d27adc2845db091d22ae5de7b8b92f192e5d7b74c",
+    "diagnostics/EnumaDispatchDetailCheckpoint.h": "3cd504560593c54851b18a1e6ba1c0cb10989c3e0190c4978ac9365c1d91203e",
+    "patches/dxe-dispatch-details.patch": "49a051195269054894262788f65883c4665db5eec170db2f457e265b523be94d",
+    "patches/dispatch-detail-options.patch": "fff569351812dd2288d70e95f68d5b6832a4c484c91b95a2eb1a813132c6a144",
+    "Resources/Scripts/enuma_preflight.py": "d5ce72c955974130fbc47bbd9c951096eb4e3a38bdf49ccf9448e5f490e45e1b",
     "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af",
     "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f",
     "patches/diagnostic-ufs-selection.patch": "b79be283dc09951a91aa6fc99ec26aea7187f9845080d28445bf6dd50db5a523",
@@ -16,6 +16,7 @@
     "diagnostics/EnumaPoolSearchCheckpoint.h": "42ade1af349e16287e1198814aea079bbc7a846a9b3053ff105d33929053715b",
     "Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c": "926136fbf45aef45fda9a18c797e21cc361c2dbe34003176eadf9e98034a05d6",
     "patches/simplefb-contract.patch": "334bd21e74b868078e7793d0142158f920c39e7782d0f265277cede88c1b2d0f",
-    "patches/simplefb-diagnostic-selection.patch": "a4dc584cf7e50833d095d8a6e0b4b5951fc88d74b771144f4383aa38002fe364"
+    "patches/simplefb-diagnostic-selection.patch": "a4dc584cf7e50833d095d8a6e0b4b5951fc88d74b771144f4383aa38002fe364",
+    "diagnostics/EnumaDispatchCompletionCheckpoint.h": "863facc343dac1aa1b2a2b00a91a729f2014f5ef5c45ee5f1d919b5e4bf59b00"
   }
 }

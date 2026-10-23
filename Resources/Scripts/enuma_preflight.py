@@ -136,6 +136,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     shutil.copyfile(source/'diagnostics/EnumaDispatchCheckpoint.h', dxe/'Dispatcher/EnumaDispatchCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchDetailCheckpoint.h', dxe/'Dispatcher/EnumaDispatchDetailCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaImageEntryCheckpoint.h', dxe/'Dispatcher/EnumaImageEntryCheckpoint.h')
+    shutil.copyfile(source/'diagnostics/EnumaDispatchCompletionCheckpoint.h', dxe/'DxeMain/EnumaDispatchCompletionCheckpoint.h')
     for name in ('EnumaStageCheckpoint.h', 'EnumaUnhandledExceptionCheckpoint.h'):
         shutil.copyfile(source/'diagnostics'/name, exception/'AArch64'/name)
     shutil.copyfile(source/'diagnostics/EnumaPoolSearchCheckpoint.h', dxe/'Mem/EnumaPoolSearchCheckpoint.h')

@@ -10,6 +10,8 @@ Build through the companion device repository's `board.toml [firmware]` and `scr
 
 The wrapper accepts `--unixnu`, `--reference` (a checkout containing the pinned Mu submodules; defaults to the firmware source) and diagnostic `--stop-stage`, `--stop-delay`, `--dispatch-ordinal`. Private vendor inputs must already be extracted into the device repository's `out/firmware-vendor`.
 
+The companion also supports `--dispatch-guid-only --dispatch-guid <full UUID>` for stage 13 driver detail gates, with ordinal 1 as an unused placeholder. Optional `--dispatch-completion-fallback` resets seven seconds after the initial `CoreDispatcher` returns, before architectural-protocol checks and BDS. This is a synchronous normal-path fallback, not a watchdog: a hung driver or dispatcher prevents it from running. Neither a fallback reset nor static APRIORI position proves target execution. Defaults retain ordinal matching and disable the fallback.
+
 The device remains `example=true`: the official top-level build guard still rejects an incomplete full-device build. The explicitly scoped wrapper builds firmware only; it does not prelink XNU, boot a device, change memory values or set verification flags. Android boot v3 packaging remains in the device repository; generic gzip/v0 packaging must not replace it.
 
 Status, recovery rules and evidence: [device STATUS](https://github.com/wh1stl3/UniXNU-enuma/blob/main/docs/STATUS.md). Current physical evidence reaches the first scheduled queue entry before loading; GOP and dispatch completion are unproven. Imported `docs/enuma-overlay.md` is historical prototype documentation, not the current status.
