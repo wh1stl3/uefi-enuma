@@ -1,4 +1,6 @@
-# R-005 pixel preview proposal (not execution approval)
+# R-005 bounded pixel preview
+
+2026-10-24 authorization update: the user explicitly stated “批准R005” and confirmed onsite recovery with camera use. The companion approval ledger records this authorization and binds only the fully qualified final image. This document describes the implementation; current exact digests, matched-control results, runtime evidence and recovery state remain in the companion STATUS/HANDOFF/NEED-REVIEW. The qualified runtime source is c73eb6e; subsequent documentation-only commits are not different runtime candidates.
 
 Step12 has a user-confirmed no-button controlled Android return. Its timing supports one bounded descriptor hypothesis; it does not prove activity, uniqueness, physical/IOVA identity or channel order. R-004 explicitly excluded pixel writes. This implementation is prepared offline for a separate, exact-image R-005 review.
 
@@ -10,4 +12,4 @@ The ARM synchronization helper derives cache line size from CTR_EL0, uses DC CIV
 
 All-white avoids assuming RGB channel order, but the selected descriptor may be stale/inactive or its register address may be an IOVA. Writing the numerically bounded address as physical RAM can therefore produce no visible mark. The operation remains constrained to existing display-reserved RAM; neither drawing nor IOVA identity is claimed before observing the screen. CPU exceptions or a hung read/cache/Stall callback can prevent software restoration. The synchronous Core fallback is not a watchdog; manual recovery remains required if return fails. A successful recovery still requires Android completion/root/original partition checks and actual no-button evidence.
 
-Host fake-memory scenarios cover boundary/alias refusals, descriptor changes before stores, normal save/paint/restore/readback, wait errors and readback corruption. Actual AArch64 objects include local 4096-byte scratch and cache instructions, with only the existing gBS external. Full FD/build/boot-v3 qualification and concrete image digest must be completed before requesting R-005. Use the companion STATUS/HANDOFF/NEED-REVIEW for current approval state, candidate hashes and runtime evidence.
+Host fake-memory scenarios cover boundary/alias refusals, descriptor changes before stores, normal save/paint/restore/readback, wait errors and readback corruption. Actual AArch64 objects include local 4096-byte scratch and cache instructions, with only the existing gBS external. Full FD/build/boot-v3 qualification and a concrete image digest remain prerequisites to execution despite the recorded approval. Use the companion STATUS/HANDOFF/NEED-REVIEW for current approval state, candidate hashes and runtime evidence.
