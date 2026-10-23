@@ -41,6 +41,28 @@ EnumaScanoutLinearCandidates (ENUMA_SCANOUT_READ32 Read)
   return Matches != 0 ? EFI_SUCCESS : EFI_UNSUPPORTED;
 }
 STATIC inline EFI_STATUS
+EnumaScanoutGeometryCandidates (ENUMA_SCANOUT_READ32 Read)
+{
+  CONST UINT32 Pipes[8] = {0x5000,0x7000,0x9000,0xb000,0x25000,0x27000,0x29000,0x2b000};
+  UINTN I, Matches = 0;
+  if (Read == NULL) { return EFI_INVALID_PARAMETER; }
+  for (I = 0; I < 8; I++) {
+    UINTN P = 0x0ae00000U + Pipes[I];
+    UINT32 Base = Read(P + 0x14);
+    if (Base >= 0x9c000000U && Base < 0x9e300000U) {
+      UINT32 Size = Read(P), Pitch = Read(P + 0x24);
+      Matches++;
+      // Step11: geometry/span hypothesis only, at most 24 reads. Format,
+      // crop, secondary planes, uniqueness and activity remain unproven.
+      if (Size != ((2560U << 16) | 1600U) || Pitch != 6400 ||
+          (Base & 3U) != 0 || (UINT64)Base + 6400ULL * 2560 > 0x9e300000ULL) {
+        return EFI_UNSUPPORTED;
+      }
+    }
+  }
+  return Matches != 0 ? EFI_SUCCESS : EFI_UNSUPPORTED;
+}
+STATIC inline EFI_STATUS
 EnumaScanoutCheck (ENUMA_SCANOUT_READ32 Read)
 {
   CONST UINT32 Pipes[8] = {0x5000,0x7000,0x9000,0xb000,0x25000,0x27000,0x29000,0x2b000};

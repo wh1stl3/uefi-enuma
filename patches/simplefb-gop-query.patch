@@ -10,7 +10,7 @@
 +#ifndef ENUMA_DIAG_GOP_STEP
 +#define ENUMA_DIAG_GOP_STEP 0
 +#endif
-+#if ENUMA_DIAG_GOP_QUERY < 0 || ENUMA_DIAG_GOP_QUERY > 2 || ENUMA_DIAG_GOP_STEP < 0 || ENUMA_DIAG_GOP_STEP > 10
++#if ENUMA_DIAG_GOP_QUERY < 0 || ENUMA_DIAG_GOP_QUERY > 2 || ENUMA_DIAG_GOP_STEP < 0 || ENUMA_DIAG_GOP_STEP > 11
 +#error Unsupported GOP audit selector or step
 +#endif
 +#if !ENUMA_DIAG_GOP_QUERY && ENUMA_DIAG_GOP_STEP
@@ -33,7 +33,7 @@
 
  //
  // Global Variables
-@@ -333,6 +359,26 @@
+@@ -333,6 +359,28 @@
      goto cleanup;
    }
 
@@ -42,7 +42,9 @@
 +  // driver resident; installation errors above never become audit markers.
 +#if ENUMA_DIAG_GOP_STEP > 0
 +#if ENUMA_DIAG_GOP_STEP >= 8
-+#if ENUMA_DIAG_GOP_STEP == 10
++#if ENUMA_DIAG_GOP_STEP == 11
++  Status = EnumaScanoutGeometryCandidates (EnumaScanoutRead32);
++#elif ENUMA_DIAG_GOP_STEP == 10
 +  Status = EnumaScanoutLinearCandidates (EnumaScanoutRead32);
 +#elif ENUMA_DIAG_GOP_STEP == 9
 +  Status = EnumaScanoutAddressPresent (EnumaScanoutRead32);
