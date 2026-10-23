@@ -85,15 +85,18 @@ def main(device_root=None):
     parser.add_argument('--dispatch-guid-only', action='store_true', help='select a complete file GUID without a guessed runtime ordinal; use ordinal 1 as placeholder')
     parser.add_argument('--dispatch-completion-fallback', action='store_true', help='GUID-only diagnostic: reset 7 s after initial CoreDispatcher returns, before missing-arch checks/BDS; cannot recover hangs')
     selection = parser.add_mutually_exclusive_group()
-    selection.add_argument('--diagnostic-simplefb',action='store_true',help='metadata-only SimpleFb; omit exact CPR/Display/UFS set, no pixel drawing')
+    selection.add_argument('--diagnostic-simplefb',action='store_true',help='metadata GOP provider; omit exact CPR/Display/UFS set; pixel experiment needs its separate explicit flag/review')
     selection.add_argument('--diagnostic-without-ufs',action='store_true',help='GOP isolation only; default firmware retains OEM UFSDxe')
     parser.add_argument('--diagnostic-gop-query', type=int, choices=(0,1,2), default=0, help='1: reset on read-only GOP audit pass; 2: reset on failure; 0: disabled')
-    parser.add_argument('--diagnostic-gop-step', type=int, choices=range(13), default=0, help='0: control; 1: enumerate/free; 2: HandleProtocol; 3: full Mode/span; 4: QueryMode; 5: Mode pointer presence; 6: Mode header; 7: Info fields; 8: read-only MDP descriptor predicate; 9: splash source address presence; 10: candidate linear packing; 11: fixed candidate geometry/span; 12: decoded bounded descriptor')
+    parser.add_argument('--diagnostic-gop-step', type=int, choices=range(14), default=0, help='0..12: existing control/read-only stages; 13: R-005 proposed pixel preview, requires --diagnostic-pixel-preview')
+    parser.add_argument('--diagnostic-pixel-preview',action='store_true',help='BUILD ONLY R-005 proposal; step13/query1 only; hardware execution requires separate explicit pixel approval')
     args = parser.parse_args()
     ROOT = args.device_root.resolve()
     WORK = ROOT / 'out/firmware-build'
     if args.diagnostic_gop_step and not args.diagnostic_gop_query:
         parser.error('GOP steps require --diagnostic-gop-query')
+    if args.diagnostic_pixel_preview != (args.diagnostic_gop_step == 13) or (args.diagnostic_pixel_preview and args.diagnostic_gop_query != 1):
+        parser.error('Pixel preview requires exactly step13/query1 and its explicit flag; hardware approval is separate')
     if args.diagnostic_gop_query and not (args.diagnostic_simplefb and args.stop_stage == 13 and args.stop_delay == 2 and args.detail_point == 16 and args.dispatch_guid_only and args.dispatch_completion_fallback and args.dispatch_guid and args.dispatch_guid.lower() == 'dcfd1e6d-788d-4ffc-8e1b-ca2f75651a92'):
         parser.error('GOP query requires SimpleFb GUID-only stage13/detail16/delay2 with completion fallback')
     if not 1 <= args.dispatch_ordinal <= 128: parser.error('--dispatch-ordinal must be 1..128')
@@ -181,6 +184,7 @@ def main(device_root=None):
         ENUMA_DIAG_GOP_STEP=str(args.diagnostic_gop_step),
         ENUMA_DIAG_GUID_ONLY='1' if args.dispatch_guid_only else '0',
         ENUMA_DIAG_DISPATCH_FALLBACK='1' if args.dispatch_completion_fallback else '0', **guid_defines)
+    if args.diagnostic_pixel_preview:board['firmware']['defines']['ENUMA_DIAG_PIXEL_PREVIEW']='1'
     ctx=SimpleNamespace(board=board,args=SimpleNamespace(skip_preflight=False),tree=tree,
                         logs=WORK/'logs',work=WORK/'context',jobs=args.jobs)
     fd=uefi/board['firmware']['fd'].format(target='DEBUG')
@@ -196,7 +200,9 @@ def main(device_root=None):
         'diagnostic_dispatch_completion_fallback':args.dispatch_completion_fallback,
         'diagnostic_dispatch_completion_delay_seconds':7 if args.dispatch_completion_fallback else None,
         'diagnostic_omitted_oem_modules':(['CPRDxe','DisplayDxe','UFSDxe'] if args.diagnostic_simplefb else ['UFSDxe'] if args.diagnostic_without_ufs else []),
-        'diagnostic_simplefb_metadata_only':args.diagnostic_simplefb,
+        'diagnostic_simplefb_metadata_only':args.diagnostic_simplefb and not args.diagnostic_pixel_preview,
+        'diagnostic_pixel_preview':args.diagnostic_pixel_preview,
+        'hardware_review_required':'R-005' if args.diagnostic_pixel_preview else None,
         'diagnostic_gop_query':args.diagnostic_gop_query,
         'diagnostic_gop_step':args.diagnostic_gop_step,
         'diagnostic_gop_reset_owner':'DxeCore' if args.diagnostic_gop_query else None,
