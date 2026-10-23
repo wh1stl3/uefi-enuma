@@ -1,0 +1,61 @@
+--- a/Platforms/Xiaomi/enumaPkg/enuma.dsc
++++ b/Platforms/Xiaomi/enumaPkg/enuma.dsc
+@@ -19,3 +19,7 @@
+   FLASH_DEFINITION = enumaPkg/enuma.fdf
++!if $(ENUMA_DIAG_SIMPLEFB) == 1
++  USE_CUSTOM_DISPLAY_DRIVER = 0
++!else
+   USE_CUSTOM_DISPLAY_DRIVER = 1
++!endif
+   SOC_TYPE = 2
+--- a/Platforms/Xiaomi/enumaPkg/Include/PlatformConfig.inc
++++ b/Platforms/Xiaomi/enumaPkg/Include/PlatformConfig.inc
+@@ -13,2 +13,6 @@
+   gSiliciumPkgTokenSpaceGuid.PcdFrameBufferHeight|2560
++!if $(ENUMA_DIAG_SIMPLEFB) == 1
++  # Diagnostic metadata hypothesis only; Blt is disabled in this mode.
++  gSiliciumPkgTokenSpaceGuid.PcdFrameBufferColorDepth|32
++!endif
+
+--- a/EnumaInputs/Vendor.dsc.inc
++++ b/EnumaInputs/Vendor.dsc.inc
+@@ -1,3 +1,5 @@
+ [Components]
++!if $(ENUMA_DIAG_SIMPLEFB) == 0
+   Binaries/enuma/CPRDxe/CPRDxe.inf
++!endif
+   Binaries/enuma/ChipInfo/ChipInfo.inf
+@@ -9,3 +11,5 @@
+   Binaries/enuma/DDRInfoDxe/DDRInfoDxe.inf
++!if $(ENUMA_DIAG_SIMPLEFB) == 0
+   Binaries/enuma/DisplayDxe/DisplayDxe.inf
++!endif
+   Binaries/enuma/EnvDxe/EnvDxe.inf
+--- a/EnumaInputs/Vendor.fdf.inc
++++ b/EnumaInputs/Vendor.fdf.inc
+@@ -1,2 +1,4 @@
++!if $(ENUMA_DIAG_SIMPLEFB) == 0
+   INF Binaries/enuma/CPRDxe/CPRDxe.inf
++!endif
+   INF Binaries/enuma/ChipInfo/ChipInfo.inf
+@@ -8,3 +10,7 @@
+   INF Binaries/enuma/DDRInfoDxe/DDRInfoDxe.inf
++!if $(ENUMA_DIAG_SIMPLEFB) == 0
+   INF Binaries/enuma/DisplayDxe/DisplayDxe.inf
++!else
++  INF SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
++!endif
+   INF Binaries/enuma/EnvDxe/EnvDxe.inf
+--- a/EnumaInputs/Vendor.apriori.inc
++++ b/EnumaInputs/Vendor.apriori.inc
+@@ -26,4 +26,10 @@
+   INF Binaries/enuma/I2C/I2C.inf
++!if $(ENUMA_DIAG_SIMPLEFB) == 0
+   INF Binaries/enuma/DisplayDxe/DisplayDxe.inf
++!else
++  INF SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
++!endif
++!if $(ENUMA_DIAG_SIMPLEFB) == 0
+   INF Binaries/enuma/CPRDxe/CPRDxe.inf
++!endif
+   INF Binaries/enuma/GpiDxe/GpiDxe.inf

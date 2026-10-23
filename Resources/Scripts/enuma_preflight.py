@@ -79,6 +79,8 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
             target = uefi / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source / relative, target)
+    simplefb = 'Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c'
+    (uefi/simplefb).write_bytes((source/simplefb).read_bytes().replace(b'\r\n', b'\n'))
     target = uefi / 'Resources/Scripts/mkbootimg.py'
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(source / 'Resources/Scripts/mkbootimg.py', target)
@@ -126,7 +128,8 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
                 raise ValueError('Mu diagnostic baseline changed: ' + relative)
     apply_patch_series([(uefi, source/'patches'/name) for name in (
         'kona-preserve-display.patch', 'sec-preserve-display.patch', 'sec-stage-checkpoints.patch',
-        'dispatch-detail-options.patch', 'apriori-metronome.patch', 'diagnostic-ufs-selection.patch')])
+        'dispatch-detail-options.patch', 'apriori-metronome.patch', 'diagnostic-ufs-selection.patch',
+        'simplefb-contract.patch', 'simplefb-diagnostic-selection.patch')])
     for target in (sec, dxe/'DxeMain', dxe/'Dispatcher', dxe/'Mem'):
         shutil.copyfile(source/'diagnostics/EnumaStageCheckpoint.h', target/'EnumaStageCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchCheckpoint.h', dxe/'Dispatcher/EnumaDispatchCheckpoint.h')
