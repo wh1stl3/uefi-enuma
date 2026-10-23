@@ -5,7 +5,7 @@
   "files": {
     "diagnostics/EnumaDispatchDetailCheckpoint.h": "d5d0e4875d8331e3d8f516f5c38a97c51e8cf5766d7fca7441f4965aea83ea41",
     "patches/dxe-dispatch-details.patch": "49a051195269054894262788f65883c4665db5eec170db2f457e265b523be94d",
-    "patches/dispatch-detail-options.patch": "7dbd09f9016ae939d58774ea7941318cfbd96c5d07cb14059f40f1c456e49df9",
+    "patches/dispatch-detail-options.patch": "9f065dbe55c54ba192c8f088e455f1a9850aeb8fb3f5c6522fc6a49412bd6a87",
     "Resources/Scripts/enuma_preflight.py": "29ae5b0f6f409a0752e969bede331d443d5b35da4ecd1ffd15353517c24384c1",
     "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af",
     "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f",
@@ -21,7 +21,7 @@
     "diagnostics/EnumaGopAudit.h": "e6db3b2794b9dc49a5c98790ef2cfcf900af1126b3c2f20ebb30297c5eba46e5",
     "patches/simplefb-gop-query.patch": "e6ea0dc0abbe300bf485184418a7eb08dad79b95103aae440924e41c5f6f3da9",
     "diagnostics/EnumaGopResult.h": "15439f96c32387cccd57c8f40d5a703600af6478c616eebe896b6a5fb536d184",
-    "Resources/Scripts/build_enuma_firmware.py": "c21e4fb7989115fe7bdc47dfff225a3de1ae36cba9570e1be88f573b139e5c66",
+    "Resources/Scripts/build_enuma_firmware.py": "dc026c259c00d90ebf3c1d0f3c2f21deeb1f2ebc7e6f7e637fd431029fa6ba2c",
     "Resources/Scripts/enuma_firmware_preflight.py": "eb9af118480cf90166854337ed76cf850485b6e2f890e592ed7a339fbc39521a",
     "diagnostics/EnumaScanoutAudit.h": "ba17b2095905e8377dae40d1898538efd4016c658fa14739567de6eff5302317",
     "patches/display-mdp-map.patch": "5aa0f4e584349354000c50a181fb7a0aa31c43b1f4128a72bc35469e90fd14b4",

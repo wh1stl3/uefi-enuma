@@ -182,9 +182,9 @@ def main(device_root=None):
         ENUMA_DIAG_SIMPLEFB='1' if args.diagnostic_simplefb else '0',
         ENUMA_DIAG_GOP_QUERY=str(args.diagnostic_gop_query),
         ENUMA_DIAG_GOP_STEP=str(args.diagnostic_gop_step),
+        ENUMA_DIAG_PIXEL_PREVIEW='1' if args.diagnostic_pixel_preview else '0',
         ENUMA_DIAG_GUID_ONLY='1' if args.dispatch_guid_only else '0',
         ENUMA_DIAG_DISPATCH_FALLBACK='1' if args.dispatch_completion_fallback else '0', **guid_defines)
-    if args.diagnostic_pixel_preview:board['firmware']['defines']['ENUMA_DIAG_PIXEL_PREVIEW']='1'
     ctx=SimpleNamespace(board=board,args=SimpleNamespace(skip_preflight=False),tree=tree,
                         logs=WORK/'logs',work=WORK/'context',jobs=args.jobs)
     fd=uefi/board['firmware']['fd'].format(target='DEBUG')
