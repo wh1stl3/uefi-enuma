@@ -134,7 +134,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     sec_text = (sec/'Sec.c').read_text()
     if '__TIME__' in sec_text or '__DATE__' in sec_text or 'Source epoch %a on %a' not in sec_text:
         raise ValueError('SEC banner is not fixed to the existing source epoch')
-    for name in ('EnumaGopAudit.h', 'EnumaGopResult.h', 'EnumaScanoutAudit.h', 'EnumaScanoutDescriptor.h', 'EnumaPixelPreview.h', 'EnumaPixelPreviewArm.h', 'EnumaDsiCounters.h', 'EnumaDsiNativeProgress.h'):
+    for name in ('EnumaGopAudit.h', 'EnumaGopResult.h', 'EnumaScanoutAudit.h', 'EnumaScanoutDescriptor.h', 'EnumaPixelPreview.h', 'EnumaPixelPreviewArm.h', 'EnumaDsiCounters.h', 'EnumaDsiNativeProgress.h', 'EnumaScanoutRoute.h'):
         shutil.copyfile(source/'diagnostics'/name, (uefi/simplefb).parent/name)
     for target in (sec, dxe/'DxeMain', dxe/'Dispatcher', dxe/'Mem'):
         shutil.copyfile(source/'diagnostics/EnumaStageCheckpoint.h', target/'EnumaStageCheckpoint.h')

@@ -1,6 +1,6 @@
 --- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
 +++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
-@@ -7,6 +7,62 @@
+@@ -7,6 +7,65 @@
  #include <Library/PcdLib.h>
 
  #include <Configuration/BootDevices.h>
@@ -19,7 +19,7 @@
 +#if ENUMA_DIAG_PIXEL_PREVIEW && ENUMA_DIAG_GOP_QUERY != 1
 +#error Pixel preview requires the pass-return selector
 +#endif
-+#if ENUMA_DIAG_GOP_QUERY < 0 || ENUMA_DIAG_GOP_QUERY > 2 || ENUMA_DIAG_GOP_STEP < 0 || ENUMA_DIAG_GOP_STEP > 18
++#if ENUMA_DIAG_GOP_QUERY < 0 || ENUMA_DIAG_GOP_QUERY > 2 || ENUMA_DIAG_GOP_STEP < 0 || ENUMA_DIAG_GOP_STEP > 19
 +#error Unsupported GOP audit selector or step
 +#endif
 +#if !ENUMA_DIAG_GOP_QUERY && ENUMA_DIAG_GOP_STEP
@@ -46,8 +46,11 @@
 +#if ENUMA_DIAG_GOP_STEP >= 17
 +#include "EnumaDsiNativeProgress.h"
 +#endif
++#if ENUMA_DIAG_GOP_STEP == 19
++#include "EnumaScanoutRoute.h"
++#endif
 +STATIC UINT32 EnumaScanoutRead32 (UINTN Address) { return *(volatile UINT32 *)Address; }
-+#if ENUMA_DIAG_GOP_STEP == 16 || ENUMA_DIAG_GOP_STEP == 18
++#if ENUMA_DIAG_GOP_STEP == 16 || ENUMA_DIAG_GOP_STEP >= 18
 +STATIC EFI_STATUS EnumaDsiCounterWait (UINTN Microseconds)
 +{
 +  if (gBS == NULL || gBS->Stall == NULL) { return EFI_NOT_READY; }
@@ -63,7 +66,7 @@
 
  //
  // Global Variables
-@@ -333,6 +389,44 @@
+@@ -333,6 +392,46 @@
      goto cleanup;
    }
 
@@ -75,6 +78,8 @@
 +#if ENUMA_DIAG_GOP_STEP == 13
 +  { UINT32 Scratch[ENUMA_PIXEL_COUNT];
 +    Status = EnumaPixelPreviewArm (Scratch, ENUMA_PIXEL_COUNT); }
++#elif ENUMA_DIAG_GOP_STEP == 19
++  Status = EnumaScanoutStagedProgress (EnumaScanoutRead32, EnumaDsiCounterWait);
 +#elif ENUMA_DIAG_GOP_STEP == 17
 +  Status = EnumaDsiNativeActive (EnumaScanoutRead32);
 +#elif ENUMA_DIAG_GOP_STEP == 18
