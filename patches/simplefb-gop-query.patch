@@ -38,15 +38,13 @@
  cleanup:
 --- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
 +++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
-@@ -17,6 +17,11 @@
+@@ -17,6 +17,9 @@
 
  [LibraryClasses]
    DebugLib
-+!if $(ENUMA_DIAG_GOP_QUERY) != 0
 +  BaseLib
 +  TimerLib
 +  ResetSystemLib
-+!endif
    FrameBufferBltLib
    UefiBootServicesTableLib
    UefiDriverEntryPoint

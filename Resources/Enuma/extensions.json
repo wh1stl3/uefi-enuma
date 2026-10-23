@@ -19,6 +19,6 @@
     "patches/simplefb-diagnostic-selection.patch": "a4dc584cf7e50833d095d8a6e0b4b5951fc88d74b771144f4383aa38002fe364",
     "diagnostics/EnumaDispatchCompletionCheckpoint.h": "863facc343dac1aa1b2a2b00a91a729f2014f5ef5c45ee5f1d919b5e4bf59b00",
     "diagnostics/EnumaGopAudit.h": "317dc3488e695db4c45e8b0dbc813960d608862ae2e661f9e8b13eee895ffd19",
-    "patches/simplefb-gop-query.patch": "670302c60feeaecb9d404dc829e44447888ddde83198550589402d97005d6e7c"
+    "patches/simplefb-gop-query.patch": "fdfbb0bfa7d0b766dd7000777d8f4723a70357076365191ab5f1ef5303779554"
   }
 }
