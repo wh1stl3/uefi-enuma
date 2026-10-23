@@ -130,7 +130,10 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     apply_patch_series([(uefi, source/'patches'/name) for name in (
         'kona-preserve-display.patch', 'sec-preserve-display.patch', 'sec-stage-checkpoints.patch',
         'dispatch-detail-options.patch', 'apriori-metronome.patch', 'diagnostic-ufs-selection.patch',
-        'simplefb-contract.patch', 'simplefb-diagnostic-selection.patch', 'simplefb-gop-query.patch', 'display-mdp-map.patch')])
+        'simplefb-contract.patch', 'simplefb-diagnostic-selection.patch', 'simplefb-gop-query.patch', 'display-mdp-map.patch', 'sec-fixed-epoch-banner.patch')])
+    sec_text = (sec/'Sec.c').read_text()
+    if '__TIME__' in sec_text or '__DATE__' in sec_text or 'Source epoch %a on %a' not in sec_text:
+        raise ValueError('SEC banner is not fixed to the existing source epoch')
     for name in ('EnumaGopAudit.h', 'EnumaGopResult.h', 'EnumaScanoutAudit.h'):
         shutil.copyfile(source/'diagnostics'/name, (uefi/simplefb).parent/name)
     for target in (sec, dxe/'DxeMain', dxe/'Dispatcher', dxe/'Mem'):
@@ -144,6 +147,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
         shutil.copyfile(source/'diagnostics'/name, exception/'AArch64'/name)
     shutil.copyfile(source/'diagnostics/EnumaPoolSearchCheckpoint.h', dxe/'Mem/EnumaPoolSearchCheckpoint.h')
     report = {'scope': 'fixed inputs and writable staging, no firmware execution',
+              'sec_fixed_source_epoch':1792540800,'sec_staged_sha256':digest(sec/'Sec.c'),
               'vendor_files_checked': len(vendor_lock), 'reference_gitlinks': dependencies,
               'probe_upstream_sha256': reused, 'core_ready_for_official_patch_series': True}
     (device/'reports/enuma-firmware-preflight.json').write_text(json.dumps(report, indent=2)+'\n')
