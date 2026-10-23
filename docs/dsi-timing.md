@@ -1,0 +1,7 @@
+# Read-only DSI timing-enable probe
+
+Step14 reads only INTF_TIMING_ENGINE_EN at 0x0ae6b800 and 0x0ae6c000, exactly once each. These are the two DSI interfaces in the saved enuma DT and lie inside the existing R-004 mapping and valid DT range. A nonzero value on either interface returns success, following the fixed Qualcomm SDE get_status predicate; both zero returns EFI_UNSUPPORTED. A null callback is rejected without reads. This classifies configured timing enable only, not activity, SSPP routing, frame-counter movement, panel/backlight, physical/IOVA identity or visible pixels.
+
+The function uses the existing scanout callback/header and SimpleFb post-install warning transport. It adds no library, constructor, allocation, timer, map, memory field, counter enable or write. Step14 requires the existing bounded GUID-only stage13/detail16/delay2/query profile. Query1 and query2 provide complementary Core return selection; Core's synchronous completion fallback cannot recover a hung read or driver.
+
+Step13 remains the separately flagged pixel experiment; its one-shot R-005 approval is consumed and is not reused for this read-only work. Default profiles retain pixel-preview=0. Prior stages keep their semantics. The companion owns host/object tests, full matching step12/step14 builds, actual FD/AutoGen/library/Boot v3 audits, current documents, device gates and results. See its STATUS/HANDOFF before using any image.

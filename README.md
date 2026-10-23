@@ -1,5 +1,7 @@
 # uefi-enuma
 
+Current read-only software (2026-10-24): step14 adds exactly two DSI timing-enable reads with the existing Core warning return path. It does not write pixels/registers or add mappings/dependencies; nonzero means configured timing enable only. Host/AArch64 qualification and matching full-build/runtime status are maintained by the companion. See [DSI timing contract](docs/dsi-timing.md). R-005 stays consumed.
+
 Mu-Silicium firmware source for Xiaomi Pad 5 Pro 5G (enuma / SM8250). Companion device repository: [UniXNU-enuma](https://github.com/wh1stl3/UniXNU-enuma).
 
 Based on UniXNU/uefi-sheng `329b473df1e53a3bfa64b2b39b79670c4c02279b`. Existing enuma platform files, six patches and diagnostic headers are imported from device commit `1ab7ee8`, with file hashes in `Resources/Enuma/migration.json`. The upstream root license is preserved; device additions retain `LICENSE.enuma` and their SPDX notices.

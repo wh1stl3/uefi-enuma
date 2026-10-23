@@ -4,6 +4,18 @@
 #define ENUMA_SCANOUT_AUDIT_H
 #include <Uefi.h>
 typedef UINT32 (*ENUMA_SCANOUT_READ32)(UINTN Address);
+// Step14: exactly two DSI INTF_TIMING_ENGINE_EN reads in the existing R-004
+// map. Nonzero follows the fixed SDE get_status predicate; no activity,
+// routing, panel/backlight, counter or physical/IOVA claim is implied.
+STATIC inline EFI_STATUS
+EnumaDsiTimingEnabled (ENUMA_SCANOUT_READ32 Read)
+{
+  UINT32 First, Second;
+  if (Read == NULL) { return EFI_INVALID_PARAMETER; }
+  First = Read (0x0ae6b800U);
+  Second = Read (0x0ae6c000U);
+  return (First != 0 || Second != 0) ? EFI_SUCCESS : EFI_UNSUPPORTED;
+}
 // Step9: inspect source-address registers only; no geometry/format reads.
 STATIC inline EFI_STATUS
 EnumaScanoutAddressPresent (ENUMA_SCANOUT_READ32 Read)

@@ -19,7 +19,7 @@
 +#if ENUMA_DIAG_PIXEL_PREVIEW && ENUMA_DIAG_GOP_QUERY != 1
 +#error Pixel preview requires the pass-return selector
 +#endif
-+#if ENUMA_DIAG_GOP_QUERY < 0 || ENUMA_DIAG_GOP_QUERY > 2 || ENUMA_DIAG_GOP_STEP < 0 || ENUMA_DIAG_GOP_STEP > 13
++#if ENUMA_DIAG_GOP_QUERY < 0 || ENUMA_DIAG_GOP_QUERY > 2 || ENUMA_DIAG_GOP_STEP < 0 || ENUMA_DIAG_GOP_STEP > 14
 +#error Unsupported GOP audit selector or step
 +#endif
 +#if !ENUMA_DIAG_GOP_QUERY && ENUMA_DIAG_GOP_STEP
@@ -50,7 +50,7 @@
 
  //
  // Global Variables
-@@ -333,6 +376,34 @@
+@@ -333,6 +376,36 @@
      goto cleanup;
    }
 
@@ -62,6 +62,8 @@
 +#if ENUMA_DIAG_GOP_STEP == 13
 +  { UINT32 Scratch[ENUMA_PIXEL_COUNT];
 +    Status = EnumaPixelPreviewArm (Scratch, ENUMA_PIXEL_COUNT); }
++#elif ENUMA_DIAG_GOP_STEP == 14
++  Status = EnumaDsiTimingEnabled (EnumaScanoutRead32);
 +#elif ENUMA_DIAG_GOP_STEP == 12
 +  { ENUMA_SCANOUT_DESCRIPTOR Descriptor;
 +    Status = EnumaScanoutFindBoundedDescriptor (EnumaScanoutRead32, &Descriptor); }
