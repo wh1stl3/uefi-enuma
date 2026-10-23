@@ -40,7 +40,7 @@ EnumaGopAudit (
   UINT64 Required;
 
   if (Services == NULL || ExpectedHandle == NULL || ExpectedGop == NULL ||
-      Step < 1 || Step > 4) {
+      Step < 1 || Step > 7) {
     return EFI_INVALID_PARAMETER;
   }
   Status = Services->LocateHandleBuffer (ByProtocol,
@@ -72,16 +72,35 @@ EnumaGopAudit (
   if (Gop->Mode == NULL || Gop->QueryMode == NULL) {
     goto Done;
   }
+  // Additive substeps preserve legacy 0..4 meanings. Step 5 checks pointer
+  // presence only; it deliberately does not dereference Mode or call QueryMode.
+  if (Step == 5) {
+    Status = EFI_SUCCESS;
+    goto Done;
+  }
   Mode = Gop->Mode;
   Info = Mode->Info;
   if (Mode->MaxMode != 1 || Mode->Mode != 0 || Info == NULL ||
-      Mode->SizeOfInfo != sizeof (*Info) || Info->Version != 0 ||
-      Info->HorizontalResolution == 0 || Info->VerticalResolution == 0 ||
-      Info->PixelsPerScanLine < Info->HorizontalResolution ||
-      Info->PixelFormat != PixelBlueGreenRedReserved8BitPerColor ||
-      Mode->FrameBufferBase == 0) {
+      Mode->SizeOfInfo != sizeof (*Info)) {
     goto Done;
   }
+  // Step 6 reads Mode but does not dereference the Info pointer.
+  if (Step == 6) {
+    Status = EFI_SUCCESS;
+    goto Done;
+  }
+  if (Info->Version != 0 ||
+      Info->HorizontalResolution == 0 || Info->VerticalResolution == 0 ||
+      Info->PixelsPerScanLine < Info->HorizontalResolution ||
+      Info->PixelFormat != PixelBlueGreenRedReserved8BitPerColor) {
+    goto Done;
+  }
+  // Step 7 reads Info fields, but omits framebuffer descriptor/span checks.
+  if (Step == 7) {
+    Status = EFI_SUCCESS;
+    goto Done;
+  }
+  if (Mode->FrameBufferBase == 0) { goto Done; }
   // Multiply in UINT64 with an explicit overflow guard, including 32-bit UINTN.
   Required = (UINT64)Info->PixelsPerScanLine * Info->VerticalResolution;
   if (Required > MAX_UINT64 / 4) {

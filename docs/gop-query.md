@@ -33,3 +33,19 @@ No framebuffer dereference, Blt, SetMode, MMIO, new physical reservation or
 verified flag. Metadata consistency does not establish physical scanout or
 safe pixel ownership. All new stages remain hardware-unverified until separately
 tested with current recovery guards. Old 250849f images must not be retried.
+
+## Mode fault-isolation substeps (additive IDs)
+
+Legacy 0..4 meanings are unchanged. After a step3 timeout, use a freshly built
+same-source step2 control before step5. Step5 adds Mode/QueryMode pointer presence
+checks without dereferencing Mode. Step6 adds Mode header/Info pointer/size checks
+without dereferencing Info. Step7 adds Info fields but skips framebuffer range
+and arithmetic; legacy step3 completes those checks. All substeps still free
+the handle list and return through the same Core warning gate. They do not
+prove allocation provenance, readable pointer ownership, scanout or live values.
+A non-NULL pointer is not proof it is safe to dereference. Failed substeps must
+be isolated before proceeding; cleanup and altered layout remain confounders.
+
+Host poison-pointer cases explicitly verify that step5 avoids Mode dereferences,
+step6 avoids Info dereferences, and step7 does not evaluate the final span.
+No QueryMode, pixel access, local reset library or new memory reservation is added.
