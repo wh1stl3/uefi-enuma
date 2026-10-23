@@ -6,7 +6,7 @@
     "diagnostics/EnumaDispatchDetailCheckpoint.h": "d5d0e4875d8331e3d8f516f5c38a97c51e8cf5766d7fca7441f4965aea83ea41",
     "patches/dxe-dispatch-details.patch": "49a051195269054894262788f65883c4665db5eec170db2f457e265b523be94d",
     "patches/dispatch-detail-options.patch": "7dbd09f9016ae939d58774ea7941318cfbd96c5d07cb14059f40f1c456e49df9",
-    "Resources/Scripts/enuma_preflight.py": "2b0bd1116482519f9f207a8d85fd7ca197335d433ca6dc15ec5792a50f0d6163",
+    "Resources/Scripts/enuma_preflight.py": "2e39ff082537e0bb3fd73859bb94731d5f56ab0534e04c10a927e572dbe1e747",
     "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af",
     "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f",
     "patches/diagnostic-ufs-selection.patch": "b79be283dc09951a91aa6fc99ec26aea7187f9845080d28445bf6dd50db5a523",
@@ -19,9 +19,11 @@
     "patches/simplefb-diagnostic-selection.patch": "a4dc584cf7e50833d095d8a6e0b4b5951fc88d74b771144f4383aa38002fe364",
     "diagnostics/EnumaDispatchCompletionCheckpoint.h": "863facc343dac1aa1b2a2b00a91a729f2014f5ef5c45ee5f1d919b5e4bf59b00",
     "diagnostics/EnumaGopAudit.h": "e6db3b2794b9dc49a5c98790ef2cfcf900af1126b3c2f20ebb30297c5eba46e5",
-    "patches/simplefb-gop-query.patch": "f60706f9c9905f72fa2a7296830eecd86ef2d508a368a1e8c33d1f4bbb672921",
+    "patches/simplefb-gop-query.patch": "eda2b47c3f11bab12589bdd246b321b6eeb41b1183d439a315e7607603496796",
     "diagnostics/EnumaGopResult.h": "15439f96c32387cccd57c8f40d5a703600af6478c616eebe896b6a5fb536d184",
-    "Resources/Scripts/build_enuma_firmware.py": "10817b590ca4a7f4e87486d9bf514826bfe780ee1bf1222ac3ffb2aaf3a290b2",
-    "Resources/Scripts/enuma_firmware_preflight.py": "eb9af118480cf90166854337ed76cf850485b6e2f890e592ed7a339fbc39521a"
+    "Resources/Scripts/build_enuma_firmware.py": "a40ee18cb1bc1125be052eae2589c6b05f8c32ebc2352878cec8dc11c84854cc",
+    "Resources/Scripts/enuma_firmware_preflight.py": "eb9af118480cf90166854337ed76cf850485b6e2f890e592ed7a339fbc39521a",
+    "diagnostics/EnumaScanoutAudit.h": "168e57370139ca73f008cbec111447c23fbdf56c03173417f3d60a6ec0c96bff",
+    "patches/display-mdp-map.patch": "5aa0f4e584349354000c50a181fb7a0aa31c43b1f4128a72bc35469e90fd14b4"
   }
 }
