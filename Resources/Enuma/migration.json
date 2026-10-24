@@ -33,7 +33,7 @@
     },
     "patches/dxe-stage-checkpoints.patch": {
       "destination": "patches/dxe-stage-checkpoints.patch",
-      "sha256": "6556cb3b2c2d26dbca6e375c305e137f24e9172a07d5fa9380855c2b10d0148e"
+      "sha256": "41b0e6c4c33d9f74d112e8fb65681dec0d9a74fbd34dec54dd0b83c876fcae3e"
     },
     "patches/kona-preserve-display.patch": {
       "destination": "patches/kona-preserve-display.patch",
