@@ -1,10 +1,9 @@
 --- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
 +++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
-@@ -7,6 +7,78 @@
+@@ -7,6 +7,77 @@
  #include <Library/PcdLib.h>
 
  #include <Configuration/BootDevices.h>
-+#include <Library/UefiRuntimeServicesTableLib.h>
 +#ifndef ENUMA_DIAG_GOP_QUERY
 +#define ENUMA_DIAG_GOP_QUERY 0
 +#endif
@@ -79,7 +78,7 @@
 
  //
  // Global Variables
-@@ -333,6 +404,80 @@
+@@ -333,6 +404,81 @@
      goto cleanup;
    }
 
@@ -105,9 +104,10 @@
 +    };
 +    UINT32 Nibble;
 +    Nibble = ((*(volatile UINT32 *)ProbeAddress[ENUMA_DIAG_GOP_STEP - 1]) >> 4) & 0x0fU;
++    // The extra stall carries the value out; the driver then returns and
++    // the ordinary pass gate performs the reset, so no runtime services
++    // dependency is needed here.
 +    gBS->Stall (2000000U + (Nibble * 1000000U));
-+    gRT->ResetSystem (EfiResetCold, EFI_SUCCESS, 0, NULL);
-+    CpuDeadLoop ();
 +  }
 +#endif
 +  // Core owns all timing/reset logic. A non-error marker keeps the published
@@ -160,14 +160,3 @@
    return EFI_SUCCESS;
 
  cleanup:
---- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
-+++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
-@@ -18,7 +18,8 @@
- [LibraryClasses]
-   DebugLib
-   FrameBufferBltLib
-   UefiBootServicesTableLib
-+  UefiRuntimeServicesTableLib
-   UefiDriverEntryPoint
-   MemoryAllocationLib
-   MemoryMapHelperLib
