@@ -27,3 +27,5 @@ R-005 result (2026-10-24): the fully qualified c73eb6e control and preview both 
 Native observation follow-up: step17 checks major-6 INTF_STATUS bit0, and step18 observes two bounded nonwrapping frame-counter windows on the same active interface, following the pinned Xiaomi v1 status read path. These are read-only observations independent of historical step15/16 full-configuration predicates. See docs/dsi-native-progress.md and the companion current STATUS for build, trial and recovery evidence; R-005 remains consumed.
 
 Step19 follows the exact first bounded descriptor into native CTL/LM staging and a selected active DSI's two progress windows, with stable source/staging/interface state. Saved enuma CTLs begin at 0x2000, not another board's 0x1000. See docs/scanout-route.md for scope: configuration association is not complete physical routing or pixel visibility; no framebuffer or MMIO writes are added.
+
+Step20 adds bounded stable 1:1 SSPP output containment in the associated LM; see docs/scanout-geometry.md. Configuration evidence does not prove visible pixels.

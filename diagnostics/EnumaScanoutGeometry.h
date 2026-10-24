@@ -1,0 +1,81 @@
+// SPDX-License-Identifier: BSD-2-Clause-Patent
+// Configured 1:1 source output contained in associated LM; no visibility proof.
+#ifndef ENUMA_SCANOUT_GEOMETRY_H
+#define ENUMA_SCANOUT_GEOMETRY_H
+#include "EnumaScanoutRoute.h"
+STATIC inline BOOLEAN
+EnumaGeometryContained(UINT32 Width, UINT32 Height, UINT32 Size, UINT32 XY, UINT32 LmSize)
+{
+  UINT32 W = Size & 0xffffU, H = Size >> 16, X = XY & 0xffffU, Y = XY >> 16;
+  UINT32 Lw = LmSize & 0xffffU, Lh = LmSize >> 16;
+  return Width >= 128 && Height >= 8 && W == Width && H == Height &&
+    Lw != 0 && Lh != 0 && X + W <= Lw && Y + H <= Lh;
+}
+// Step20 retains step19 checks, adds three stable words: <=250 reads, two waits.
+STATIC inline EFI_STATUS
+EnumaScanoutStagedGeometry (ENUMA_SCANOUT_READ32 Read, ENUMA_DSI_WAIT Wait)
+{
+  CONST UINT32 Pipes[8] = {0x5000,0x7000,0x9000,0xb000,0x25000,0x27000,0x29000,0x2b000};
+  ENUMA_SCANOUT_DESCRIPTOR D, Check;
+  UINT32 OutSize, OutXY, MixerSize;
+  UINTN Mixer;
+  UINT32 Version, Active[2], Layers[4], Raw[6], Intfs, Previous, Timing, Enable;
+  UINTN Pipe, Ctl, Lm, J, SelectedCtl = 0, SelectedLm = 0, Intf = 0, Window;
+  EFI_STATUS Status;
+  BOOLEAN Found = FALSE;
+  if (Read == NULL || Wait == NULL) { return EFI_INVALID_PARAMETER; }
+  Version = Read(0x0ae00000U);
+  if ((Version >> 16) != 0x6000) { return EFI_UNSUPPORTED; }
+  Status = EnumaScanoutFindBoundedDescriptor(Read, &D);
+  if (EFI_ERROR(Status)) { return Status; }
+  for (Pipe = 0; Pipe < 8; Pipe++) { if (D.Source == 0x0ae00000U + Pipes[Pipe]) { break; } }
+  if (Pipe == 8) { return EFI_UNSUPPORTED; }
+  Active[0] = Read(0x0ae6ba6cU) & 1U; Active[1] = Read(0x0ae6c26cU) & 1U;
+  if ((Active[0] | Active[1]) == 0) { return EFI_NOT_READY; }
+  Intfs = 0;
+  for (Ctl = 0; Ctl < 6 && !Found; Ctl++) {
+    UINTN Base = 0x0ae02000U + Ctl * 0x200;
+    UINT32 Bits = Read(Base + 0xf4);
+    if (((Bits & 2U) == 0 || Active[0] == 0) && ((Bits & 4U) == 0 || Active[1] == 0)) { continue; }
+    for (Lm = 0; Lm < 6; Lm++) {
+      for (J = 0; J < 4; J++) { Layers[J] = Read(Base + EnumaRouteLayerOffset(Lm, J)); }
+      if (EnumaRouteStaged(Pipe, Layers)) {
+        SelectedCtl = Base; SelectedLm = Lm; Intfs = Bits;
+        Intf = (Bits & 2U) != 0 && Active[0] != 0 ? 0x0ae6b800U : 0x0ae6c000U;
+        Found = TRUE; break;
+      }
+    }
+  }
+  if (!Found) { return EFI_NOT_READY; }
+  EnumaRouteReadDescriptor(Read, D.Source, Raw);
+  Status = EnumaScanoutDecodeDescriptor(Raw[0], Raw[1], Raw[2], Raw[3], Raw[4], Raw[5], &Check);
+  if (EFI_ERROR(Status) || Check.Base != D.Base || Check.Start != D.Start || Check.End != D.End ||
+      Check.Width != D.Width || Check.Height != D.Height || Check.Pitch != D.Pitch || Check.X != D.X || Check.Y != D.Y) { return EFI_NOT_READY; }
+  // Saved enuma FDT: six mixers at 0x45000..0x4a000, length 0x320.
+  Mixer = 0x0ae45000U + SelectedLm * 0x1000;
+  OutSize = Read(D.Source + 0x0c); OutXY = Read(D.Source + 0x10);
+  MixerSize = Read(Mixer + 4);
+  if (!EnumaGeometryContained(D.Width, D.Height, OutSize, OutXY, MixerSize)) { return EFI_NOT_READY; }
+  Previous = Read(Intf + 0xac); Timing = Read(Intf); Enable = Read(Intf + 0xa8);
+  for (Window = 0; Window < 2; Window++) {
+    UINT32 Frame, NowActive, NowTiming, NowEnable;
+    Status = Wait(ENUMA_DSI_SAMPLE_US);
+    if (Status != EFI_SUCCESS) { return EFI_ERROR(Status) ? Status : EFI_NOT_READY; }
+    Frame = Read(Intf + 0xac); NowActive = Read(Intf + 0x26c) & 1U;
+    NowTiming = Read(Intf); NowEnable = Read(Intf + 0xa8);
+    if (Frame <= Previous || Frame - Previous > 64 || NowActive == 0 || NowTiming != Timing || NowEnable != Enable ||
+        Read(SelectedCtl + 0xf4) != Intfs) { return EFI_NOT_READY; }
+    for (J = 0; J < 4; J++) {
+      if (Read(SelectedCtl + EnumaRouteLayerOffset(SelectedLm, J)) != Layers[J]) { return EFI_NOT_READY; }
+    }
+    for (J = 0; J < 6; J++) {
+      CONST UINTN Offsets[6] = {0x14,0,0x24,0x08,0x30,0x38};
+      if (Read(D.Source + Offsets[J]) != Raw[J]) { return EFI_NOT_READY; }
+    }
+    if (Read(D.Source + 0x0c) != OutSize || Read(D.Source + 0x10) != OutXY ||
+        Read(Mixer + 4) != MixerSize) { return EFI_NOT_READY; }
+    Previous = Frame;
+  }
+  return Read(0x0ae00000U) == Version ? EFI_SUCCESS : EFI_NOT_READY;
+}
+#endif
