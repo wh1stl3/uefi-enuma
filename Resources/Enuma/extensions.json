@@ -38,7 +38,7 @@
     "diagnostics/EnumaScanoutSoleStage.h": "d833729776d97b0958985b108ab944891880770da423fd72f872670123abc6ae",
     "patches/sec-display-read.patch": "249295677829f341c4cf47287b78eb653a06d709fbb45659f0df76f9b5a4ad81",
     "diagnostics/EnumaValueProbe.h": "5d25e723abbe44bb9743186441680461a17553341e6882a1b4b9812e679b1f5f",
-    "Platforms/Xiaomi/enumaPkg/Drivers/EnumaRamPayloadDxe/EnumaRamPayload.c": "42f90a2bae9ef7d709cd2fd53647298d396c39cd0f40ab00cd2e874955e64251",
+    "Platforms/Xiaomi/enumaPkg/Drivers/EnumaRamPayloadDxe/EnumaRamPayload.c": "bf58ac12edc254211f4f292c58f15174766e7bdea2029e35144d086b78add771",
     "Platforms/Xiaomi/enumaPkg/Drivers/EnumaRamPayloadDxe/EnumaRamPayloadDxe.inf": "bb1e8e6f9111919204bbce6eb1022b74a42f360f1e89d24d5d47847cf12024c5",
     "Platforms/Xiaomi/enumaPkg/Drivers/EnumaRamPayloadDxe/TransportBounds.h": "4cb024f0734b94c10409f2ef6952ae931bca85a6246896a51514a71e080adcca",
     "Platforms/Xiaomi/enumaPkg/Drivers/EnumaRamPayloadDxe/TransportReport.h": "0b25f6998ffb306ac495c6d88125a8cca1adeaa731fe9624bafa4016360fbd75",
