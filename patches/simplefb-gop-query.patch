@@ -1,10 +1,9 @@
 --- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
 +++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
-@@ -7,6 +7,95 @@
+@@ -7,6 +7,94 @@
  #include <Library/PcdLib.h>
 
  #include <Configuration/BootDevices.h>
-+#include <Library/ResetSystemLib.h>
 +#ifndef ENUMA_DIAG_GOP_QUERY
 +#define ENUMA_DIAG_GOP_QUERY 0
 +#endif
@@ -96,7 +95,7 @@
 
  //
  // Global Variables
-@@ -333,6 +404,68 @@
+@@ -333,6 +404,62 @@
      goto cleanup;
    }
 
@@ -104,12 +103,6 @@
 +#if ENUMA_VALUE_SOURCE
 +  Status = EnumaValueProbe (ENUMA_VALUE_SOURCE, ENUMA_VALUE_INDEX,
 +    ENUMA_VALUE_SHIFT, ENUMA_VALUE_CODE, EnumaValueRead, EnumaValueWait);
-+#if ENUMA_VALUE_RESET_IN_DRIVER
-+  // Reset here, inside the driver, so the return marker gate and the
-+  // driver return path are both excluded from this trial.
-+  ResetCold ();
-+  CpuDeadLoop ();
-+#endif
 +  return ENUMA_GOP_RESULT (Status);
 +#else
 +  // Historical read-only scanout probes retain their priming variable.
@@ -165,14 +158,3 @@
    return EFI_SUCCESS;
 
  cleanup:
---- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
-+++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
-@@ -18,7 +18,8 @@
- [LibraryClasses]
-   DebugLib
-   FrameBufferBltLib
-   UefiBootServicesTableLib
-+  ResetSystemLib
-   UefiDriverEntryPoint
-   MemoryAllocationLib
-   MemoryMapHelperLib
