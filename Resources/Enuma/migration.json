@@ -5,11 +5,11 @@
   "files": {
     "LICENSE": {
       "destination": "LICENSE.enuma",
-      "sha256": "2b031880c646006165194888f9814806719ab4c91c26d330c4eb71e1983f0187"
+      "sha256": "2c5a25036e382b259a871cffdcb52bf571f5b0f7b27bf061dc12effa6ed460c0"
     },
     "README.md": {
       "destination": "docs/enuma-overlay.md",
-      "sha256": "4ad4e849e20d8172802cf36da22d540edb21f79e751d0ba0a23cb3a0bc976232"
+      "sha256": "251ac414a319ffb44d1717ab29e5138afc2c14b73f841b571547ee8ea66fdaa7"
     },
     "THIRD-PARTY.md": {
       "destination": "THIRD-PARTY.md",
