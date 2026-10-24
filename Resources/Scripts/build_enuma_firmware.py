@@ -97,7 +97,7 @@ def main(device_root=None):
         parser.error('GOP steps require --diagnostic-gop-query')
     if args.diagnostic_pixel_preview != (args.diagnostic_gop_step == 13) or (args.diagnostic_pixel_preview and args.diagnostic_gop_query != 1):
         parser.error('Pixel preview requires exactly step13/query1 and its explicit flag; hardware approval is separate')
-    if args.diagnostic_gop_query and not (args.diagnostic_simplefb and args.stop_stage == 13 and args.stop_delay == 2 and args.detail_point == 16 and args.dispatch_guid_only and args.dispatch_completion_fallback and args.dispatch_guid and args.dispatch_guid.lower() == 'dcfd1e6d-788d-4ffc-8e1b-ca2f75651a92'):
+    if args.diagnostic_gop_query and not (args.diagnostic_simplefb and args.stop_stage == 13 and args.stop_delay in (2, 20) and args.detail_point == 16 and args.dispatch_guid_only and args.dispatch_completion_fallback and args.dispatch_guid and args.dispatch_guid.lower() == 'dcfd1e6d-788d-4ffc-8e1b-ca2f75651a92'):
         parser.error('GOP query requires SimpleFb GUID-only stage13/detail16/delay2 with completion fallback')
     if not 1 <= args.dispatch_ordinal <= 128: parser.error('--dispatch-ordinal must be 1..128')
     if args.dispatch_guid_only and (args.stop_stage != 13 or args.dispatch_guid is None or args.dispatch_ordinal != 1 or args.detail_point in (23,26,27)):
