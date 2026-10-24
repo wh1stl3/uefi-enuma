@@ -106,6 +106,10 @@
     "patches/dispatcher-display-read.patch": {
       "destination": "patches/dispatcher-display-read.patch",
       "sha256": "a1bfb59c4a63a0ea2287a13698061e205294e8faeda31db4480a6d031272aa7d"
+    },
+    "patches/simplefb-value-probe.patch": {
+      "destination": "patches/simplefb-value-probe.patch",
+      "sha256": "0747d313b1c916d030cd35113e42275eef6ee8249c81a7712e6c03d29e361efd"
     }
   }
 }
