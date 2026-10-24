@@ -53,7 +53,7 @@
     },
     "Platforms/Xiaomi/enumaPkg/enuma.dsc": {
       "destination": "Platforms/Xiaomi/enumaPkg/enuma.dsc",
-      "sha256": "1b5168906d4d93a8580921591c6ad2f3799b410f2de1f2f0c5b56de091b4ced8"
+      "sha256": "0ff529be0eaa51552fece18fa0a9c386bd53fc4bddf7e350f9fc279493fad83b"
     },
     "Platforms/Xiaomi/enumaPkg/enuma.fdf": {
       "destination": "Platforms/Xiaomi/enumaPkg/enuma.fdf",
@@ -73,11 +73,11 @@
     },
     "Platforms/Xiaomi/enumaPkg/Include/UniXNU.dsc.inc": {
       "destination": "Platforms/Xiaomi/enumaPkg/Include/UniXNU.dsc.inc",
-      "sha256": "58fa405a615b4638e308c8e4a97d545088b320504a8b840900dbda411aa9a824"
+      "sha256": "af94bea69b78c6cdf84afbaac233045a5b5dfb18c5424e91c71143940b7c1bab"
     },
     "Platforms/Xiaomi/enumaPkg/Include/UniXNU.fdf.inc": {
       "destination": "Platforms/Xiaomi/enumaPkg/Include/UniXNU.fdf.inc",
-      "sha256": "cdbd8813fb5dbb1372e211f889ac9b7a512ede75f2a3cb3626be60087ddaf2ee"
+      "sha256": "eb2e265dab9a94cdb27a828ea035d345771410076ec7218924b4c6ad189bd983"
     },
     "Platforms/Xiaomi/enumaPkg/Library/ConfigurationMapLib/ConfigurationMapLib.c": {
       "destination": "Platforms/Xiaomi/enumaPkg/Library/ConfigurationMapLib/ConfigurationMapLib.c",
@@ -97,7 +97,7 @@
     },
     "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.c": {
       "destination": "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.c",
-      "sha256": "91577520b587083572a491b2501b54af6eebc855140b091030fe472030306da4"
+      "sha256": "11710ba267f58db4d108a03bddc16a2e31b8d61272346b2540ad1e6a24b29eb1"
     },
     "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.inf": {
       "destination": "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.inf",

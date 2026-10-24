@@ -75,10 +75,16 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source / relative, target)
     for relative in extensions:
-        if relative.startswith(('patches/', 'diagnostics/')):
+        if relative.startswith(('Platforms/', 'patches/', 'diagnostics/')):
             target = uefi / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source / relative, target)
+    if os.environ.get('ENUMA_RAM_PAYLOAD'):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location('enuma_payload_contract', source / 'Resources/Scripts/enuma_payload_contract.py')
+        module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+        module.generate(device, Path(os.environ['ENUMA_RAM_PAYLOAD']),
+                        uefi / 'Platforms/Xiaomi/enumaPkg/Drivers/EnumaRamPayloadDxe/PayloadContract.h')
     simplefb = 'Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c'
     (uefi/simplefb).write_bytes((source/simplefb).read_bytes().replace(b'\r\n', b'\n'))
     target = uefi / 'Resources/Scripts/mkbootimg.py'

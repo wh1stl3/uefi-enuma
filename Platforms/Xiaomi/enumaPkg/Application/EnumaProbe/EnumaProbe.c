@@ -14,6 +14,9 @@
 // Generated in isolated staging from hash-locked DarwinBoot; never edited here.
 #include "BootVideo.h"
 #include "DarwinProbe.inc"
+#if ENUMA_RAM_PAYLOAD
+#include "../../Drivers/EnumaRamPayloadDxe/TransportReport.h"
+#endif
 
 #define SYSREG(Name, Value) __asm__ volatile ("mrs %0, " #Name : "=r" (Value))
 
@@ -84,10 +87,34 @@ EFI_STATUS EFIAPI EnumaProbeEntry (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *Sys
   Line (7, Text);
   Line (8, L"MAP ONLY - NO 512M ALLOCATION TEST");
   Line (9, L"NO EXITBOOTSERVICES TEST / NO DISK WRITES");
+#if ENUMA_RAM_PAYLOAD
+  {
+    EFI_GUID Guid = ENUMA_TRANSPORT_REPORT_GUID;
+    ENUMA_TRANSPORT_REPORT *Report;
+    UINTN Step;
+    STATIC CONST CHAR16 *Names[ENUMA_TRANSPORT_STEPS] = {L"MAP",L"FDT",L"INITRD",L"PREFIX",
+      L"BPB",L"FAT CRC",L"BLOCKIO",L"CONNECT",L"SFS",L"KERNEL",L"ADT",L"TRUST",L"CONFIG"};
+    Status = gBS->LocateProtocol (&Guid, NULL, (VOID **)&Report);
+    if (EFI_ERROR (Status)) { Line (10, L"PAYLOAD REPORT MISSING; STOP"); return Status; }
+    if (Report->Version != 1) { return EFI_INCOMPATIBLE_VERSION; }
+    Status = Report->CheckFiles (Report);
+    for (Step = 0; Step < ENUMA_TRANSPORT_STEPS; Step++) {
+      UnicodeSPrint (Text, sizeof (Text), L"PAYLOAD %s %r", Names[Step], Report->Status[Step]);
+      Line (10 + Step, Text);
+    }
+    if (EFI_ERROR (Status) || (Report->Passed & 0x1f7fU) != 0x1f7fU) {
+      return EFI_ERROR (Status) ? Status : EFI_NOT_READY;
+    }
+    // No 60-second diagnostic hold in the full-chain payload configuration.
+  }
+#else
   Line (10, L"PHOTO NOW; UNIXNU MENU IN 60 SECONDS");
+#endif
   if (Map != NULL) { FreePool (Map); }
   if (!EFI_ERROR (VideoStatus)) { WriteBackDataCacheRange ((VOID *)(UINTN)Video[0], (UINTN)(Video[2] * Video[4])); }
+#if !ENUMA_RAM_PAYLOAD
   gBS->Stall (60 * 1000 * 1000);
+#endif
   Status = UniXNURun (ImageHandle, UniXNUHostFirmware);
   return EFI_ERROR (Status) ? Status : EFI_ABORTED;
 }

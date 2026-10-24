@@ -19,6 +19,7 @@
   FLASH_DEFINITION = enumaPkg/enuma.fdf
   USE_CUSTOM_DISPLAY_DRIVER = 1
   SOC_TYPE = 2
+  DEFINE ENUMA_RAM_PAYLOAD = 0
 
 # This is a source overlay, not an alioth memory-map copy. The reviewed file
 # must supply MemoryMapLib, ConfigurationMapLib, DDR/stack and GOP facts.
@@ -31,7 +32,7 @@
 !include enumaPkg/Include/UniXNU.dsc.inc
 
 [BuildOptions]
-  *_*_AARCH64_CC_FLAGS = -DENUMA_PRESERVE_DISPLAY=1 -DENUMA_DIAG_STAGE=$(ENUMA_DIAG_STAGE) -DENUMA_DIAG_DELAY_US=$(ENUMA_DIAG_DELAY_US) -DENUMA_DIAG_DISPATCH_ORDINAL=$(ENUMA_DIAG_DISPATCH_ORDINAL)
+  *_*_AARCH64_CC_FLAGS = -DENUMA_PRESERVE_DISPLAY=1 -DENUMA_DIAG_STAGE=$(ENUMA_DIAG_STAGE) -DENUMA_DIAG_DELAY_US=$(ENUMA_DIAG_DELAY_US) -DENUMA_DIAG_DISPATCH_ORDINAL=$(ENUMA_DIAG_DISPATCH_ORDINAL) -DENUMA_RAM_PAYLOAD=$(ENUMA_RAM_PAYLOAD)
 
 [PcdsFixedAtBuild]
   gSiliciumPkgTokenSpaceGuid.PcdSmbiosSystemManufacturer|"Xiaomi"

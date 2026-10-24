@@ -78,6 +78,7 @@ def main(device_root=None):
     parser.add_argument('--reference', type=Path, default=SOURCE)
     parser.add_argument('--unixnu', type=Path, required=True)
     parser.add_argument('--jobs', type=int, default=4)
+    parser.add_argument('--ram-payload', type=Path, help='build-only: exact FAT in device out/; enable bounded boot-v3 RAM BlockIO and batch report')
     parser.add_argument('--stop-stage', type=int, choices=(0,3,4,5,6,7,8,9,10,11,12,13), default=0)
     parser.add_argument('--stop-delay', type=int, choices=(2,7), default=2)
     parser.add_argument('--dispatch-ordinal', type=int, default=1)
@@ -192,6 +193,11 @@ def main(device_root=None):
     board=tomllib.loads((ROOT/'board.toml').read_text())
     assert board['board']['example'] is True
     board=copy.deepcopy(board)
+    board['firmware']['defines']['ENUMA_RAM_PAYLOAD'] = '1' if args.ram_payload else '0'
+    if args.ram_payload:
+        os.environ['ENUMA_RAM_PAYLOAD'] = str(args.ram_payload.resolve())
+    else:
+        os.environ.pop('ENUMA_RAM_PAYLOAD', None)
     board['firmware']['defines'].update(ENUMA_DIAG_STAGE=str(args.stop_stage),
         ENUMA_DIAG_DELAY_US=str(args.stop_delay*1000000 if args.stop_delay != 20 else 2000000),
         ENUMA_DIAG_DELAY_FROM_DISPLAY='1' if args.stop_delay == 20 else '0',

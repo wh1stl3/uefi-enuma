@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = EnumaRamPayloadDxe
+  FILE_GUID = 03A65CD0-A246-4CC6-BF65-04E1F784CD78
+  MODULE_TYPE = DXE_DRIVER
+  VERSION_STRING = 0.1
+  ENTRY_POINT = EnumaRamPayloadEntry
+[Sources]
+  EnumaRamPayload.c
+  TransportBounds.h
+  TransportReport.h
+  PayloadContract.h
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  SiliciumPkg/SiliciumPkg.dec
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  DebugLib
+  FdtLib
+  HobLib
+  MemoryMapLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+[Guids]
+  gSiliciumEntryArgHobGuid
+  gEfiFileInfoGuid
+[Protocols]
+  gEfiBlockIoProtocolGuid
+  gEfiDevicePathProtocolGuid
+  gEfiSimpleFileSystemProtocolGuid
+[Depex]
+  TRUE

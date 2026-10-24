@@ -5,6 +5,9 @@
   FdtLib|MdePkg/Library/BaseFdtLib/BaseFdtLib.inf
 
 [Components]
+!if $(ENUMA_RAM_PAYLOAD) == 1
+  enumaPkg/Drivers/EnumaRamPayloadDxe/EnumaRamPayloadDxe.inf
+!endif
   enumaPkg/Application/EnumaProbe/EnumaProbe.inf
   UniXNUPkg/Application/UniXNU/UniXNU.inf
   UniXNUPkg/Driver/UniXNUDxe/UniXNUDxe.inf
