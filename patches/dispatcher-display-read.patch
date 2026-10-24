@@ -1,11 +1,16 @@
 --- a/MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c
 +++ b/MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c
-@@ -444,6 +444,9 @@
+@@ -444,6 +444,14 @@
                        EFI_CORE_DRIVER_ENTRY_SIGNATURE
                        );
  
 +#if ENUMA_DIAG_STAGE == 12
-+#error ENUMA_STAGE12_CONDITION_IS_TRUE
++  {
++    volatile UINT32 EnumaDspDisplayProbe0 = *(volatile UINT32 *)0x0ae6b800U;
++    volatile UINT32 EnumaDspDisplayProbe1 = *(volatile UINT32 *)0x0ae6c000U;
++    (VOID) EnumaDspDisplayProbe0;
++    (VOID) EnumaDspDisplayProbe1;
++  }
 +#endif
        EnumaDispatchCheckpoint (12);
        //

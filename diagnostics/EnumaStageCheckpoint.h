@@ -21,6 +21,17 @@
 STATIC VOID EnumaStageCheckpoint (UINTN Stage)
 {
   if (ENUMA_DIAG_STAGE != 0 && Stage == ENUMA_DIAG_STAGE) {
+    //
+    // R-008/A: the read runs inside the very branch that has already been shown
+    // to execute (the configured delay is honoured here), so it cannot be lost to
+    // a macro that never reaches this translation unit. Read-only, no wait, no
+    // write. A stall here means the display window was unreachable by the time
+    // this stage was reached.
+    //
+    if (Stage == 10) {
+      (VOID)*(volatile UINT32 *)0x0ae6b800U;
+      (VOID)*(volatile UINT32 *)0x0ae6c000U;
+    }
     MicroSecondDelay (ENUMA_DIAG_DELAY_US);
     ResetCold ();
     CpuDeadLoop (); // Reset returned: never accidentally continue the probe.
