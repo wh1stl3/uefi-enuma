@@ -162,7 +162,9 @@ def main(device_root=None):
     if not (uefi/'.git').exists(): subprocess.run(['git','init','-q',str(uefi)],check=True)
     objects = Path(git(SOURCE, 'rev-parse', '--absolute-git-dir')) / 'objects'
     info = uefi/'.git/objects/info'; info.mkdir(parents=True,exist_ok=True)
-    (info/'alternates').write_text(objects.as_posix()+'\n')
+    # Binary write: Path.write_text() translates '\n' to '\r\n' on Windows, and
+    # git then reads the object path as 'objects\r' and refuses every update-ref.
+    (info/'alternates').write_bytes((objects.as_posix()+'\n').encode())
     subprocess.run(['git','-C',str(uefi),'update-ref','refs/heads/enuma-source',pin['commit']],check=True)
     subprocess.run(['git','-C',str(uefi),'symbolic-ref','HEAD','refs/heads/enuma-source'],check=True)
     for relative in ('BaseTools/Source/C/BrotliCompress/brotli', 'MdeModulePkg/Library/BrotliCustomDecompressLib/brotli',
