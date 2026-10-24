@@ -1,6 +1,6 @@
 --- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
 +++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
-@@ -7,6 +7,82 @@
+@@ -7,6 +7,77 @@
  #include <Library/PcdLib.h>
 
  #include <Configuration/BootDevices.h>
@@ -78,7 +78,7 @@
 
  //
  // Global Variables
-@@ -333,6 +404,54 @@
+@@ -333,6 +404,59 @@
      goto cleanup;
    }
 
