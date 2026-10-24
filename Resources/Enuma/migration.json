@@ -53,7 +53,7 @@
     },
     "Platforms/Xiaomi/enumaPkg/enuma.dsc": {
       "destination": "Platforms/Xiaomi/enumaPkg/enuma.dsc",
-      "sha256": "0ff529be0eaa51552fece18fa0a9c386bd53fc4bddf7e350f9fc279493fad83b"
+      "sha256": "b6a4f09ae43f6c0fba27cf7014e24020fdee5101dfd5619a24a67cd698b94ee8"
     },
     "Platforms/Xiaomi/enumaPkg/enuma.fdf": {
       "destination": "Platforms/Xiaomi/enumaPkg/enuma.fdf",

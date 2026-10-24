@@ -5,7 +5,7 @@
   "files": {
     "diagnostics/EnumaDispatchDetailCheckpoint.h": "d5d0e4875d8331e3d8f516f5c38a97c51e8cf5766d7fca7441f4965aea83ea41",
     "patches/dxe-dispatch-details.patch": "49a051195269054894262788f65883c4665db5eec170db2f457e265b523be94d",
-    "patches/dispatch-detail-options.patch": "fec39dc5b6d6c7ad6d7ab0688f2012db4834f7bb4783b6ca0235be72c08d8d43",
+    "patches/dispatch-detail-options.patch": "32fd2428ebd0f08665a6ce3e86978adf0abc3e336b66b1c3b29856c1a203cead",
     "Resources/Scripts/enuma_preflight.py": "955e4fd100f2c5c105fd702538c8bd6a1f1c524f4f1b4d5dba118723f31509df",
     "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af",
     "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f",
