@@ -129,6 +129,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     (probe/'EnumaProbe.c').write_bytes((probe/'EnumaProbe.c').read_bytes().replace(b'\r\n', b'\n'))
     apply_patch_series([(uefi, source/'patches'/name) for name in (
         'kona-preserve-display.patch', 'sec-preserve-display.patch', 'sec-stage-checkpoints.patch',
+        'sec-display-read.patch',
         'dispatch-detail-options.patch', 'apriori-metronome.patch', 'diagnostic-ufs-selection.patch',
         'simplefb-contract.patch', 'simplefb-diagnostic-selection.patch', 'simplefb-gop-query.patch', 'display-mdp-map.patch', 'sec-fixed-epoch-banner.patch')])
     sec_text = (sec/'Sec.c').read_text()

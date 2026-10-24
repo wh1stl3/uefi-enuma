@@ -1,0 +1,24 @@
+--- a/Silicon/Silicium/SiliciumPkg/Sec/Sec.c
++++ b/Silicon/Silicium/SiliciumPkg/Sec/Sec.c
+@@ -104,6 +104,21 @@
+ 
+   // Do Platform Specific Initialization
+   PlatformInitialize ();
++#if ENUMA_DIAG_STAGE == 4
++  //
++  // R-008/A: earliest read-only look at the display window. SEC runs before
++  // the DXE memory services, so this is a direct physical read with no
++  // mapping involved. A stall here means the display domain was already down
++  // when XBL handed control over; a clean return means it was still up and
++  // the teardown happens later, inside our own firmware.
++  //
++  {
++    volatile UINT32 EnumaSecDisplayProbe0 = *(volatile UINT32 *)0x0ae6b800U;
++    volatile UINT32 EnumaSecDisplayProbe1 = *(volatile UINT32 *)0x0ae6c000U;
++    (VOID) EnumaSecDisplayProbe0;
++    (VOID) EnumaSecDisplayProbe1;
++  }
++#endif
+   EnumaStageCheckpoint (4);
+ 
+ #ifndef MDEPKG_NDEBUG
