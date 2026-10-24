@@ -1,6 +1,6 @@
 --- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
 +++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
-@@ -7,6 +7,77 @@
+@@ -7,6 +7,82 @@
  #include <Library/PcdLib.h>
 
  #include <Configuration/BootDevices.h>
