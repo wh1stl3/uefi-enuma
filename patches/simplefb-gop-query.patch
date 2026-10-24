@@ -35,7 +35,7 @@
 +#define ENUMA_VALUE_SHIFT 0
 +#define ENUMA_VALUE_CODE 0
 +#endif
-+#if ENUMA_VALUE_SOURCE < 0 || ENUMA_VALUE_SOURCE > 2
++#if ENUMA_VALUE_SOURCE < 0 || ENUMA_VALUE_SOURCE > 3
 +#error Unsupported value transport
 +#endif
 +#if ENUMA_VALUE_SOURCE && (ENUMA_DIAG_GOP_STEP != 0 || ENUMA_DIAG_GOP_QUERY != 1)

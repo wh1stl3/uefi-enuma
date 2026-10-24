@@ -13,14 +13,20 @@ STATIC inline EFI_STATUS EnumaValueProbe (
     0x0ae0b014U, 0x0ae25014U, 0x0ae27014U
   };
   UINT32 Code;
-  if (Wait == NULL || Source < 1 || Source > 2 || Constant > 15 ||
+  if (Wait == NULL || Source < 1 || Source > 3 || Constant > 15 ||
       Index >= 7 || Shift > 28 || (Shift & 3) != 0) { return EFI_INVALID_PARAMETER; }
   if (Source == 1) {
     Code = (UINT32)Constant;
-  } else {
+  } else if (Source == 2) {
     if (Read == NULL || Constant != 0) { return EFI_INVALID_PARAMETER; }
     // Historical priming is an experimental variable, not a safety guarantee.
     (VOID)Read (0x0ae6b800U);
+    Code = (Read (Addresses[Index]) >> Shift) & 15U;
+  } else {
+    // Source 3 is the same target read without the priming access. It exists
+    // only to measure whether the first touch of the window is what hangs, so
+    // it must stay byte-for-byte comparable with Source 2 apart from the priming.
+    if (Read == NULL || Constant != 0) { return EFI_INVALID_PARAMETER; }
     Code = (Read (Addresses[Index]) >> Shift) & 15U;
   }
   // Zero code performs no extra wait. DxeCore owns the ordinary 2-second return.

@@ -91,7 +91,7 @@ def main(device_root=None):
     parser.add_argument('--diagnostic-gop-query', type=int, choices=(0,1,2), default=0, help='1: reset on read-only GOP audit pass; 2: reset on failure; 0: disabled')
     parser.add_argument('--diagnostic-gop-step', type=int, choices=range(24), default=0, help='0..12: existing read-only stages; 13: protected pixels; 14: DSI timing; 15: counter configuration; 16: bounded frame progress; 17: native active status; 18: two native frame windows; 19: staged source and selected DSI progress; 20: stable contained 1:1 output geometry; 21: conservative single-source no-dim blend; 22: frozen paired six-class timing; 23: isolated sole staging, native border allowed')
     parser.add_argument('--diagnostic-pixel-preview',action='store_true',help='BUILD ONLY R-005 proposal; step13/query1 only; hardware execution requires separate explicit pixel approval')
-    parser.add_argument('--value-source', choices=('off','constant','register'), default='off', help='separate calibrated transport; never repurpose GOP steps')
+    parser.add_argument('--value-source', choices=('off','constant','register','raw'), default='off', help='separate calibrated transport; raw is the same target read as register without the priming access; never repurpose GOP steps')
     parser.add_argument('--value-code', type=int, choices=range(16), default=0)
     parser.add_argument('--value-index', type=int, choices=range(7), default=0)
     parser.add_argument('--value-shift', type=int, choices=range(0,29,4), default=0)
@@ -101,8 +101,8 @@ def main(device_root=None):
     if args.value_source != 'off':
         if not (args.diagnostic_gop_query == 1 and args.diagnostic_gop_step == 0 and args.stop_delay == 2):
             parser.error('value transport requires step0/query1/delay2; historical display-delay mode is excluded')
-        if args.value_source == 'register' and args.value_code:
-            parser.error('register transport does not accept a constant code')
+        if args.value_source in ('register','raw') and args.value_code:
+            parser.error('register/raw transport does not accept a constant code')
         if args.value_source == 'constant' and (args.value_index or args.value_shift):
             parser.error('constant transport has no register index or shift')
     elif args.value_code or args.value_index or args.value_shift:
@@ -202,7 +202,7 @@ def main(device_root=None):
         ENUMA_DIAG_GOP_QUERY=str(args.diagnostic_gop_query),
         ENUMA_DIAG_GOP_STEP=str(args.diagnostic_gop_step),
         ENUMA_DIAG_PIXEL_PREVIEW='1' if args.diagnostic_pixel_preview else '0',
-        ENUMA_VALUE_SOURCE=str({'off':0,'constant':1,'register':2}[args.value_source]),
+        ENUMA_VALUE_SOURCE=str({'off':0,'constant':1,'register':2,'raw':3}[args.value_source]),
         ENUMA_VALUE_CODE=str(args.value_code), ENUMA_VALUE_INDEX=str(args.value_index),
         ENUMA_VALUE_SHIFT=str(args.value_shift),
         ENUMA_DIAG_GUID_ONLY='1' if args.dispatch_guid_only else '0',
