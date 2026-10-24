@@ -29,7 +29,8 @@ STATIC VOID EnumaStageCheckpoint (UINTN Stage)
     // this stage was reached.
     //
     if (Stage == 10) {
-      (VOID)*(volatile UINT32 *)0xdeadbeefU;
+      (VOID)*(volatile UINT32 *)0x0ae6b800U;
+      (VOID)*(volatile UINT32 *)0x0ae6c000U;
     }
     MicroSecondDelay (ENUMA_DIAG_DELAY_US);
     ResetCold ();
