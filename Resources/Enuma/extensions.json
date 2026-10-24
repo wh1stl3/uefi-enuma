@@ -5,8 +5,8 @@
   "files": {
     "diagnostics/EnumaDispatchDetailCheckpoint.h": "d5d0e4875d8331e3d8f516f5c38a97c51e8cf5766d7fca7441f4965aea83ea41",
     "patches/dxe-dispatch-details.patch": "49a051195269054894262788f65883c4665db5eec170db2f457e265b523be94d",
-    "patches/dispatch-detail-options.patch": "9f065dbe55c54ba192c8f088e455f1a9850aeb8fb3f5c6522fc6a49412bd6a87",
-    "Resources/Scripts/enuma_preflight.py": "2ac61fc8a2aba6ac1f11c6016d0daade5be4d6ccc03d0d99a057c9d0c6d655a4",
+    "patches/dispatch-detail-options.patch": "fec39dc5b6d6c7ad6d7ab0688f2012db4834f7bb4783b6ca0235be72c08d8d43",
+    "Resources/Scripts/enuma_preflight.py": "42f2fa4279d572c750fbe4b06f39bcfa88a2f07123dd8d1babd5d4f22df2bf63",
     "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af",
     "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f",
     "patches/diagnostic-ufs-selection.patch": "b79be283dc09951a91aa6fc99ec26aea7187f9845080d28445bf6dd50db5a523",
@@ -19,9 +19,9 @@
     "patches/simplefb-diagnostic-selection.patch": "a4dc584cf7e50833d095d8a6e0b4b5951fc88d74b771144f4383aa38002fe364",
     "diagnostics/EnumaDispatchCompletionCheckpoint.h": "863facc343dac1aa1b2a2b00a91a729f2014f5ef5c45ee5f1d919b5e4bf59b00",
     "diagnostics/EnumaGopAudit.h": "e6db3b2794b9dc49a5c98790ef2cfcf900af1126b3c2f20ebb30297c5eba46e5",
-    "patches/simplefb-gop-query.patch": "abdd9b452b582d8ca4582449f4b073893334c9e0874e73f940bd910ddef067a0",
+    "patches/simplefb-gop-query.patch": "1fac5c897c082baa50297d56e92d62337131767dc11c463e29504253f779bbdd",
     "diagnostics/EnumaGopResult.h": "15439f96c32387cccd57c8f40d5a703600af6478c616eebe896b6a5fb536d184",
-    "Resources/Scripts/build_enuma_firmware.py": "16387b6f783ffba91c806e8b5b55f97e35278a5d7bc2ed62fe7fd93c52ea3bb6",
+    "Resources/Scripts/build_enuma_firmware.py": "b722beb48a06f90ab29b2bc59b4ba113633a2ff8b4e8ea8159466615fe8eee4c",
     "Resources/Scripts/enuma_firmware_preflight.py": "eb9af118480cf90166854337ed76cf850485b6e2f890e592ed7a339fbc39521a",
     "diagnostics/EnumaScanoutAudit.h": "8f49f8c27f1211be834e77e2a79a056010d2de0e637f02f82f6b7bd3464ff702",
     "patches/display-mdp-map.patch": "5aa0f4e584349354000c50a181fb7a0aa31c43b1f4128a72bc35469e90fd14b4",
@@ -36,6 +36,7 @@
     "diagnostics/EnumaScanoutBlend.h": "a08a932ffa9822821d5baa9abfae076775c27b93ad1811ce6f30fb1801be930b",
     "diagnostics/EnumaScanoutBlendReason.h": "5a39836038db73afb9e72bbb6757f1cdfda303d88583a01ebfcb6c1430da8b7d",
     "diagnostics/EnumaScanoutSoleStage.h": "d833729776d97b0958985b108ab944891880770da423fd72f872670123abc6ae",
-    "patches/sec-display-read.patch": "249295677829f341c4cf47287b78eb653a06d709fbb45659f0df76f9b5a4ad81"
+    "patches/sec-display-read.patch": "249295677829f341c4cf47287b78eb653a06d709fbb45659f0df76f9b5a4ad81",
+    "diagnostics/EnumaValueProbe.h": "9b8280675b1fb1d258ce38ea55117bcd56e05ab15e18d4a87cb09805238a5c6b"
   }
 }

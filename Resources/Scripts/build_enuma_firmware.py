@@ -9,6 +9,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -78,7 +79,7 @@ def main(device_root=None):
     parser.add_argument('--unixnu', type=Path, required=True)
     parser.add_argument('--jobs', type=int, default=4)
     parser.add_argument('--stop-stage', type=int, choices=(0,3,4,5,6,7,8,9,10,11,12,13), default=0)
-    parser.add_argument('--stop-delay', type=int, choices=(2,7,20), default=2)
+    parser.add_argument('--stop-delay', type=int, choices=(2,7), default=2)
     parser.add_argument('--dispatch-ordinal', type=int, default=1)
     parser.add_argument('--detail-point', type=int, choices=range(13,28), default=13)
     parser.add_argument('--dispatch-guid', help='optional complete file UUID filter for stage 13 detail gates')
@@ -90,9 +91,22 @@ def main(device_root=None):
     parser.add_argument('--diagnostic-gop-query', type=int, choices=(0,1,2), default=0, help='1: reset on read-only GOP audit pass; 2: reset on failure; 0: disabled')
     parser.add_argument('--diagnostic-gop-step', type=int, choices=range(24), default=0, help='0..12: existing read-only stages; 13: protected pixels; 14: DSI timing; 15: counter configuration; 16: bounded frame progress; 17: native active status; 18: two native frame windows; 19: staged source and selected DSI progress; 20: stable contained 1:1 output geometry; 21: conservative single-source no-dim blend; 22: frozen paired six-class timing; 23: isolated sole staging, native border allowed')
     parser.add_argument('--diagnostic-pixel-preview',action='store_true',help='BUILD ONLY R-005 proposal; step13/query1 only; hardware execution requires separate explicit pixel approval')
+    parser.add_argument('--value-source', choices=('off','constant','register'), default='off', help='separate calibrated transport; never repurpose GOP steps')
+    parser.add_argument('--value-code', type=int, choices=range(16), default=0)
+    parser.add_argument('--value-index', type=int, choices=range(7), default=0)
+    parser.add_argument('--value-shift', type=int, choices=range(0,29,4), default=0)
     args = parser.parse_args()
     ROOT = args.device_root.resolve()
     WORK = ROOT / 'out/firmware-build'
+    if args.value_source != 'off':
+        if not (args.diagnostic_gop_query == 1 and args.diagnostic_gop_step == 0 and args.stop_delay == 2):
+            parser.error('value transport requires step0/query1/delay2; historical display-delay mode is excluded')
+        if args.value_source == 'register' and args.value_code:
+            parser.error('register transport does not accept a constant code')
+        if args.value_source == 'constant' and (args.value_index or args.value_shift):
+            parser.error('constant transport has no register index or shift')
+    elif args.value_code or args.value_index or args.value_shift:
+        parser.error('value parameters require an explicit value source')
     if args.diagnostic_gop_step and not args.diagnostic_gop_query:
         parser.error('GOP steps require --diagnostic-gop-query')
     if args.diagnostic_pixel_preview != (args.diagnostic_gop_step == 13) or (args.diagnostic_pixel_preview and args.diagnostic_gop_query != 1):
@@ -186,6 +200,9 @@ def main(device_root=None):
         ENUMA_DIAG_GOP_QUERY=str(args.diagnostic_gop_query),
         ENUMA_DIAG_GOP_STEP=str(args.diagnostic_gop_step),
         ENUMA_DIAG_PIXEL_PREVIEW='1' if args.diagnostic_pixel_preview else '0',
+        ENUMA_VALUE_SOURCE=str({'off':0,'constant':1,'register':2}[args.value_source]),
+        ENUMA_VALUE_CODE=str(args.value_code), ENUMA_VALUE_INDEX=str(args.value_index),
+        ENUMA_VALUE_SHIFT=str(args.value_shift),
         ENUMA_DIAG_GUID_ONLY='1' if args.dispatch_guid_only else '0',
         ENUMA_DIAG_DISPATCH_FALLBACK='1' if args.dispatch_completion_fallback else '0', **guid_defines)
     ctx=SimpleNamespace(board=board,args=SimpleNamespace(skip_preflight=False),tree=tree,
@@ -208,6 +225,9 @@ def main(device_root=None):
         'hardware_review_required':'R-005' if args.diagnostic_pixel_preview else None,
         'diagnostic_gop_query':args.diagnostic_gop_query,
         'diagnostic_gop_step':args.diagnostic_gop_step,
+        'value_probe':{'source':args.value_source,'constant_code':args.value_code,
+                       'register_index':args.value_index,'shift':args.value_shift,
+                       'extra_base_seconds':0,'seconds_per_code':3},
         'diagnostic_gop_reset_owner':'DxeCore' if args.diagnostic_gop_query else None,
         'diagnostic_gop_transport':'core-warning-v2' if args.diagnostic_gop_query else 'disabled',
         'reference_gitlinks':lock['reference_gitlinks'],'checks':[]}
@@ -237,6 +257,17 @@ def main(device_root=None):
                 'autogen_sha256':hashlib.sha256(autogen.encode()).hexdigest(),
                 'static_library_list_sha256':hashlib.sha256(libraries.encode()).hexdigest(),
                 'core_checkpoint_sha256':hashlib.sha256((SOURCE/'diagnostics/EnumaStageCheckpoint.h').read_bytes()).hexdigest()}
+            if args.value_source != 'off':
+                command=(module/'GNUmakefile').read_text()
+                for name in ('ENUMA_VALUE_SOURCE','ENUMA_VALUE_CODE','ENUMA_VALUE_INDEX','ENUMA_VALUE_SHIFT'):
+                    expected=board['firmware']['defines'][name]
+                    if re.findall(r'-D'+name+r'=([^\s]+)',command) != [expected]:
+                        raise ValueError('value define absent from actual compiler flags: '+name)
+                report['value_probe_compiled_contract']={
+                    'compiler_makefile_sha256':hashlib.sha256(command.encode()).hexdigest(),
+                    'source_sha256':hashlib.sha256((uefi/'Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c').read_bytes()).hexdigest(),
+                    'header_sha256':hashlib.sha256((uefi/'Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/EnumaValueProbe.h').read_bytes()).hexdigest(),
+                    'actual_defines_checked':True}
         report['checks']=[{'backend':'unixnu.firmware.build','exit_code':0,'log':str((ctx.logs/'firmware.log').relative_to(ROOT))}]
     except Exception as error:
         report['complete']=False;report['error']=str(error);raise

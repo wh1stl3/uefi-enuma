@@ -8,4 +8,6 @@ Commits use [unixnu-enuma][firmware] with [Change], [Evidence], [Risk]. Do not r
 
 After a manually recovered probe, follow the companion’s 2026-10-23 updated rule: automatically continue offline analysis, fixes, tests and new candidate builds. Do not treat successful manual recovery as a reason to end the work. Stop additional boots at a timeout, recover first, and qualify a newly isolated candidate before further device execution.
 
+2026-10-24 takeover: use the calibrated value transport described in docs/value-transport.md. Constants must have no display reads; register index/shift are separate from historical GOP steps. Historical delay20 is frozen, not execution-qualified. Do not treat a build define as an active probe without checking the generated compiler command and packaged code. Pixel Sync and CPU Read precede Write, so timeout does not by itself locate a pixel-store failure.
+
 2026-10-24 user rule: reconcile all applicable documentation and commit/push it before the next device trial or hard stop, including current STATUS/HANDOFF/decisions/review/human tasks and entry docs. Keep current facts separate from historical operation records. Any real timeout still requires same-turn stop/recovery records and refresh after recovery. Offline analysis/builds may continue while documentation is being reconciled.

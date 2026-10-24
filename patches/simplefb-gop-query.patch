@@ -1,6 +1,6 @@
 --- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
 +++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c
-@@ -7,6 +7,77 @@
+@@ -7,6 +7,94 @@
  #include <Library/PcdLib.h>
 
  #include <Configuration/BootDevices.h>
@@ -29,7 +29,24 @@
 +#if !ENUMA_DIAG_SIMPLEFB || ENUMA_DIAG_STAGE != 13 || ENUMA_DIAG_DETAIL_POINT != 16 || !ENUMA_DIAG_GUID_ONLY || !ENUMA_DIAG_GUID_ENABLED || !ENUMA_DIAG_DISPATCH_FALLBACK || ENUMA_DIAG_DELAY_US != 2000000
 +#error GOP audit requires the bounded metadata-only query profile
 +#endif
++#ifndef ENUMA_VALUE_SOURCE
++#define ENUMA_VALUE_SOURCE 0
++#define ENUMA_VALUE_INDEX 0
++#define ENUMA_VALUE_SHIFT 0
++#define ENUMA_VALUE_CODE 0
++#endif
++#if ENUMA_VALUE_SOURCE < 0 || ENUMA_VALUE_SOURCE > 2
++#error Unsupported value transport
++#endif
++#if ENUMA_VALUE_SOURCE && (ENUMA_DIAG_GOP_STEP != 0 || ENUMA_DIAG_GOP_QUERY != 1)
++#error Value transport must not reuse legacy GOP steps
++#endif
 +#include "EnumaGopResult.h"
++#if ENUMA_VALUE_SOURCE
++#include "EnumaValueProbe.h"
++STATIC UINT32 EnumaValueRead (UINTN A) { return *(volatile UINT32 *)A; }
++STATIC EFI_STATUS EnumaValueWait (UINTN Us) { return gBS->Stall (Us); }
++#endif
 +#if ENUMA_DIAG_GOP_STEP > 0
 +#if ENUMA_DIAG_GOP_STEP >= 8
 +#if ENUMA_DIAG_GOP_STEP == 13
@@ -78,37 +95,18 @@
 
  //
  // Global Variables
-@@ -333,6 +404,81 @@
+@@ -333,6 +404,62 @@
      goto cleanup;
    }
 
 +#if ENUMA_DIAG_GOP_QUERY
-+  // R-008/A bisect: the first read of the display window inside this driver,
-+  // ahead of every step branch. If this one hangs, the read itself is the
-+  // problem in this context; if it does not, the hang sits earlier in the
-+  // load or install path and never reaches the step reads.
++#if ENUMA_VALUE_SOURCE
++  Status = EnumaValueProbe (ENUMA_VALUE_SOURCE, ENUMA_VALUE_INDEX,
++    ENUMA_VALUE_SHIFT, ENUMA_VALUE_CODE, EnumaValueRead, EnumaValueWait);
++  return ENUMA_GOP_RESULT (Status);
++#else
++  // Historical read-only scanout probes retain their priming variable.
 +  (VOID)*(volatile UINT32 *)0x0ae6b800U;
-+#if ENUMA_DIAG_GOP_STEP > 0 && ENUMA_DIAG_GOP_STEP < 8
-+  {
-+    //
-+    // R-008: carry one display register value out through the reset delay.
-+    // The read sits right after the priming read, which is the window that
-+    // early14 and step20 proved to be safe: reading the same registers from
-+    // the stage checkpoint, or before the protocol installation, hangs the
-+    // bus. One second per nibble step, so the host recovers the value from
-+    // the return time.
-+    //
-+    STATIC CONST UINTN ProbeAddress[7] = {
-+      0x0ae00000U, 0x0ae05014U, 0x0ae07014U, 0x0ae09014U,
-+      0x0ae0b014U, 0x0ae25014U, 0x0ae27014U
-+    };
-+    UINT32 Nibble;
-+    Nibble = ((*(volatile UINT32 *)ProbeAddress[ENUMA_DIAG_GOP_STEP - 1]) >> 4) & 0x0fU;
-+    // The extra stall carries the value out; the driver then returns and
-+    // the ordinary pass gate performs the reset, so no runtime services
-+    // dependency is needed here.
-+    gBS->Stall (2000000U + (Nibble * 1000000U));
-+  }
 +#endif
 +  // Core owns all timing/reset logic. A non-error marker keeps the published
 +  // driver resident; installation errors above never become audit markers.
