@@ -95,6 +95,9 @@ def main(device_root=None):
     parser.add_argument('--value-code', type=int, choices=range(16), default=0)
     parser.add_argument('--value-index', type=int, choices=range(7), default=0)
     parser.add_argument('--value-shift', type=int, choices=range(0,29,4), default=0)
+    parser.add_argument('--value-reset', choices=('marker','in-driver'), default='marker',
+                        help='where the calibrated transport resets: the return marker gate '
+                             'or inside the driver before it returns')
     args = parser.parse_args()
     ROOT = args.device_root.resolve()
     WORK = ROOT / 'out/firmware-build'
@@ -203,6 +206,7 @@ def main(device_root=None):
         ENUMA_VALUE_SOURCE=str({'off':0,'constant':1,'register':2}[args.value_source]),
         ENUMA_VALUE_CODE=str(args.value_code), ENUMA_VALUE_INDEX=str(args.value_index),
         ENUMA_VALUE_SHIFT=str(args.value_shift),
+        ENUMA_VALUE_RESET_IN_DRIVER='1' if args.value_reset=='in-driver' else '0',
         ENUMA_DIAG_GUID_ONLY='1' if args.dispatch_guid_only else '0',
         ENUMA_DIAG_DISPATCH_FALLBACK='1' if args.dispatch_completion_fallback else '0', **guid_defines)
     ctx=SimpleNamespace(board=board,args=SimpleNamespace(skip_preflight=False),tree=tree,
@@ -225,7 +229,7 @@ def main(device_root=None):
         'hardware_review_required':'R-005' if args.diagnostic_pixel_preview else None,
         'diagnostic_gop_query':args.diagnostic_gop_query,
         'diagnostic_gop_step':args.diagnostic_gop_step,
-        'value_probe':{'source':args.value_source,'constant_code':args.value_code,
+        'value_probe':{'source':args.value_source,'constant_code':args.value_code,'reset':args.value_reset,
                        'register_index':args.value_index,'shift':args.value_shift,
                        'extra_base_seconds':0,'seconds_per_code':3},
         'diagnostic_gop_reset_owner':'DxeCore' if args.diagnostic_gop_query else None,
@@ -259,7 +263,7 @@ def main(device_root=None):
                 'core_checkpoint_sha256':hashlib.sha256((SOURCE/'diagnostics/EnumaStageCheckpoint.h').read_bytes()).hexdigest()}
             if args.value_source != 'off':
                 command=(module/'GNUmakefile').read_text()
-                for name in ('ENUMA_VALUE_SOURCE','ENUMA_VALUE_CODE','ENUMA_VALUE_INDEX','ENUMA_VALUE_SHIFT'):
+                for name in ('ENUMA_VALUE_SOURCE','ENUMA_VALUE_CODE','ENUMA_VALUE_INDEX','ENUMA_VALUE_SHIFT','ENUMA_VALUE_RESET_IN_DRIVER'):
                     expected=board['firmware']['defines'][name]
                     if re.findall(r'-D'+name+r'=([^\s]+)',command) != [expected]:
                         raise ValueError('value define absent from actual compiler flags: '+name)
