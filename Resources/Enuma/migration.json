@@ -102,6 +102,10 @@
     "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.inf": {
       "destination": "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.inf",
       "sha256": "2e53e16f0bfcc33aef41bdef535ec2ebfc7503b431eaf51ce460ec14b76e900e"
+    },
+    "patches/dxe-display-read.patch": {
+      "destination": "patches/dxe-display-read.patch",
+      "sha256": "5a9148ad352972395220f580bfb0e1f5cdf8370396d2b17bfa188aa50a03f0fc"
     }
   }
 }

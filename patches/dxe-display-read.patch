@@ -1,0 +1,15 @@
+--- a/MdeModulePkg/Core/Dxe/DxeMain/DxeMain.c
++++ b/MdeModulePkg/Core/Dxe/DxeMain/DxeMain.c
+@@ -550,4 +550,12 @@
+   //
+   // Invoke the DXE Dispatcher
+   //
++#if ENUMA_DIAG_STAGE == 10
++  {
++    volatile UINT32 EnumaDxeDisplayProbe0 = *(volatile UINT32 *)0x0ae6b800U;
++    volatile UINT32 EnumaDxeDisplayProbe1 = *(volatile UINT32 *)0x0ae6c000U;
++    (VOID) EnumaDxeDisplayProbe0;
++    (VOID) EnumaDxeDisplayProbe1;
++  }
++#endif
+   EnumaStageCheckpoint (10);
