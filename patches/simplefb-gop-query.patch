@@ -160,3 +160,14 @@
    return EFI_SUCCESS;
 
  cleanup:
+--- a/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
++++ b/Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
+@@ -18,7 +18,8 @@
+ [LibraryClasses]
+   DebugLib
+   FrameBufferBltLib
+   UefiBootServicesTableLib
++  UefiRuntimeServicesTableLib
+   UefiDriverEntryPoint
+   MemoryAllocationLib
+   MemoryMapHelperLib
