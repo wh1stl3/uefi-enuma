@@ -31,3 +31,5 @@ Step19 follows the exact first bounded descriptor into native CTL/LM staging and
 Step20 adds bounded stable 1:1 SSPP output containment in the associated LM; see docs/scanout-geometry.md. Configuration evidence does not prove visible pixels.
 
 Step21 adds conservative sole staged source, no dim-layer bit, and native BASE/constant-opaque blend checks; see docs/scanout-blend.md. This is configuration evidence, not visible output.
+
+Step22 adds paired forward/reverse six-class configuration timing over the unchanged Core marker path; see docs/scanout-blend-reason.md. Sampling remains read-only, encoding waits are bounded to20s.
