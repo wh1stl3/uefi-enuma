@@ -18,9 +18,22 @@
 #if ENUMA_DIAG_STAGE != 0 && (ENUMA_DIAG_STAGE < 3 || ENUMA_DIAG_STAGE > 13)
 #error Unsupported enuma diagnostic stop stage
 #endif
+#ifndef ENUMA_DIAG_DELAY_FROM_DISPLAY
+#define ENUMA_DIAG_DELAY_FROM_DISPLAY 0
+#endif
+#ifndef ENUMA_DIAG_DISPLAY_VALUE_INDEX
+#define ENUMA_DIAG_DISPLAY_VALUE_INDEX 0
+#endif
+#if ENUMA_DIAG_DELAY_FROM_DISPLAY != 0 && ENUMA_DIAG_DELAY_FROM_DISPLAY != 1
+#error Unsupported enuma display delay mode
+#endif
+#if ENUMA_DIAG_DISPLAY_VALUE_INDEX < 0 || ENUMA_DIAG_DISPLAY_VALUE_INDEX > 7
+#error Unsupported enuma display value index
+#endif
 STATIC VOID EnumaStageCheckpoint (UINTN Stage)
 {
   if (ENUMA_DIAG_STAGE != 0 && Stage == ENUMA_DIAG_STAGE) {
+    UINTN Delay = ENUMA_DIAG_DELAY_US;
     //
     // R-008/A: the read runs inside the very branch that has already been shown
     // to execute (the configured delay is honoured here), so it cannot be lost to
@@ -32,7 +45,21 @@ STATIC VOID EnumaStageCheckpoint (UINTN Stage)
       (VOID)*(volatile UINT32 *)0x0ae6b800U;
       (VOID)*(volatile UINT32 *)0x0ae6c000U;
     }
-    MicroSecondDelay (ENUMA_DIAG_DELAY_US);
+#if ENUMA_DIAG_DELAY_FROM_DISPLAY
+    if (Stage == 13) {
+      //
+      // R-008: carry one value out of the display window through the reset
+      // delay. The window is primed with a single access first, because that
+      // first access is exactly what used to hang the bus in this context.
+      // Four bits per run, one second per step, so the host can read the value
+      // back from the return time without any extra channel.
+      //
+      (VOID)*(volatile UINT32 *)0x0ae6b800U;
+      Delay = 2000000U +
+              (((*(volatile UINT32 *)(0x0ae00000U + (ENUMA_DIAG_DISPLAY_VALUE_INDEX * 4U))) & 0x0fU) * 1000000U);
+    }
+#endif
+    MicroSecondDelay (Delay);
     ResetCold ();
     CpuDeadLoop (); // Reset returned: never accidentally continue the probe.
   }

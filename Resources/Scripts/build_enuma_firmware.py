@@ -78,7 +78,7 @@ def main(device_root=None):
     parser.add_argument('--unixnu', type=Path, required=True)
     parser.add_argument('--jobs', type=int, default=4)
     parser.add_argument('--stop-stage', type=int, choices=(0,3,4,5,6,7,8,9,10,11,12,13), default=0)
-    parser.add_argument('--stop-delay', type=int, choices=(2,7), default=2)
+    parser.add_argument('--stop-delay', type=int, choices=(2,7,20), default=2)
     parser.add_argument('--dispatch-ordinal', type=int, default=1)
     parser.add_argument('--detail-point', type=int, choices=range(13,28), default=13)
     parser.add_argument('--dispatch-guid', help='optional complete file UUID filter for stage 13 detail gates')
@@ -177,7 +177,10 @@ def main(device_root=None):
     assert board['board']['example'] is True
     board=copy.deepcopy(board)
     board['firmware']['defines'].update(ENUMA_DIAG_STAGE=str(args.stop_stage),
-        ENUMA_DIAG_DELAY_US=str(args.stop_delay*1000000),ENUMA_DIAG_DISPATCH_ORDINAL=str(args.dispatch_ordinal),
+        ENUMA_DIAG_DELAY_US=str(args.stop_delay*1000000 if args.stop_delay != 20 else 2000000),
+        ENUMA_DIAG_DELAY_FROM_DISPLAY='1' if args.stop_delay == 20 else '0',
+        ENUMA_DIAG_DISPLAY_VALUE_INDEX=str(args.diagnostic_gop_step & 7),
+        ENUMA_DIAG_DISPATCH_ORDINAL=str(args.dispatch_ordinal),
         ENUMA_DIAG_DETAIL_POINT=str(args.detail_point),ENUMA_DIAG_DISABLE_UFS='1' if (args.diagnostic_without_ufs or args.diagnostic_simplefb) else '0',
         ENUMA_DIAG_SIMPLEFB='1' if args.diagnostic_simplefb else '0',
         ENUMA_DIAG_GOP_QUERY=str(args.diagnostic_gop_query),
