@@ -17,10 +17,23 @@
    //
    // Setup the default exception handlers
    //
-@@ -547,6 +550,7 @@
+@@ -547,6 +550,20 @@
    //
    // Invoke the DXE Dispatcher
    //
++#if ENUMA_DIAG_STAGE == 10
++  //
++  // R-008/A: read the display window before any DXE driver is dispatched.
++  // The R-004 device mapping is installed by now, so a stall here cannot be
++  // blamed on an unmapped address.
++  //
++  {
++    volatile UINT32 EnumaDxeDisplayProbe0 = *(volatile UINT32 *)0x0ae6b800U;
++    volatile UINT32 EnumaDxeDisplayProbe1 = *(volatile UINT32 *)0x0ae6c000U;
++    (VOID) EnumaDxeDisplayProbe0;
++    (VOID) EnumaDxeDisplayProbe1;
++  }
++#endif
 +  EnumaStageCheckpoint (10);
    CoreDispatcher ();
 

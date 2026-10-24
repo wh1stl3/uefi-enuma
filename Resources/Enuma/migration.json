@@ -33,7 +33,7 @@
     },
     "patches/dxe-stage-checkpoints.patch": {
       "destination": "patches/dxe-stage-checkpoints.patch",
-      "sha256": "41b0e6c4c33d9f74d112e8fb65681dec0d9a74fbd34dec54dd0b83c876fcae3e"
+      "sha256": "e28ebf01614b00306c342a02550b917d2153a259e93c02b1f242d9ecec3db11d"
     },
     "patches/kona-preserve-display.patch": {
       "destination": "patches/kona-preserve-display.patch",
@@ -102,10 +102,6 @@
     "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.inf": {
       "destination": "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.inf",
       "sha256": "2e53e16f0bfcc33aef41bdef535ec2ebfc7503b431eaf51ce460ec14b76e900e"
-    },
-    "patches/dxe-display-read.patch": {
-      "destination": "patches/dxe-display-read.patch",
-      "sha256": "9a0a87a19c2039cb880a3bb25145cbb1842b95bbe917d1fea0c31801f97fef4b"
     }
   }
 }
