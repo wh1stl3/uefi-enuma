@@ -54,9 +54,21 @@ STATIC VOID EnumaStageCheckpoint (UINTN Stage)
       // Four bits per run, one second per step, so the host can read the value
       // back from the return time without any extra channel.
       //
+      // The probes are the MDP version register and the SDE base-address
+      // registers of the first two hardware pipes. The address registers are
+      // 16-byte aligned, so their low nibble carries no information and the
+      // encoded nibble is taken from bits 4 and up instead.
+      //
+      STAT CONST UINTN DisplayProbeAddress[8] = {
+        0x0ae00000U, 0x0ae05014U, 0x0ae05014U, 0x0ae05014U,
+        0x0ae07014U, 0x0ae07014U, 0x0ae07014U, 0x0ae6b800U
+      };
+      STAT CONST UINTN DisplayProbeShift[8] = { 4U, 4U, 8U, 12U, 4U, 8U, 12U, 4U };
+      UINTN ProbeAddress = DisplayProbeAddress[ENUMA_DIAG_DISPLAY_VALUE_INDEX];
+      UINTN ProbeShift = DisplayProbeShift[ENUMA_DIAG_DISPLAY_VALUE_INDEX];
       (VOID)*(volatile UINT32 *)0x0ae6b800U;
       Delay = 2000000U +
-              (((*(volatile UINT32 *)(0x0ae00000U + (ENUMA_DIAG_DISPLAY_VALUE_INDEX * 4U))) & 0x0fU) * 1000000U);
+              ((((*(volatile UINT32 *)ProbeAddress) >> ProbeShift) & 0x0fU) * 1000000U);
     }
 #endif
     MicroSecondDelay (Delay);
