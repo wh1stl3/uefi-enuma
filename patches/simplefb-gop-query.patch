@@ -87,7 +87,7 @@
 +  // ahead of every step branch. If this one hangs, the read itself is the
 +  // problem in this context; if it does not, the hang sits earlier in the
 +  // load or install path and never reaches the step reads.
-+  (VOID)EnumaScanoutRead32 (0x0ae6b800U);
++  (VOID)*(volatile UINT32 *)0x0ae6b800U;
 +  // Core owns all timing/reset logic. A non-error marker keeps the published
 +  // driver resident; installation errors above never become audit markers.
 +#if ENUMA_DIAG_GOP_STEP > 0
