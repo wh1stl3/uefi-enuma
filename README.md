@@ -29,3 +29,5 @@ Native observation follow-up: step17 checks major-6 INTF_STATUS bit0, and step18
 Step19 follows the exact first bounded descriptor into native CTL/LM staging and a selected active DSI's two progress windows, with stable source/staging/interface state. Saved enuma CTLs begin at 0x2000, not another board's 0x1000. See docs/scanout-route.md for scope: configuration association is not complete physical routing or pixel visibility; no framebuffer or MMIO writes are added.
 
 Step20 adds bounded stable 1:1 SSPP output containment in the associated LM; see docs/scanout-geometry.md. Configuration evidence does not prove visible pixels.
+
+Step21 adds conservative sole staged source, no dim-layer bit, and native BASE/constant-opaque blend checks; see docs/scanout-blend.md. This is configuration evidence, not visible output.
