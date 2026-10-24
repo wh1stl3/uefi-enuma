@@ -6,7 +6,7 @@
     "diagnostics/EnumaDispatchDetailCheckpoint.h": "d5d0e4875d8331e3d8f516f5c38a97c51e8cf5766d7fca7441f4965aea83ea41",
     "patches/dxe-dispatch-details.patch": "49a051195269054894262788f65883c4665db5eec170db2f457e265b523be94d",
     "patches/dispatch-detail-options.patch": "9f065dbe55c54ba192c8f088e455f1a9850aeb8fb3f5c6522fc6a49412bd6a87",
-    "Resources/Scripts/enuma_preflight.py": "2a4c2cc6f07e30af95fb27f7380cf27ecd7aec95086d22980f5adbcba358d05e",
+    "Resources/Scripts/enuma_preflight.py": "2ac61fc8a2aba6ac1f11c6016d0daade5be4d6ccc03d0d99a057c9d0c6d655a4",
     "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af",
     "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f",
     "patches/diagnostic-ufs-selection.patch": "b79be283dc09951a91aa6fc99ec26aea7187f9845080d28445bf6dd50db5a523",
@@ -35,6 +35,7 @@
     "diagnostics/EnumaScanoutGeometry.h": "40586a56009e4e94288dde730c353a2ce77b607eafbb464c6d80deea6bd44628",
     "diagnostics/EnumaScanoutBlend.h": "a08a932ffa9822821d5baa9abfae076775c27b93ad1811ce6f30fb1801be930b",
     "diagnostics/EnumaScanoutBlendReason.h": "5a39836038db73afb9e72bbb6757f1cdfda303d88583a01ebfcb6c1430da8b7d",
-    "diagnostics/EnumaScanoutSoleStage.h": "d833729776d97b0958985b108ab944891880770da423fd72f872670123abc6ae"
+    "diagnostics/EnumaScanoutSoleStage.h": "d833729776d97b0958985b108ab944891880770da423fd72f872670123abc6ae",
+    "patches/sec-display-read.patch": "249295677829f341c4cf47287b78eb653a06d709fbb45659f0df76f9b5a4ad81"
   }
 }
