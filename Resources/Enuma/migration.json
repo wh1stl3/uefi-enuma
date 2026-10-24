@@ -21,7 +21,7 @@
     },
     "diagnostics/EnumaStageCheckpoint.h": {
       "destination": "diagnostics/EnumaStageCheckpoint.h",
-      "sha256": "c866b914a53025f8edc66d8840691b9bbf1a4906655cde62aa606673beaea6d3"
+      "sha256": "3766c8dda26f83fce4991a42300c6d4cf7ee5bd53bd4814daa301d4ce3405df7"
     },
     "patches/dxe-dispatch-return.patch": {
       "destination": "patches/dxe-dispatch-return.patch",

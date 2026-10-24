@@ -28,7 +28,7 @@ STATIC VOID EnumaStageCheckpoint (UINTN Stage)
     // write. A stall here means the display window was unreachable by the time
     // this stage was reached.
     //
-    if (Stage == 10 || Stage == 11) {
+    if (Stage == 10 || Stage == 11 || Stage == 12) {
       (VOID)*(volatile UINT32 *)0x0ae6b800U;
       (VOID)*(volatile UINT32 *)0x0ae6c000U;
     }
