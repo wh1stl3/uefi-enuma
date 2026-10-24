@@ -88,7 +88,7 @@ def main(device_root=None):
     selection.add_argument('--diagnostic-simplefb',action='store_true',help='metadata GOP provider; omit exact CPR/Display/UFS set; pixel experiment needs its separate explicit flag/review')
     selection.add_argument('--diagnostic-without-ufs',action='store_true',help='GOP isolation only; default firmware retains OEM UFSDxe')
     parser.add_argument('--diagnostic-gop-query', type=int, choices=(0,1,2), default=0, help='1: reset on read-only GOP audit pass; 2: reset on failure; 0: disabled')
-    parser.add_argument('--diagnostic-gop-step', type=int, choices=range(23), default=0, help='0..12: existing read-only stages; 13: protected pixels; 14: DSI timing; 15: counter configuration; 16: bounded frame progress; 17: native active status; 18: two native frame windows; 19: staged source and selected DSI progress; 20: stable contained 1:1 output geometry; 21: conservative single-source no-dim blend; 22: paired six-class blend reason timing')
+    parser.add_argument('--diagnostic-gop-step', type=int, choices=range(24), default=0, help='0..12: existing read-only stages; 13: protected pixels; 14: DSI timing; 15: counter configuration; 16: bounded frame progress; 17: native active status; 18: two native frame windows; 19: staged source and selected DSI progress; 20: stable contained 1:1 output geometry; 21: conservative single-source no-dim blend; 22: frozen paired six-class timing; 23: isolated sole staging, native border allowed')
     parser.add_argument('--diagnostic-pixel-preview',action='store_true',help='BUILD ONLY R-005 proposal; step13/query1 only; hardware execution requires separate explicit pixel approval')
     args = parser.parse_args()
     ROOT = args.device_root.resolve()

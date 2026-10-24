@@ -33,3 +33,5 @@ Step20 adds bounded stable 1:1 SSPP output containment in the associated LM; see
 Step21 adds conservative sole staged source, no dim-layer bit, and native BASE/constant-opaque blend checks; see docs/scanout-blend.md. This is configuration evidence, not visible output.
 
 Step22 adds paired forward/reverse six-class configuration timing over the unchanged Core marker path; see docs/scanout-blend-reason.md. Sampling remains read-only, encoding waits are bounded to20s.
+
+Step22 hardware forward timed out and is frozen; reverse unexecuted. Step23 removes all blend/alpha accesses and encoding waits, isolating sole staging over step20 with native border bit allowed. See docs/scanout-sole-stage.md.
