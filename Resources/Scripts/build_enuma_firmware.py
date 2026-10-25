@@ -79,6 +79,7 @@ def main(device_root=None):
     parser.add_argument('--unixnu', type=Path, required=True)
     parser.add_argument('--jobs', type=int, default=4)
     parser.add_argument('--gop-backend-selftest', action='store_true', help='offline link qualification: include non-autostart QEMU RAM-only GOP self-test; not a physical GOP candidate')
+    parser.add_argument('--inherited-video-audit', action='store_true', help='read-only same-boot video audit instead of metadata SimpleFb; no GOP/pixels; requires exact bounded SimpleFb query profile')
     parser.add_argument('--ram-payload', type=Path, help='build-only: exact FAT in device out/; enable bounded boot-v3 RAM BlockIO and batch report')
     parser.add_argument('--stop-stage', type=int, choices=(0,3,4,5,6,7,8,9,10,11,12,13), default=0)
     parser.add_argument('--stop-delay', type=int, choices=(2,7), default=2)
@@ -111,6 +112,8 @@ def main(device_root=None):
         parser.error('value parameters require an explicit value source')
     if args.diagnostic_gop_step and not args.diagnostic_gop_query:
         parser.error('GOP steps require --diagnostic-gop-query')
+    if args.inherited_video_audit and (not args.diagnostic_simplefb or args.diagnostic_gop_step or not args.diagnostic_gop_query or args.value_source!='off' or args.gop_backend_selftest):
+        parser.error('inherited video audit requires SimpleFb query step0, value off, no RAM self-test')
     if args.diagnostic_pixel_preview != (args.diagnostic_gop_step == 13) or (args.diagnostic_pixel_preview and args.diagnostic_gop_query != 1):
         parser.error('Pixel preview requires exactly step13/query1 and its explicit flag; hardware approval is separate')
     if args.diagnostic_gop_query and not (args.diagnostic_simplefb and args.stop_stage == 13 and args.stop_delay in (2, 20) and args.detail_point == 16 and args.dispatch_guid_only and args.dispatch_completion_fallback and args.dispatch_guid and args.dispatch_guid.lower() == 'dcfd1e6d-788d-4ffc-8e1b-ca2f75651a92'):
@@ -182,6 +185,10 @@ def main(device_root=None):
     for field, value in {'DEVICE':ROOT,'SOURCE':SOURCE,'UEFI':uefi,'EDK2':core,
                          'UNIXNU':args.unixnu,'REFERENCE':args.reference,'VENDOR':ROOT/'out/firmware-vendor'}.items():
         os.environ['ENUMA_'+field]=str(value.resolve())
+    if args.inherited_video_audit:
+        os.environ['ENUMA_INHERITED_VIDEO_AUDIT']='1'
+    else:
+        os.environ.pop('ENUMA_INHERITED_VIDEO_AUDIT',None)
     wrappers=core/'BaseTools/BinWrappers/PosixLike'
     for path in wrappers.iterdir():
         if path.is_file(): path.chmod(path.stat().st_mode | 0o111)
@@ -221,6 +228,7 @@ def main(device_root=None):
     report={'scope':'firmware-only invocation of the official backend; no device boot or enuma kernel',
         'complete':False,'fd':str(fd.relative_to(ROOT)),'uefi_source_commit':pin['commit'],
         'gop_backend_selftest_ram_only':args.gop_backend_selftest,
+        'inherited_video_audit_read_only':args.inherited_video_audit,
         'official_backend_sha256':hashlib.sha256((args.unixnu/'scripts/unixnu/firmware.py').read_bytes()).hexdigest(),
         'unixnu_qualification':qualification,'firmware_configuration':board['firmware'],
         'diagnostic_stop_stage':args.stop_stage,'diagnostic_delay_seconds':args.stop_delay,
@@ -231,7 +239,7 @@ def main(device_root=None):
         'diagnostic_dispatch_completion_fallback':args.dispatch_completion_fallback,
         'diagnostic_dispatch_completion_delay_seconds':7 if args.dispatch_completion_fallback else None,
         'diagnostic_omitted_oem_modules':(['CPRDxe','DisplayDxe','UFSDxe'] if args.diagnostic_simplefb else ['UFSDxe'] if args.diagnostic_without_ufs else []),
-        'diagnostic_simplefb_metadata_only':args.diagnostic_simplefb and not args.diagnostic_pixel_preview,
+        'diagnostic_simplefb_metadata_only':args.diagnostic_simplefb and not args.diagnostic_pixel_preview and not args.inherited_video_audit,
         'diagnostic_pixel_preview':args.diagnostic_pixel_preview,
         'hardware_review_required':'R-005' if args.diagnostic_pixel_preview else None,
         'diagnostic_gop_query':args.diagnostic_gop_query,
@@ -268,6 +276,15 @@ def main(device_root=None):
                 'autogen_sha256':hashlib.sha256(autogen.encode()).hexdigest(),
                 'static_library_list_sha256':hashlib.sha256(libraries.encode()).hexdigest(),
                 'core_checkpoint_sha256':hashlib.sha256((SOURCE/'diagnostics/EnumaStageCheckpoint.h').read_bytes()).hexdigest()}
+            if args.inherited_video_audit:
+                staged=uefi/'Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe'
+                assert (staged/'SimpleFb.c').read_bytes()==(SOURCE/'diagnostics/EnumaInheritedVideoAudit.c').read_bytes()
+                for name in ('InheritedScanout.h','Decode.c','Capture.c','Topology.h','Topology.c','Evidence.h','Evidence.c'):
+                    assert (staged/'InheritedVideo'/name).read_bytes()==(SOURCE/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'/name).read_bytes()
+                report['inherited_video_compiled_contract']={
+                    'entry_source_sha256':hashlib.sha256((staged/'SimpleFb.c').read_bytes()).hexdigest(),
+                    'all_staged_sources_equal':True,'maximum_read_callbacks':1257,'maximum_wait_calls':2,
+                    'pixel_access':False,'protocol_published':False}
             if args.value_source != 'off':
                 command=(module/'GNUmakefile').read_text()
                 for name in ('ENUMA_VALUE_SOURCE','ENUMA_VALUE_CODE','ENUMA_VALUE_INDEX','ENUMA_VALUE_SHIFT'):

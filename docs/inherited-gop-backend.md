@@ -50,3 +50,15 @@ not touch display MMIO. The extracted application is intended for QEMU only;
 the resulting FD is not a qualified enuma physical-display boot candidate.
 Default builds omit this application. No board/bringup-plan memory field or
 verified marker is changed. Raw field media stay local in companion out/.
+
+The companion has executed the linked8d85d39 RAM-only application under QEMU:
+`ENUMA_GOP_SELFTEST PASS RAM ONLY`. This is not physical GOP qualification.
+The opt-in `--inherited-video-audit` replaces the metadata SimpleFb entry with
+`diagnostics/EnumaInheritedVideoAudit.c`, preserving its existing INF/GUID and
+Core-warning transport. It publishes no protocol and never calls the new GOP
+backend. It checks the exact R-004 map record, samples only within that aperture,
+uses the existing two100ms Stall calls and returns a predicate marker. A2s gate
+versus7s dispatcher fallback is host timing evidence, never a unique log or a
+claim that the panel displays those sources. A75s host timeout stops all further
+boots and requires recovery. This new read-only candidate is independent of old
+consumed pixel/value-transport experiments, which remain frozen.

@@ -143,6 +143,13 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
         raise ValueError('SEC banner is not fixed to the existing source epoch')
     for name in ('EnumaGopAudit.h', 'EnumaGopResult.h', 'EnumaScanoutAudit.h', 'EnumaScanoutDescriptor.h', 'EnumaPixelPreview.h', 'EnumaPixelPreviewArm.h', 'EnumaDsiCounters.h', 'EnumaDsiNativeProgress.h', 'EnumaScanoutRoute.h', 'EnumaScanoutGeometry.h', 'EnumaScanoutBlend.h', 'EnumaScanoutBlendReason.h', 'EnumaScanoutSoleStage.h', 'EnumaValueProbe.h'):
         shutil.copyfile(source/'diagnostics'/name, (uefi/simplefb).parent/name)
+    if os.environ.get('ENUMA_INHERITED_VIDEO_AUDIT')=='1':
+        audit_source=source/'diagnostics/EnumaInheritedVideoAudit.c'
+        shutil.copyfile(audit_source,uefi/simplefb)
+        lib=source/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'
+        target=(uefi/simplefb).parent/'InheritedVideo'; target.mkdir(exist_ok=True)
+        for name in ('InheritedScanout.h','Decode.c','Capture.c','Topology.h','Topology.c','Evidence.h','Evidence.c'):
+            shutil.copyfile(lib/name,target/name)
     for target in (sec, dxe/'DxeMain', dxe/'Dispatcher', dxe/'Mem'):
         shutil.copyfile(source/'diagnostics/EnumaStageCheckpoint.h', target/'EnumaStageCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchCheckpoint.h', dxe/'Dispatcher/EnumaDispatchCheckpoint.h')
