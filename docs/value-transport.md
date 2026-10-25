@@ -109,3 +109,29 @@ remain explicitly unproven. No GOP is published and no pixels are accessed.
 Do not interpret ReservedMask as permission to write zero alpha into live
 RGBA; an opaque pixel adapter and visual qualification remain separate work.
 Same330 reads/two100ms, no new map/MMIO write. Old Native5 remains strict.
+
+## S-040 CPU stage1 translation query
+
+Opt-in --native-route-cpu-stage1 requires the unchanged Native6 alpha view.
+Only complete reason/requirements22 reaches the new query. It checks every
+4KiB page covering the decoded base and stride*2560 extent inside the exact
+R-004 Splash region, first read then write permission, at most18432 ATs.
+Code1 earlier contract/context/callback failure;2 PAR fault;3 output page is
+not identity;4 PAR attribute is not0xbb;5 every covering page passed those
+stage1 checks. No source values are emitted. Requirements22 remain unchanged.
+
+CurrentEL must be EL1 or EL2, SCTLR.M set and PARange<=48 bits. EL2 VHE and
+hardware AF/dirty management are rejected; EL1 hardware AF/dirty management
+is rejected too. Use matching S1E1R/W or S1E2R/W, ISB then PAR. Each query
+saves/masks/restores DAIF and saves/restores PAR. No framebuffer data access,
+cache maintenance, mapping setter, MMIO stores or protocol publication.
+AT may populate translation caches; EL1 stage1 output does not establish
+final stage2 translation or device SMMU equivalence. It does not establish
+actual RAM access, alpha opacity, blend or visible output. Retain the same
+fixed clock windows: an ambiguous clock is a hard stop, never recalibrated
+after seeing the result. The actual packaged instructions need manual review.
+
+Architecture basis: Arm DDI0595 AT/PAR definitions and the Arm A65AE TRM
+[TCR fields](https://documentation-service.arm.com/static/624ff3decaabfd7b3c13e9c7);
+the pinned Mu AArch64Mmu.h defines write-through MAIR0xbb and ArmMmuLib sets AF
+when installing descriptors. These are format facts, not enuma access proof.

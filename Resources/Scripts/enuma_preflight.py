@@ -149,7 +149,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
         shutil.copyfile(audit_source,uefi/simplefb)
         lib=source/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'
         target=(uefi/simplefb).parent/'InheritedVideo'; target.mkdir(exist_ok=True)
-        for name in ('InheritedScanout.h','Decode.c','Capture.c','VideoCapture.c','Topology.h','Topology.c','Evidence.h','Evidence.c','VideoResult.h','NativeObserve.h','NativeObserve.c','NativeMaskResult.h','NativeRouteResult.h'):
+        for name in ('InheritedScanout.h','Decode.c','Capture.c','VideoCapture.c','Topology.h','Topology.c','Evidence.h','Evidence.c','VideoResult.h','NativeObserve.h','NativeObserve.c','NativeMaskResult.h','NativeRouteResult.h','CpuStage1.h'):
             shutil.copyfile(lib/name,target/name)
     for target in (sec, dxe/'DxeMain', dxe/'Dispatcher', dxe/'Mem'):
         shutil.copyfile(source/'diagnostics/EnumaStageCheckpoint.h', target/'EnumaStageCheckpoint.h')

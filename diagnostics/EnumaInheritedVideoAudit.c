@@ -12,6 +12,15 @@
 #include "InheritedVideo/Evidence.c"
 #include "InheritedVideo/VideoResult.h"
 #include "InheritedVideo/NativeRouteResult.h"
+#ifndef ENUMA_NATIVE_ROUTE_CPU_STAGE1
+#define ENUMA_NATIVE_ROUTE_CPU_STAGE1 0
+#endif
+#if ENUMA_NATIVE_ROUTE_CPU_STAGE1 < 0 || ENUMA_NATIVE_ROUTE_CPU_STAGE1 > 1 || (ENUMA_NATIVE_ROUTE_CPU_STAGE1 && !ENUMA_NATIVE_ROUTE_ALPHA_VIEW)
+#error CPU stage1 requires exact alpha view
+#endif
+#if ENUMA_NATIVE_ROUTE_CPU_STAGE1
+#include "InheritedVideo/CpuStage1.h"
+#endif
 #ifndef ENUMA_NATIVE_ROUTE_ALPHA_VIEW
 #define ENUMA_NATIVE_ROUTE_ALPHA_VIEW 0
 #endif
@@ -154,6 +163,14 @@ EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
 #endif
 #else
   Status=EnumaSampleVideoDetailed(Read,Wait,NULL,&L,&mEvidence,&Reason);
+#endif
+#if ENUMA_NATIVE_ROUTE_CPU_STAGE1
+  if(Status==EnumaInheritedOk&&Reason==EnumaVideoReasonComplete&&mEvidence.Frame.Requirements==22) {
+    return (EFI_STATUS)EnumaCpuStage1Arm(&mEvidence.Frame);
+  }
+  // Collapse all earlier failures; never classify them as translation results.
+  (VOID)Result(Status,mEvidence.Frame.Requirements,Reason);
+  return 1;
 #endif
   // This is a configuration/counter predicate only, never GOP/address success.
   return Result(Status,mEvidence.Frame.Requirements,Reason);
