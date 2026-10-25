@@ -30,3 +30,15 @@ Existing actual Mu Blt, topology,330 callback failure oracle and164 selector
 cases also pass. No new FD, runtime binding, device action or visible-output
 qualification is claimed. Before use, bind a distinct runtime profile and
 audit actual PE/flags/map/full payload plus companion recovery/camera gates.
+
+
+Runtime opt-in: `--native-observe-query 1/2` requires the existing exact symmetric
+video terminal profile, full FAT, and excludes topology/reason/constant control.
+The separate EnumaNativeObserve entry checks unchanged map/PCD records, exposes
+only revision and the eight whitelisted interface offsets (<=26 loads/two waits).
+Its predicate is collection success plus both links active, stable nonzero Timing,
+stable Enable, and both bounded frame windows moving. ExactEnable3 is independent.
+Query2 is the exact complement, including metadata/collection refusal. Both exact
+warning markers terminate at the same Core hook (2/7 seconds, cold). No map,
+pixel, full GOP predicate, or protocol publication changes. Requires actual PE,
+flags, packaged Core, full-input qualification and current device gates before use.

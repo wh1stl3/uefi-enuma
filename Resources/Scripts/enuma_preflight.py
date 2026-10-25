@@ -144,12 +144,12 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     for name in ('EnumaGopAudit.h', 'EnumaGopResult.h', 'EnumaScanoutAudit.h', 'EnumaScanoutDescriptor.h', 'EnumaPixelPreview.h', 'EnumaPixelPreviewArm.h', 'EnumaDsiCounters.h', 'EnumaDsiNativeProgress.h', 'EnumaScanoutRoute.h', 'EnumaScanoutGeometry.h', 'EnumaScanoutBlend.h', 'EnumaScanoutBlendReason.h', 'EnumaScanoutSoleStage.h', 'EnumaValueProbe.h'):
         shutil.copyfile(source/'diagnostics'/name, (uefi/simplefb).parent/name)
     if os.environ.get('ENUMA_INHERITED_VIDEO_AUDIT')=='1':
-        entry='EnumaInheritedVideoEntryControl.c' if os.environ.get('ENUMA_INHERITED_VIDEO_ENTRY_CONTROL')=='1' else 'EnumaInheritedVideoAudit.c'
+        entry='EnumaNativeObserve.c' if os.environ.get('ENUMA_NATIVE_OBSERVE_QUERY','0')!='0' else ('EnumaInheritedVideoEntryControl.c' if os.environ.get('ENUMA_INHERITED_VIDEO_ENTRY_CONTROL')=='1' else 'EnumaInheritedVideoAudit.c')
         audit_source=source/'diagnostics'/entry
         shutil.copyfile(audit_source,uefi/simplefb)
         lib=source/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'
         target=(uefi/simplefb).parent/'InheritedVideo'; target.mkdir(exist_ok=True)
-        for name in ('InheritedScanout.h','Decode.c','Capture.c','VideoCapture.c','Topology.h','Topology.c','Evidence.h','Evidence.c','VideoResult.h'):
+        for name in ('InheritedScanout.h','Decode.c','Capture.c','VideoCapture.c','Topology.h','Topology.c','Evidence.h','Evidence.c','VideoResult.h','NativeObserve.h','NativeObserve.c'):
             shutil.copyfile(lib/name,target/name)
     for target in (sec, dxe/'DxeMain', dxe/'Dispatcher', dxe/'Mem'):
         shutil.copyfile(source/'diagnostics/EnumaStageCheckpoint.h', target/'EnumaStageCheckpoint.h')
