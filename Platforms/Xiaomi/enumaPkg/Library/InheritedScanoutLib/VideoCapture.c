@@ -3,6 +3,9 @@
 // six ACTIVE words, one CTL_TOP, 24 route words, only two selected SSPP sets.
 // No CTL transient, command refresh, PP or unused SSPP register accesses.
 #include "Evidence.h"
+#ifndef ENUMA_NATIVE_ROUTE_STAGING
+#define ENUMA_NATIVE_ROUTE_STAGING 0
+#endif
 ENUMA_U32 EnumaCaptureVideoConfigDetailed(ENUMA_INHERITED_READ Read,void *Ctx,ENUMA_U32 Revision,ENUMA_INHERITED_SNAPSHOT *Out,ENUMA_VIDEO_SCOPE *Scope,ENUMA_U32 *Reason) {
   static const ENUMA_U32 Pipes[8]={0x5000,0x7000,0x9000,0xb000,0x25000,0x27000,0x29000,0x2b000};
   static const ENUMA_U32 Fields[11]={0,8,12,16,20,36,48,52,56,0x170,0x70};
@@ -25,7 +28,13 @@ ENUMA_U32 EnumaCaptureVideoConfigDetailed(ENUMA_INHERITED_READ Read,void *Ctx,EN
     TAKE(B+0x70+M*4,S.Ctls[C].Layers[M][2]); TAKE(B+0xa0+M*4,S.Ctls[C].Layers[M][3]);
   }
   if(Reason) { *Reason=EnumaVideoReasonNativeStaging; }
-  Status=EnumaSelectVideoRoute(&S,&C,&Mask,&PipeMask); if(Status) { return Status; }
+  Status=EnumaSelectVideoRoute(&S,&C,&Mask,&PipeMask);
+  if(Status) {
+#if ENUMA_NATIVE_ROUTE_STAGING
+    if(Reason&&Status==EnumaInheritedTopology) { *Reason=EnumaVideoReasonStagingOther+EnumaClassifyVideoStaging(&S); }
+#endif
+    return Status;
+  }
   if(Reason) { *Reason=EnumaVideoReasonNativePipe; }
   for(I=0;I<8;I++) {
     ENUMA_INHERITED_PIPE *P=&S.Pipes[I];

@@ -12,4 +12,7 @@ ENUMA_U32 EnumaCaptureRoutedMixers(const ENUMA_INHERITED_SNAPSHOT *,ENUMA_INHERI
 // Pure strict route selector; no hardware reads. Outputs unchanged on failure.
 ENUMA_U32 EnumaSelectVideoRoute(const ENUMA_INHERITED_SNAPSHOT *,ENUMA_U32 *,ENUMA_U32 *,ENUMA_U32 *);
 ENUMA_U32 EnumaResolveMixerOrigins(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_MIXER_SNAPSHOT *,const ENUMA_INHERITED_LIMITS *,ENUMA_INHERITED_LIMITS *);
+// Pure classification of already captured staging; never admission.
+enum { EnumaStagingOther,EnumaStagingBorderOnly,EnumaStagingSourceShape,EnumaStagingUnknownFields,EnumaStagingCardinality };
+ENUMA_U32 EnumaClassifyVideoStaging(const ENUMA_INHERITED_SNAPSHOT *);
 #endif

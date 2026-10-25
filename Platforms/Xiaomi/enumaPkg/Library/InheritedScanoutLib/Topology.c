@@ -110,3 +110,33 @@ ENUMA_U32 EnumaResolveMixerOrigins(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA
   *Out=L;
   return EnumaInheritedOk;
 }
+// Diagnostic only. Ignore known border bit in local copies, not the snapshot.
+// MiCode52a2f18 CTL_MIXER_BORDER_OUT bit24 may be set with no BASE source.
+ENUMA_U32 EnumaClassifyVideoStaging(const ENUMA_INHERITED_SNAPSHOT *S) {
+  ENUMA_U32 C,M,P,J,Count=0,Selected=0,Used=0,Total=0,Border=0;
+  if(!S||(S->Revision>>16)!=0x6000) { return EnumaStagingOther; }
+  for(C=0;C<6;C++) {
+    if(!S->Ctls[C].IntfActive) { continue; }
+    if(++Count!=1||S->Ctls[C].IntfActive!=6||(S->Ctls[C].Top&(1u<<17))) { return EnumaStagingOther; }
+    Selected=C;
+  }
+  if(Count!=1) { return EnumaStagingOther; }
+  for(M=0;M<6;M++) {
+    ENUMA_U32 V[4],Expected[4]={0},Any=0,N=0,Pipe=8,E=0;
+    for(J=0;J<4;J++) { V[J]=S->Ctls[Selected].Layers[M][J]; }
+    Border|=V[0]&(1u<<24); V[0]&=~(1u<<24);
+    for(J=0;J<4;J++) { Any|=V[J]; }
+    if(!Any) { continue; }
+    for(P=0;P<8;P++) { ENUMA_U32 X=Stage(V,P); if(X) { N++;Pipe=P;E=X; } }
+    if(N!=1||E>12) { return EnumaStagingSourceShape; }
+    if(Pipe<6) {
+      static const ENUMA_U32 Shift[6]={0,3,6,26,18,21};
+      Expected[0]=(E&7)<<Shift[Pipe]; Expected[1]=(E>>3)<<(Pipe<4?Pipe*2:16+(Pipe-4)*2);
+    } else { Expected[2]=E<<((Pipe-6)*4); }
+    for(J=0;J<4;J++) { if(V[J]!=Expected[J]) { return EnumaStagingUnknownFields; } }
+    if(Used&(1u<<Pipe)) { return EnumaStagingCardinality; }
+    Used|=1u<<Pipe;Total++;
+  }
+  if(Total!=2) { return EnumaStagingCardinality; }
+  return Border?EnumaStagingBorderOnly:EnumaStagingOther;
+}

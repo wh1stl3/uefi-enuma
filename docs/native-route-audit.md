@@ -34,3 +34,15 @@ phase reasons back to the original pipeline reason. Strict sampler reasons and
 callback order remain unchanged. Full native sampling is compared against the
 fafb8a3 fixed source at all330 read failure boundaries; detailed selector has
 10080 status/reason/requirements cases. This does not loosen any topology gate.
+
+S-030 localized the rejection to source staging. Optional
+`--native-route-staging` (requires route detail) classifies only the24 words
+already captured at that failure. No continuation or additional MMIO occurs.
+Local copies ignore only known CTL border bit24. Code2 requires the entire
+normalized route to contain exactly two distinct single-source mixers with
+known encodings and no other fields, with at least one border bit present.
+Code3 means known-source count/encoding rejection,4 other/virtual fields,
+5 mixer cardinality or duplicate source,1 all other outcomes. Code5 is not
+success in this mode. Raw snapshots and strict admission remain unchanged.
+The classifier has64 border-mask and768 single-bit perturbation checks plus
+negative shape/field/cardinality cases; the marker selector has12480 cases.

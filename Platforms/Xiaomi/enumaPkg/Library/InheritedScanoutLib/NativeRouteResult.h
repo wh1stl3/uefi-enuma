@@ -22,4 +22,8 @@ static inline ENUMA_U32 EnumaNativeRouteDetailResult(ENUMA_U32 S,ENUMA_U32 R,ENU
   if(W==EnumaVideoReasonNativeMixerCapture||W==EnumaVideoReasonNativeMixerLayout||W==EnumaVideoReasonNativeDecode) { return 4; }
   return 1;
 }
+static inline ENUMA_U32 EnumaNativeStagingResult(ENUMA_U32 S,ENUMA_U32 R,ENUMA_U32 W) {
+  if(S!=EnumaInheritedTopology||R||W<EnumaVideoReasonStagingBorderOnly||W>EnumaVideoReasonStagingCardinality) { return 1; }
+  return W-EnumaVideoReasonStagingOther+1;
+}
 #endif
