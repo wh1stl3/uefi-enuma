@@ -12,6 +12,12 @@
 #include "InheritedVideo/Evidence.c"
 #include "InheritedVideo/VideoResult.h"
 #include "InheritedVideo/NativeRouteResult.h"
+#ifndef ENUMA_NATIVE_ROUTE_CPU_PATTERN
+#define ENUMA_NATIVE_ROUTE_CPU_PATTERN 0
+#endif
+#if ENUMA_NATIVE_ROUTE_CPU_PATTERN < 0 || ENUMA_NATIVE_ROUTE_CPU_PATTERN > 1 || (ENUMA_NATIVE_ROUTE_CPU_PATTERN && !ENUMA_NATIVE_ROUTE_CPU_ROI)
+#error Pixel transaction requires the qualified ROI profile
+#endif
 #ifndef ENUMA_NATIVE_ROUTE_CPU_ROI
 #define ENUMA_NATIVE_ROUTE_CPU_ROI 0
 #endif
@@ -158,16 +164,19 @@ STATIC UINTN mReads,mWaits;
 STATIC ENUMA_VIDEO_EVIDENCE mEvidence;
 STATIC int Read(void *Context,ENUMA_U32 Offset,ENUMA_U32 *Value) {
   (VOID)Context;
-  if(!Value||(Offset&3)||Offset>0x6c26c||mReads>=330) { return 0; }
+  if(!Value||(Offset&3)||Offset>0x6c26c||mReads>=(ENUMA_NATIVE_ROUTE_CPU_PATTERN?660:330)) { return 0; }
   mReads++;
   *Value=*(volatile UINT32 *)(UINTN)(0x0ae00000U+Offset);
   return 1;
 }
 STATIC int Wait(void *Context,ENUMA_U32 Us) {
   (VOID)Context;
-  if(Us!=100000||mWaits>=2||!gBS||!gBS->Stall) { return 0; }
+  if(Us!=100000||mWaits>=(ENUMA_NATIVE_ROUTE_CPU_PATTERN?4:2)||!gBS||!gBS->Stall) { return 0; }
   mWaits++; return gBS->Stall(Us)==EFI_SUCCESS?1:0;
 }
+#if ENUMA_NATIVE_ROUTE_CPU_PATTERN
+#include "EnumaPixelTransactionArm.h"
+#endif
 EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
   EFI_MEMORY_REGION_DESCRIPTOR Mdp={0},Splash={0}; ENUMA_INHERITED_LIMITS L={0}; ENUMA_U32 Status,Reason=0;
   (VOID)Image; (VOID)ST;
@@ -177,6 +186,9 @@ EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
   L.Width=FixedPcdGet32(PcdFrameBufferWidth); L.Height=FixedPcdGet32(PcdFrameBufferHeight);
   if(L.Width!=1600||L.Height!=2560) { return Result(EnumaInheritedArguments,0,EnumaVideoReasonArguments); }
   L.SplashBase=Splash.Address; L.SplashBytes=Splash.Length; L.Mode=ENUMA_MODE_VIDEO;
+#if ENUMA_NATIVE_ROUTE_CPU_PATTERN
+  mPixelLimits=L;
+#endif
 #if ENUMA_NATIVE_ROUTE_AUDIT
 #if ENUMA_NATIVE_ROUTE_ALPHA_VIEW
   Status=EnumaSampleNativeAlphaViewDetailed(Read,Wait,NULL,&L,&mEvidence,&Reason);
@@ -196,7 +208,10 @@ EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
 #endif
 #if ENUMA_NATIVE_ROUTE_CPU_STAGE1
   if(Status==EnumaInheritedOk&&Reason==EnumaVideoReasonComplete&&mEvidence.Frame.Requirements==22) {
-#if ENUMA_NATIVE_ROUTE_CPU_ROI
+#if ENUMA_NATIVE_ROUTE_CPU_PATTERN
+    ENUMA_U64 El=0;ENUMA_U32 Policy=EnumaCpuStage1ArmDetailed(&mEvidence.Frame,&El);
+    return (EFI_STATUS)PixelArmProbe(&mEvidence.Frame,Policy,El);
+#elif ENUMA_NATIVE_ROUTE_CPU_ROI
     ENUMA_U64 El=0;ENUMA_U32 Policy=EnumaCpuStage1ArmDetailed(&mEvidence.Frame,&El);
     return (EFI_STATUS)EnumaCpuReadRoiArmProbe(&mEvidence.Frame,Policy,El);
 #elif ENUMA_NATIVE_ROUTE_CPU_READ

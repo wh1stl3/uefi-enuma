@@ -148,7 +148,7 @@ static ENUMA_U32 EnumaCpuStage1ArmDetailed(const ENUMA_INHERITED_FRAME *F,ENUMA_
 #endif
 }
 static inline ENUMA_U32 EnumaCpuStage1Arm(const ENUMA_INHERITED_FRAME *F) { return EnumaCpuStage1ArmDetailed(F,0); }
-#if defined(ENUMA_NATIVE_ROUTE_CPU_READ) && ENUMA_NATIVE_ROUTE_CPU_READ
+#if defined(ENUMA_NATIVE_ROUTE_CPU_READ) && ENUMA_NATIVE_ROUTE_CPU_READ && (!defined(ENUMA_NATIVE_ROUTE_CPU_PATTERN) || !ENUMA_NATIVE_ROUTE_CPU_PATTERN)
 typedef struct { ENUMA_U64 Expected;ENUMA_U32 Reads;volatile ENUMA_U32 Sink;ENUMA_U32 Barriers,Stride; } ENUMA_CPU_WORD_CONTEXT;
 static int EnumaCpuWordArm(void *Opaque,ENUMA_U64 Address,ENUMA_U32 *Value) {
   ENUMA_CPU_WORD_CONTEXT *C=Opaque;
