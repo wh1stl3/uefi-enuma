@@ -147,3 +147,24 @@ earlier failure or every page actually WT; it is not a success code. This
 does not relax the expected WT or qualify NC/WB for data access. All256 byte
 encodings, first read/write/last operation and fault/nonidentity precedence
 are host-tested; original requirements and operation count stay unchanged.
+
+## S-042 independent whole-range semantic policy audit
+
+--native-route-cpu-policy requires stage1 and excludes first-attribute mode.
+Original strict0xbb and first-attribute APIs remain unchanged. The new wrapper
+records inner/outer cache policies from every successful raw PAR, then replaces
+only ATTR in its RAM callback result with0xbb so the original bounded R/W and
+identity loop runs over every page. Architectural PAR is already restored by
+the underlying callback; it is never changed by this normalization. No data,
+cache maintenance or table writes. Fault/nonidentity/callback/earlier failures
+yield code1. Only full traversal yields2 all normalNC,3 all normalWT,4 all
+normalWB,5 mixed/other (not normal admission). Allocation/transient hints are
+retained in raw observations but deliberately not exported; no raw byte value
+or identical-MAIR claim follows. Same requirements22 and unproven data/SMMU/
+alpha/blend/downstream obligations. This does not certify any cache policy
+for real data access. Host tests cover all256 encodings, mixed policies,
+within-policy hint changes, first/last faults and18432 maximum queries.
+
+Normal MAIR nibble format:4 NC;1..3 or8..b WT;5..7 orc..f WB;0 other.
+See Arm [MAIR encoding table](https://documentation-service.arm.com/static/61b75264a2506b46a5c32065).
+This is the common register field format, not board-specific MPU setup.

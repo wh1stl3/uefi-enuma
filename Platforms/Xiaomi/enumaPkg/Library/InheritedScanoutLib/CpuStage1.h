@@ -42,6 +42,31 @@ static inline ENUMA_U32 EnumaCpuAttribute(const ENUMA_INHERITED_FRAME *F,ENUMA_C
   if(A==0||A==4||A==8||A==12) { return 4; }
   return 5;
 }
+// Independent whole-range semantic-policy audit. Preserve all raw output
+// address/fault bits; replace only ATTR in the callback's RAM result so the
+// original bound/range/R-W/identity loop can run to completion. No PAR write.
+static inline ENUMA_U32 EnumaCpuPolicyNibble(ENUMA_U32 N) {
+  if(N==4) { return 2; } // NC
+  if((N>=1&&N<=3)||(N>=8&&N<=11)) { return 3; } // WT, either transient hint
+  if((N>=5&&N<=7)||N>=12) { return 4; } // WB, either transient hint
+  return 5; // device/reserved: not a normal-policy admission
+}
+typedef struct { ENUMA_CPU_TRANSLATE Translate;void *Ctx;ENUMA_U32 Policy,Mixed; } ENUMA_CPU_POLICY_CONTEXT;
+static inline int EnumaCpuPolicyCapture(void *Opaque,ENUMA_U64 Page,ENUMA_U32 Write,ENUMA_U64 *Par) {
+  ENUMA_CPU_POLICY_CONTEXT *C=Opaque;int S=C->Translate(C->Ctx,Page,Write,Par);ENUMA_U32 A,P,Q;
+  if(S!=1||(*Par&1)) { return S; }
+  A=(ENUMA_U32)(*Par>>56);P=EnumaCpuPolicyNibble(A>>4);Q=EnumaCpuPolicyNibble(A&15);
+  if(P!=Q||P==5) { C->Mixed=1; }
+  if(!C->Policy) { C->Policy=P; } else if(C->Policy!=P) { C->Mixed=1; }
+  *Par=(*Par&0x00ffffffffffffffULL)|0xbb00000000000000ULL;
+  return S;
+}
+static inline ENUMA_U32 EnumaCpuWholePolicy(const ENUMA_INHERITED_FRAME *F,ENUMA_CPU_TRANSLATE Translate,void *Ctx) {
+  ENUMA_CPU_POLICY_CONTEXT C={Translate,Ctx,0,0};
+  if(!Translate||EnumaCpuStage1(F,EnumaCpuPolicyCapture,&C)!=5) { return 1; }
+  if(C.Mixed||C.Policy<2||C.Policy>4) { return 5; }
+  return C.Policy;
+}
 #ifdef __aarch64__
 typedef struct { ENUMA_U64 El;ENUMA_U32 Count; } ENUMA_CPU_STAGE1_CONTEXT;
 static int EnumaCpuStage1Translate(void *Opaque,ENUMA_U64 Page,ENUMA_U32 Write,ENUMA_U64 *Par) {
@@ -74,7 +99,9 @@ static ENUMA_U32 EnumaCpuStage1Arm(const ENUMA_INHERITED_FRAME *F) {
     if((Hcr&(1ULL<<34))||(Tcr&((1ULL<<21)|(1ULL<<22)))) { return 1; } // exclude VHE, HA/HD
   } else { return 1; }
   if(!(Sctlr&1)) { return 1; }
-#if defined(ENUMA_NATIVE_ROUTE_CPU_ATTRIBUTE) && ENUMA_NATIVE_ROUTE_CPU_ATTRIBUTE
+#if defined(ENUMA_NATIVE_ROUTE_CPU_POLICY) && ENUMA_NATIVE_ROUTE_CPU_POLICY
+  return EnumaCpuWholePolicy(F,EnumaCpuStage1Translate,&C);
+#elif defined(ENUMA_NATIVE_ROUTE_CPU_ATTRIBUTE) && ENUMA_NATIVE_ROUTE_CPU_ATTRIBUTE
   return EnumaCpuAttribute(F,EnumaCpuStage1Translate,&C);
 #else
   return EnumaCpuStage1(F,EnumaCpuStage1Translate,&C);
