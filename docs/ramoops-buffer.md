@@ -29,3 +29,10 @@ if ResetWarm returns, CpuDeadLoop prevents dispatcher fallthrough.
 The Null SerialPort backend stays in use. Other profiles omit the new map.
 The companion owns pstore collection, target/recovery gates and trial packaging.
 See its `docs/operations/2026-10-25-ramoops-compatibility-audit.md`.
+
+S-015 timed out and was manually recovered with independent verification. It is
+consumed. The separate `--ramoops-map-control` profile enables only the same
+console mapping (`ENUMA_RAMOOPS_MAP=1`, writer flag0), keeps the byte-identical
+baseline stage10/2s/ResetCold gate, and never reads/writes console contents.
+It is mutually exclusive with a nonce. This isolates the new map/early path
+from console writes and warm reset; a return does not prove the map was used.

@@ -5,7 +5,7 @@
   "files": {
     "diagnostics/EnumaDispatchDetailCheckpoint.h": "3a6e0cf398b1a3a7486f5768d0990c85865659e164f4340905a4d873f9968c0c",
     "patches/dxe-dispatch-details.patch": "49a051195269054894262788f65883c4665db5eec170db2f457e265b523be94d",
-    "patches/dispatch-detail-options.patch": "ee6661f459e8cabb904b7ee5081ebacad40004cd73d6b19109c1ec71bb4ae5e2",
+    "patches/dispatch-detail-options.patch": "8ac26358420431ec5bc42bad04df6925f3371cc9f8704e2de6c5ff869c4b1de8",
     "Resources/Scripts/enuma_preflight.py": "ca244518ef071039e9a034cc7ab3ca03e9391e920e31fbca76bb0a8c7619c6e6",
     "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af",
     "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f",
@@ -21,7 +21,7 @@
     "diagnostics/EnumaGopAudit.h": "e6db3b2794b9dc49a5c98790ef2cfcf900af1126b3c2f20ebb30297c5eba46e5",
     "patches/simplefb-gop-query.patch": "3a013d8dabf37263db1c1c6b03b34c81d12aeaaf067386e6577928a9fc493071",
     "diagnostics/EnumaGopResult.h": "15439f96c32387cccd57c8f40d5a703600af6478c616eebe896b6a5fb536d184",
-    "Resources/Scripts/build_enuma_firmware.py": "4cbe54334f6a549bad9ac16b04a2f47183f4931822fe73950f59e092c70b9d08",
+    "Resources/Scripts/build_enuma_firmware.py": "e45649270ef34036ea626d8770f1244ce89677ebd0319f239ba3d30e477d4f8d",
     "Resources/Scripts/enuma_firmware_preflight.py": "eb9af118480cf90166854337ed76cf850485b6e2f890e592ed7a339fbc39521a",
     "diagnostics/EnumaScanoutAudit.h": "8f49f8c27f1211be834e77e2a79a056010d2de0e637f02f82f6b7bd3464ff702",
     "patches/display-mdp-map.patch": "5aa0f4e584349354000c50a181fb7a0aa31c43b1f4128a72bc35469e90fd14b4",
@@ -68,9 +68,9 @@
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/VideoResult.h": "b9c9375fad42acd8dd470bd2208e70ccbf17f22a2233f62e8dab30cceec324a7",
     "diagnostics/EnumaRamoopsBuffer.h": "924921468fc8580100eaa9e2ab21ceabf065e87f73db5e03dccb03691ad34aae",
     "diagnostics/LICENSE.ramoops-upstream": "5b1d3d911103cb0f41641ec0964c5ac1f7e229f57aa072b6ac38bae913a1307b",
-    "docs/ramoops-buffer.md": "bcf770664f30832bade41f10435c974766c4cd9c58dca074a50612dfdf7a4e32",
+    "docs/ramoops-buffer.md": "ecbbad12e12b8b0c477e39034760676d4c9ce3dfc7959548828422d0c51008ce",
     "diagnostics/EnumaRamoopsCanary.h": "9352ee92f3f47b69f61d87b814ee5dd75875585b4ae4d32936dea88a80865a80",
     "diagnostics/EnumaRamoopsStageCheckpoint.h": "ff3b5d6b5c19ba60646fd47c47379332e9f39c35482b60db88fb74c8f4a68936",
-    "patches/ramoops-console-map.patch": "d36f14373c2fa3b6b68d5aa64632057c5781b594b5a82d51f36fe7703dbd054a"
+    "patches/ramoops-console-map.patch": "28c3ce50d0dc7c64657aad56dc22494f9c0982fbacbd8b876b6d56fcc97ca43b"
   }
 }
