@@ -18,9 +18,14 @@ is imported. Host ASan/UBSan tests compare chronological bytes against a linear
 queue over 51,210 append/boundary cases, and an AArch64 object is compiled using
 the existing fixed build's EDK headers. Neither proves physical retention.
 
-The companion R-017 proposal requests **only** an additional console mapping
+The companion R-017 A scope covers **only** an additional console mapping
 at B0000000/2MiB and a single 44-byte nonce marker before a bounded reset.
-Pmsg is not mapped or accessed. The mapping is not implemented or approved here.
-Keep the Null SerialPort backend and existing memory map until companion review.
+Pmsg is not mapped or accessed. After the exact proposal the user explicitly
+instructed direct execution with camera evidence. The new build-only
+`--ramoops-canary-nonce` profile enables the conditional map and stages a separate
+stage10 header into DxeMain only. Baseline migrated headers remain unchanged.
+The standalone header writes once, waits two seconds and requests ResetWarm;
+if ResetWarm returns, CpuDeadLoop prevents dispatcher fallthrough.
+The Null SerialPort backend stays in use. Other profiles omit the new map.
 The companion owns pstore collection, target/recovery gates and trial packaging.
 See its `docs/operations/2026-10-25-ramoops-compatibility-audit.md`.

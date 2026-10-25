@@ -86,6 +86,7 @@ def main(device_root=None):
     parser.add_argument('--inherited-video-reason-target', choices=('off','counter-enable','stability','interface','refresh'),default='off',help='first-return reason predicate; never relaxes sampling')
     parser.add_argument('--inherited-video-reason-query',type=int,choices=(0,1,2),default=0,help='1 selected reason, 2 exact complement; 0 off')
     parser.add_argument('--ram-payload', type=Path, help='build-only: exact FAT in device out/; enable bounded boot-v3 RAM BlockIO and batch report')
+    parser.add_argument('--ramoops-canary-nonce', help='R-017 single console marker; exactly 32 lower hex digits; stage10/delay2/SimpleFb-omit profile only')
     parser.add_argument('--stop-stage', type=int, choices=(0,3,4,5,6,7,8,9,10,11,12,13), default=0)
     parser.add_argument('--stop-delay', type=int, choices=(2,7), default=2)
     parser.add_argument('--dispatch-ordinal', type=int, default=1)
@@ -106,6 +107,16 @@ def main(device_root=None):
     args = parser.parse_args()
     ROOT = args.device_root.resolve()
     WORK = ROOT / 'out/firmware-build'
+    if args.ramoops_canary_nonce:
+        os.environ['ENUMA_RAMOOPS_CANARY'] = '1'
+    else:
+        os.environ.pop('ENUMA_RAMOOPS_CANARY', None)
+    if args.ramoops_canary_nonce is not None:
+        if (re.fullmatch(r'[0-9a-f]{32}', args.ramoops_canary_nonce) is None or
+            args.stop_stage != 10 or args.stop_delay != 2 or not args.diagnostic_simplefb or
+            args.diagnostic_gop_query or args.diagnostic_gop_step or args.value_source != 'off' or
+            args.inherited_video_audit or args.gop_backend_selftest or not args.ram_payload):
+            parser.error('R-017 requires fresh 32-hex nonce, stage10/delay2, SimpleFb omission, full FAT, no other probe')
     if args.value_source != 'off':
         if not (args.diagnostic_gop_query == 1 and args.diagnostic_gop_step == 0 and args.stop_delay == 2):
             parser.error('value transport requires step0/query1/delay2; historical display-delay mode is excluded')
@@ -219,6 +230,10 @@ def main(device_root=None):
     board=tomllib.loads((ROOT/'board.toml').read_text())
     assert board['board']['example'] is True
     board=copy.deepcopy(board)
+    board['firmware']['defines']['ENUMA_RAMOOPS_CANARY']='1' if args.ramoops_canary_nonce else '0'
+    for i in range(4):
+        word = int(args.ramoops_canary_nonce[i*8:i*8+8], 16) if args.ramoops_canary_nonce else 0
+        board['firmware']['defines']['ENUMA_RAMOOPS_NONCE_'+str(i)]=str(word)+'U'
     board['firmware']['defines']['ENUMA_GOP_SELFTEST']='1' if args.gop_backend_selftest else '0'
     board['firmware']['defines']['ENUMA_VIDEO_TERMINAL']='1' if args.inherited_video_terminal else '0'
     board['firmware']['defines']['ENUMA_VIDEO_TOPOLOGY_QUERY']=str(args.inherited_video_topology_query)
@@ -255,6 +270,7 @@ def main(device_root=None):
         'inherited_video_terminal':args.inherited_video_terminal,
         'inherited_video_topology_query':args.inherited_video_topology_query,
         'inherited_video_reason_target':reason_target,'inherited_video_reason_query':args.inherited_video_reason_query,
+        'ramoops_canary_nonce':args.ramoops_canary_nonce,
         'official_backend_sha256':hashlib.sha256((args.unixnu/'scripts/unixnu/firmware.py').read_bytes()).hexdigest(),
         'unixnu_qualification':qualification,'firmware_configuration':board['firmware'],
         'diagnostic_stop_stage':args.stop_stage,'diagnostic_delay_seconds':args.stop_delay,
@@ -267,7 +283,7 @@ def main(device_root=None):
         'diagnostic_omitted_oem_modules':(['CPRDxe','DisplayDxe','UFSDxe'] if args.diagnostic_simplefb else ['UFSDxe'] if args.diagnostic_without_ufs else []),
         'diagnostic_simplefb_metadata_only':args.diagnostic_simplefb and not args.diagnostic_pixel_preview and not args.inherited_video_audit,
         'diagnostic_pixel_preview':args.diagnostic_pixel_preview,
-        'hardware_review_required':'R-005' if args.diagnostic_pixel_preview else None,
+        'hardware_review_required':'R-017' if args.ramoops_canary_nonce else ('R-005' if args.diagnostic_pixel_preview else None),
         'diagnostic_gop_query':args.diagnostic_gop_query,
         'diagnostic_gop_step':args.diagnostic_gop_step,
         'value_probe':{'source':args.value_source,'constant_code':args.value_code,

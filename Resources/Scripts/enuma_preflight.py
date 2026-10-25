@@ -137,7 +137,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
         'kona-preserve-display.patch', 'sec-preserve-display.patch', 'sec-stage-checkpoints.patch',
         'sec-display-read.patch',
         'dispatch-detail-options.patch', 'apriori-metronome.patch', 'diagnostic-ufs-selection.patch',
-        'simplefb-contract.patch', 'simplefb-diagnostic-selection.patch', 'simplefb-gop-query.patch', 'display-mdp-map.patch', 'sec-fixed-epoch-banner.patch')])
+        'simplefb-contract.patch', 'simplefb-diagnostic-selection.patch', 'simplefb-gop-query.patch', 'display-mdp-map.patch', 'sec-fixed-epoch-banner.patch', 'ramoops-console-map.patch')])
     sec_text = (sec/'Sec.c').read_text()
     if '__TIME__' in sec_text or '__DATE__' in sec_text or 'Source epoch %a on %a' not in sec_text:
         raise ValueError('SEC banner is not fixed to the existing source epoch')
@@ -153,6 +153,11 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
             shutil.copyfile(lib/name,target/name)
     for target in (sec, dxe/'DxeMain', dxe/'Dispatcher', dxe/'Mem'):
         shutil.copyfile(source/'diagnostics/EnumaStageCheckpoint.h', target/'EnumaStageCheckpoint.h')
+    if os.environ.get('ENUMA_RAMOOPS_CANARY') == '1':
+        target = dxe/'DxeMain'
+        shutil.copyfile(source/'diagnostics/EnumaRamoopsStageCheckpoint.h', target/'EnumaStageCheckpoint.h')
+        for name in ('EnumaRamoopsCanary.h', 'EnumaRamoopsBuffer.h'):
+            shutil.copyfile(source/'diagnostics'/name, target/name)
     shutil.copyfile(source/'diagnostics/EnumaDispatchCheckpoint.h', dxe/'Dispatcher/EnumaDispatchCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaGopResult.h', dxe/'Dispatcher/EnumaGopResult.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchDetailCheckpoint.h', dxe/'Dispatcher/EnumaDispatchDetailCheckpoint.h')
