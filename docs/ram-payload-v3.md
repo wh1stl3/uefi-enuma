@@ -38,7 +38,11 @@ first 64 bytes' CRC; the preceding full-FAT CRC covers file data as a whole.
 Kernel data is never allocated as a giant DXE buffer. SFS/file failure halts the
 application before UniXNURun. ConnectController may return an error for an
 already bound device; SFS and file results determine usability independently.
-With payload mode enabled the old 60-second probe pause is omitted. Every stage
+With payload mode enabled the old 60-second probe pause is replaced by a
+two-second camera-readable report interval, followed by the real boot chain.
+All payload outcomes, including missing/version/failed reports, pass through
+common Map cleanup and framebuffer cache flush before returning or continuing.
+The 13 results use rows 0..12 so they fit both enuma orientations. Every stage
 remains separately reported; pending entries are EFI_NOT_READY. Print/DiagDraw
 reuse existing output and do not establish visible output on enuma.
 

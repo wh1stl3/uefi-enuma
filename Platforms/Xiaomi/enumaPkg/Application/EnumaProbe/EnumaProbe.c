@@ -95,24 +95,35 @@ EFI_STATUS EFIAPI EnumaProbeEntry (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *Sys
     STATIC CONST CHAR16 *Names[ENUMA_TRANSPORT_STEPS] = {L"MAP",L"FDT",L"INITRD",L"PREFIX",
       L"BPB",L"FAT CRC",L"BLOCKIO",L"CONNECT",L"SFS",L"KERNEL",L"ADT",L"TRUST",L"CONFIG"};
     Status = gBS->LocateProtocol (&Guid, NULL, (VOID **)&Report);
-    if (EFI_ERROR (Status)) { Line (10, L"PAYLOAD REPORT MISSING; STOP"); return Status; }
-    if (Report->Version != 1) { return EFI_INCOMPATIBLE_VERSION; }
+    if (EFI_ERROR (Status)) { Line (0, L"PAYLOAD REPORT MISSING; STOP"); goto PayloadFinish; }
+    if (Report->Version != 1) {
+      Line (0, L"PAYLOAD REPORT VERSION ERROR; STOP");
+      Status = EFI_INCOMPATIBLE_VERSION; goto PayloadFinish;
+    }
     Status = Report->CheckFiles (Report);
     for (Step = 0; Step < ENUMA_TRANSPORT_STEPS; Step++) {
       UnicodeSPrint (Text, sizeof (Text), L"PAYLOAD %s %r", Names[Step], Report->Status[Step]);
-      Line (10 + Step, Text);
+      // Keep all 13 rows within both portrait and landscape enuma geometry.
+      Line (Step, Text);
     }
     if (EFI_ERROR (Status) || (Report->Passed & 0x1f7fU) != 0x1f7fU) {
-      return EFI_ERROR (Status) ? Status : EFI_NOT_READY;
+      Status = EFI_ERROR (Status) ? Status : EFI_NOT_READY;
     }
-    // No 60-second diagnostic hold in the full-chain payload configuration.
+    // No early return before the cache flush, including missing/failed reports.
   }
 #else
   Line (10, L"PHOTO NOW; UNIXNU MENU IN 60 SECONDS");
 #endif
+#if ENUMA_RAM_PAYLOAD
+PayloadFinish:
+#endif
   if (Map != NULL) { FreePool (Map); }
   if (!EFI_ERROR (VideoStatus)) { WriteBackDataCacheRange ((VOID *)(UINTN)Video[0], (UINTN)(Video[2] * Video[4])); }
-#if !ENUMA_RAM_PAYLOAD
+#if ENUMA_RAM_PAYLOAD
+  // A short camera-readable report interval, then continue the real boot chain.
+  gBS->Stall (2 * 1000 * 1000);
+  if (EFI_ERROR (Status)) { return Status; }
+#else
   gBS->Stall (60 * 1000 * 1000);
 #endif
   Status = UniXNURun (ImageHandle, UniXNUHostFirmware);

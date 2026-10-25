@@ -97,7 +97,7 @@
     },
     "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.c": {
       "destination": "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.c",
-      "sha256": "11710ba267f58db4d108a03bddc16a2e31b8d61272346b2540ad1e6a24b29eb1"
+      "sha256": "b88bd5b5add591e4fa972de7f98eea02f3fbda9a51fffa202ee7281eabd9437e"
     },
     "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.inf": {
       "destination": "Platforms/Xiaomi/enumaPkg/Application/EnumaProbe/EnumaProbe.inf",
