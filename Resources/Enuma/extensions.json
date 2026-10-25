@@ -43,6 +43,7 @@
     "Platforms/Xiaomi/enumaPkg/Drivers/EnumaRamPayloadDxe/TransportBounds.h": "4cb024f0734b94c10409f2ef6952ae931bca85a6246896a51514a71e080adcca",
     "Platforms/Xiaomi/enumaPkg/Drivers/EnumaRamPayloadDxe/TransportReport.h": "0b25f6998ffb306ac495c6d88125a8cca1adeaa731fe9624bafa4016360fbd75",
     "Resources/Scripts/enuma_payload_contract.py": "11bce88f0f7b99dee9aec449dfb650bd0b7d5fa181795c8b799337557ec13f1d",
-    "docs/ram-payload-v3.md": "0474d0231aa441426e6a98de46cc9bf8fa5de4c361b334e6dd0beab78b906095"
+    "docs/ram-payload-v3.md": "0474d0231aa441426e6a98de46cc9bf8fa5de4c361b334e6dd0beab78b906095",
+    "docs/display-thread-policy.md": "f13db7ab983c2cdb66a1cfb6db196fe5391e5c57c0a984ee1ed5c343cf70d2a7"
   }
 }

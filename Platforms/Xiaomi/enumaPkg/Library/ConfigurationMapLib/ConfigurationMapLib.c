@@ -31,7 +31,9 @@ STATIC EFI_CONFIGURATION_ENTRY_DESCRIPTOR mConfig[] = {
   {"EarlyInitCoreCnt", 0x1ULL},
   {"EnableUefiSecAppDebugLogDump", 0x0ULL},
   {"AllowNonPersistentVarsInRetail", 0x1ULL},
-  {"EnableDisplayThread", 0x1ULL},
+  // Same-SoC umi uses the real non-threaded DisplayDxe entry branch. No
+  // scheduler/kernel protocol stub is supplied; mode initialization is separate.
+  {"EnableDisplayThread", 0x0ULL},
   {"EnableDisplayImageFv", 0x0ULL},
 };
 
