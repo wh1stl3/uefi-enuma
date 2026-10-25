@@ -14,7 +14,7 @@ STATIC UINTN mReads,mWaits;
 STATIC ENUMA_VIDEO_EVIDENCE mEvidence;
 STATIC int Read(void *Context,ENUMA_U32 Offset,ENUMA_U32 *Value) {
   (VOID)Context;
-  if(!Value||(Offset&3)||Offset>0x73830||mReads>=1257) { return 0; }
+  if(!Value||(Offset&3)||Offset>0x73830||mReads>=969) { return 0; }
   mReads++;
   *Value=*(volatile UINT32 *)(UINTN)(0x0ae00000U+Offset);
   return 1;

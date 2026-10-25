@@ -22,7 +22,10 @@ CTL, border/virtual/unknown staging, dim and unreviewed processing are rejected.
 This is a conservative supported topology, not a claim that enuma uses it.
 
 `Evidence.c` gathers three same-boot scanout/LM/interface snapshots with two
-100ms waits: at most1257 reads, max offset0x73830, no physical pixel dereference.
+100ms waits: at most969 reads, max offset0x73830, no physical pixel dereference.
+Only the two CTL-selected mixers are read; unsupported CTL/mixer-count state
+stops before any LM blend reads. The separate full144-read LM capture API is
+for offline analysis; it is not called by the live sampler.
 Each interface must be active, timing/counter enabled and increase1..64 in each
 window without wrap; descriptors, staging and blend must remain stable. Transient
 START/FLUSH are recorded but excluded from stability. Success retains ADDRESS
@@ -41,7 +44,7 @@ Host qualification links the actual pinned Mu FrameBufferBltLib, UEFI headers
 and production backend, with only allocation/TPL/BaseLib primitives modeled.
 Tests cover24 byte permutations, four operations, overlap, padding/guards,
 allocation failures and stale-ownership refusal; topology includes reversed LM
-identities and144 read failures; evidence injects failure at all1257 positions.
+identities and144 read failures; evidence injects failure at all969 positions.
 All execute with ASan/UBSan; AArch64 objects are compiled separately.
 
 `--gop-backend-selftest` includes a non-autostart UEFI application in the FD for

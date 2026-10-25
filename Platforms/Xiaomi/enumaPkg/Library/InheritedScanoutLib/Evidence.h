@@ -15,7 +15,7 @@ typedef struct {
 } ENUMA_VIDEO_EVIDENCE;
 // Exactly1 success; a hardware caller may use the already qualified Stall.
 typedef int (*ENUMA_INHERITED_WAIT)(void *,ENUMA_U32);
-// Up to1257 read callbacks +two100ms waits, no pixels/physical pointers.
+// Up to969 read callbacks +two100ms waits, no pixels/physical pointers.
 // Output unchanged on failure. Success qualifies stable register configuration
 // and both counter windows, never CPU/SMMU identity or downstream panel routing.
 ENUMA_U32 EnumaSampleVideo(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *);

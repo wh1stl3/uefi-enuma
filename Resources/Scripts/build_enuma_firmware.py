@@ -283,7 +283,7 @@ def main(device_root=None):
                     assert (staged/'InheritedVideo'/name).read_bytes()==(SOURCE/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'/name).read_bytes()
                 report['inherited_video_compiled_contract']={
                     'entry_source_sha256':hashlib.sha256((staged/'SimpleFb.c').read_bytes()).hexdigest(),
-                    'all_staged_sources_equal':True,'maximum_read_callbacks':1257,'maximum_wait_calls':2,
+                    'all_staged_sources_equal':True,'maximum_read_callbacks':969,'maximum_wait_calls':2,
                     'pixel_access':False,'protocol_published':False}
             if args.value_source != 'off':
                 command=(module/'GNUmakefile').read_text()

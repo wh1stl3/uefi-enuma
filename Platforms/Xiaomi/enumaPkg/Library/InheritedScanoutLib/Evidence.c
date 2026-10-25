@@ -32,7 +32,7 @@ ENUMA_U32 EnumaSampleVideo(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT Wait,v
     ENUMA_VIDEO_SAMPLE *S=&E.Samples[N];
     if(N&&Wait(Ctx,100000)!=1) { return EnumaInheritedRefreshMode; }
     Status=EnumaCaptureInherited(Read,Ctx,&S->Scanout); if(Status) { return Status; }
-    Status=EnumaCaptureMixers(Read,Ctx,&S->Mixers); if(Status) { return Status; }
+    Status=EnumaCaptureRoutedMixers(&S->Scanout,Read,Ctx,&S->Mixers); if(Status) { return Status; }
     for(I=0;I<2;I++) {
       ENUMA_U32 Base=0x6b800+I*0x800; ENUMA_VIDEO_INTF *V=&S->Interfaces[I];
       if(Read(Ctx,Base,&V->Timing)!=1||Read(Ctx,Base+0xa8,&V->CounterEnable)!=1||
