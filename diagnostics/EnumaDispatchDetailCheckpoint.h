@@ -16,6 +16,9 @@
 #ifndef ENUMA_DIAG_GOP_QUERY
 #define ENUMA_DIAG_GOP_QUERY 0
 #endif
+#ifndef ENUMA_VIDEO_TERMINAL
+#define ENUMA_VIDEO_TERMINAL 0
+#endif
 #if ENUMA_DIAG_GUID_ONLY != 0 && ENUMA_DIAG_GUID_ONLY != 1
 #error Unsupported enuma GUID-only selection
 #endif
@@ -34,6 +37,12 @@
 #if ENUMA_DIAG_GUID_ENABLED != 0 && ENUMA_DIAG_GUID_ENABLED != 1
 #error Unsupported enuma GUID filter
 #endif
+#if ENUMA_VIDEO_TERMINAL != 0 && ENUMA_VIDEO_TERMINAL != 1
+#error Unsupported video terminal selector
+#endif
+#if ENUMA_VIDEO_TERMINAL && (ENUMA_DIAG_STAGE != 13 || ENUMA_DIAG_DETAIL_POINT != 16 || ENUMA_DIAG_GOP_QUERY != 1 || !ENUMA_DIAG_GUID_ONLY || !ENUMA_DIAG_GUID_ENABLED || ENUMA_DIAG_DISPATCH_FALLBACK || ENUMA_DIAG_DELAY_US != 2000000)
+#error Video terminal requires exact GUID-only return point, query1, delay2, no completion fallback
+#endif
 
 STATIC VOID EnumaDispatchDetailCheckpoint (
   UINTN Point,
@@ -47,11 +56,18 @@ STATIC VOID EnumaDispatchDetailCheckpoint (
   // Only the final CoreStartImage return and an exact diagnostic marker count.
   // EFI_SUCCESS, unrelated warnings and install/load failures are not markers.
   if (ENUMA_DIAG_GOP_QUERY != 0) {
+#if ENUMA_VIDEO_TERMINAL
+    if (Point != 13 || ENUMA_DIAG_DETAIL_POINT != 16 ||
+        (Status != ENUMA_GOP_RESULT_PASS && Status != ENUMA_GOP_RESULT_FAIL)) {
+      return;
+    }
+#else
     if (Point != 13 || ENUMA_DIAG_DETAIL_POINT != 16 ||
         Status != (ENUMA_DIAG_GOP_QUERY == 1 ?
           ENUMA_GOP_RESULT_PASS : ENUMA_GOP_RESULT_FAIL)) {
       return;
     }
+#endif
     SelectedPoint = 16;
   }
   // 13: any StartImage return; 14: any LoadImage return; 15: before StartImage.
@@ -81,6 +97,15 @@ STATIC VOID EnumaDispatchDetailCheckpoint (
       ReadUnaligned64 ((CONST UINT64 *) FileName) != ENUMA_DIAG_GUID_LOW64 ||
       ReadUnaligned64 ((CONST UINT64 *) ((CONST UINT8 *) FileName + 8)) != ENUMA_DIAG_GUID_HIGH64) {
     return;
+  }
+#endif
+#if ENUMA_VIDEO_TERMINAL
+  // Both exact markers stop HERE, after full GUID filtering. A predicate
+  // refusal must never fall through into later dispatcher drivers.
+  if (Status == ENUMA_GOP_RESULT_FAIL) {
+    MicroSecondDelay (7000000);
+    ResetCold ();
+    CpuDeadLoop ();
   }
 #endif
   EnumaStageCheckpoint (13);

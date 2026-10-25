@@ -80,10 +80,20 @@ required before any temporary boot. See companion D-197 operations/handoff.
 S-009 c7c29bb constant control auto-returned to Android (ADB21.156s,
 complete35.219s) with independent original partition/backup verification. Actual
 72-PE comparison found70 identical, provider-only runtime change, and8 bytes of
-PcdDxe RSDS GUID metadata. This supports S-008 body access as the primary suspect,
-not an exact register fault. Current330-read sampler is an offline fix, not yet
+PcdDxe RSDS GUID metadata. This supports the PASS entry/return path only: the
+old FAIL marker continued dispatch, so a later driver could explain S-008's
+timeout. Body-access attribution is therefore not established. Current330-read sampler is an offline fix, not yet
 an enuma-tested image. No active-source-alpha format is admitted: actual Mu
 VideoFill combines RGB masks only, while cas's physical writer sets its reserved
 mask opaque. An opaque-alpha writer needs separate implementation/qualification.
 The default saved panel topology2/0/2 means two LM, zero compression encoders,
 two interfaces; it does not specify two independent SSPPs or prove UEFI state.
+
+New opt-in `--inherited-video-terminal` removes that confounder. Exact PASS1 and
+FAIL5 both terminate at the same full-GUID-filtered CoreStartImage return hook,
+using the existing2s/7s delay/reset primitives. Dispatcher-completion fallback is
+disabled in this mode. Unknown status, wrong hook or mismatched/null GUID never
+counts as either outcome. A timeout means no recognized terminal report, not a
+specific register hang. Old profiles and consumed images are not reinterpreted
+as if this symmetric path had existed. New source still needs full link/image
+qualification and the normal device gates before another temporary boot.

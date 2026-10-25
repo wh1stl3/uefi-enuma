@@ -81,6 +81,7 @@ def main(device_root=None):
     parser.add_argument('--gop-backend-selftest', action='store_true', help='offline link qualification: include non-autostart QEMU RAM-only GOP self-test; not a physical GOP candidate')
     parser.add_argument('--inherited-video-audit', action='store_true', help='read-only same-boot video audit instead of metadata SimpleFb; no GOP/pixels; requires exact bounded SimpleFb query profile')
     parser.add_argument('--inherited-video-entry-control', action='store_true', help='new isolation: same inherited-video INF/constructors, constant PASS body, no MMIO/map query')
+    parser.add_argument('--inherited-video-terminal', action='store_true', help='both PASS/FAIL markers terminate at the same exact driver-return hook, delay2/7; no dispatcher fallback')
     parser.add_argument('--ram-payload', type=Path, help='build-only: exact FAT in device out/; enable bounded boot-v3 RAM BlockIO and batch report')
     parser.add_argument('--stop-stage', type=int, choices=(0,3,4,5,6,7,8,9,10,11,12,13), default=0)
     parser.add_argument('--stop-delay', type=int, choices=(2,7), default=2)
@@ -117,9 +118,11 @@ def main(device_root=None):
         parser.error('inherited video audit requires SimpleFb query step0, value off, no RAM self-test')
     if args.inherited_video_entry_control and not args.inherited_video_audit:
         parser.error('video entry control requires inherited video audit profile')
+    if args.inherited_video_terminal and (not args.inherited_video_audit or args.diagnostic_gop_query!=1 or args.dispatch_completion_fallback):
+        parser.error('video terminal requires video audit/query1 and no dispatcher completion fallback')
     if args.diagnostic_pixel_preview != (args.diagnostic_gop_step == 13) or (args.diagnostic_pixel_preview and args.diagnostic_gop_query != 1):
         parser.error('Pixel preview requires exactly step13/query1 and its explicit flag; hardware approval is separate')
-    if args.diagnostic_gop_query and not (args.diagnostic_simplefb and args.stop_stage == 13 and args.stop_delay in (2, 20) and args.detail_point == 16 and args.dispatch_guid_only and args.dispatch_completion_fallback and args.dispatch_guid and args.dispatch_guid.lower() == 'dcfd1e6d-788d-4ffc-8e1b-ca2f75651a92'):
+    if args.diagnostic_gop_query and not (args.diagnostic_simplefb and args.stop_stage == 13 and args.stop_delay in (2, 20) and args.detail_point == 16 and args.dispatch_guid_only and (args.dispatch_completion_fallback or args.inherited_video_terminal) and args.dispatch_guid and args.dispatch_guid.lower() == 'dcfd1e6d-788d-4ffc-8e1b-ca2f75651a92'):
         parser.error('GOP query requires SimpleFb GUID-only stage13/detail16/delay2 with completion fallback')
     if not 1 <= args.dispatch_ordinal <= 128: parser.error('--dispatch-ordinal must be 1..128')
     if args.dispatch_guid_only and (args.stop_stage != 13 or args.dispatch_guid is None or args.dispatch_ordinal != 1 or args.detail_point in (23,26,27)):
@@ -209,6 +212,7 @@ def main(device_root=None):
     assert board['board']['example'] is True
     board=copy.deepcopy(board)
     board['firmware']['defines']['ENUMA_GOP_SELFTEST']='1' if args.gop_backend_selftest else '0'
+    board['firmware']['defines']['ENUMA_VIDEO_TERMINAL']='1' if args.inherited_video_terminal else '0'
     board['firmware']['defines']['ENUMA_RAM_PAYLOAD'] = '1' if args.ram_payload else '0'
     if args.ram_payload:
         os.environ['ENUMA_RAM_PAYLOAD'] = str(args.ram_payload.resolve())
@@ -237,6 +241,7 @@ def main(device_root=None):
         'gop_backend_selftest_ram_only':args.gop_backend_selftest,
         'inherited_video_audit_read_only':args.inherited_video_audit,
         'inherited_video_entry_control':args.inherited_video_entry_control,
+        'inherited_video_terminal':args.inherited_video_terminal,
         'official_backend_sha256':hashlib.sha256((args.unixnu/'scripts/unixnu/firmware.py').read_bytes()).hexdigest(),
         'unixnu_qualification':qualification,'firmware_configuration':board['firmware'],
         'diagnostic_stop_stage':args.stop_stage,'diagnostic_delay_seconds':args.stop_delay,
