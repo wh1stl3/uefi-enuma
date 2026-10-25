@@ -63,4 +63,3 @@ GOP publication or memory mapping is added; maximum330 reads/two100ms waits.
 Requirements ADDRESS|TOPOLOGY remain on success. Full native route detail codes
 retain their previous meanings. Host all64 border patterns,330 read failures,
 changed-border and unknown-field rejection pass alongside existing baselines.
-
