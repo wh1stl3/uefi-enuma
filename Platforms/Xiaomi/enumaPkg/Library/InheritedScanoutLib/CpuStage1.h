@@ -26,6 +26,22 @@ static ENUMA_U32 EnumaCpuStage1(const ENUMA_INHERITED_FRAME *F,ENUMA_CPU_TRANSLA
   }
   return 5;
 }
+// Capture the last successful PAR without changing the original algorithm,
+// stopping point, operation count or obligations. Code1 includes all-WT.
+typedef struct { ENUMA_CPU_TRANSLATE Translate;void *Ctx;ENUMA_U64 Par; } ENUMA_CPU_ATTRIBUTE_CONTEXT;
+static inline int EnumaCpuAttributeCapture(void *Opaque,ENUMA_U64 Page,ENUMA_U32 Write,ENUMA_U64 *Par) {
+  ENUMA_CPU_ATTRIBUTE_CONTEXT *C=Opaque;int S=C->Translate(C->Ctx,Page,Write,Par);
+  if(S==1) { C->Par=*Par; } return S;
+}
+static inline ENUMA_U32 EnumaCpuAttribute(const ENUMA_INHERITED_FRAME *F,ENUMA_CPU_TRANSLATE Translate,void *Ctx) {
+  ENUMA_CPU_ATTRIBUTE_CONTEXT C={Translate,Ctx,0};ENUMA_U32 A;
+  if(!Translate||EnumaCpuStage1(F,EnumaCpuAttributeCapture,&C)!=4) { return 1; }
+  A=(ENUMA_U32)(C.Par>>56);
+  if(A==0x44) { return 2; }
+  if(A==0xff) { return 3; }
+  if(A==0||A==4||A==8||A==12) { return 4; }
+  return 5;
+}
 #ifdef __aarch64__
 typedef struct { ENUMA_U64 El;ENUMA_U32 Count; } ENUMA_CPU_STAGE1_CONTEXT;
 static int EnumaCpuStage1Translate(void *Opaque,ENUMA_U64 Page,ENUMA_U32 Write,ENUMA_U64 *Par) {
@@ -58,7 +74,11 @@ static ENUMA_U32 EnumaCpuStage1Arm(const ENUMA_INHERITED_FRAME *F) {
     if((Hcr&(1ULL<<34))||(Tcr&((1ULL<<21)|(1ULL<<22)))) { return 1; } // exclude VHE, HA/HD
   } else { return 1; }
   if(!(Sctlr&1)) { return 1; }
+#if defined(ENUMA_NATIVE_ROUTE_CPU_ATTRIBUTE) && ENUMA_NATIVE_ROUTE_CPU_ATTRIBUTE
+  return EnumaCpuAttribute(F,EnumaCpuStage1Translate,&C);
+#else
   return EnumaCpuStage1(F,EnumaCpuStage1Translate,&C);
+#endif
 }
 #endif
 #endif

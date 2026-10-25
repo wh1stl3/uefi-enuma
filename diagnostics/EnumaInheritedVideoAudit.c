@@ -12,6 +12,12 @@
 #include "InheritedVideo/Evidence.c"
 #include "InheritedVideo/VideoResult.h"
 #include "InheritedVideo/NativeRouteResult.h"
+#ifndef ENUMA_NATIVE_ROUTE_CPU_ATTRIBUTE
+#define ENUMA_NATIVE_ROUTE_CPU_ATTRIBUTE 0
+#endif
+#if ENUMA_NATIVE_ROUTE_CPU_ATTRIBUTE < 0 || ENUMA_NATIVE_ROUTE_CPU_ATTRIBUTE > 1 || (ENUMA_NATIVE_ROUTE_CPU_ATTRIBUTE && !ENUMA_NATIVE_ROUTE_CPU_STAGE1)
+#error CPU attribute classification requires stage1 query
+#endif
 #ifndef ENUMA_NATIVE_ROUTE_CPU_STAGE1
 #define ENUMA_NATIVE_ROUTE_CPU_STAGE1 0
 #endif

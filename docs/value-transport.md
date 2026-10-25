@@ -135,3 +135,15 @@ Architecture basis: Arm DDI0595 AT/PAR definitions and the Arm A65AE TRM
 [TCR fields](https://documentation-service.arm.com/static/624ff3decaabfd7b3c13e9c7);
 the pinned Mu AArch64Mmu.h defines write-through MAIR0xbb and ArmMmuLib sets AF
 when installing descriptors. These are format facts, not enuma access proof.
+
+## S-041 classify first non-WT attribute, no changed access
+
+--native-route-cpu-attribute requires the same stage1 profile. Wrap its query
+callback to retain the last PAR; the original per-page algorithm, read/write
+order, stop point, limits and validation stay unchanged. Only its code4 is
+reclassified: exact0x44→code2 normal non-cacheable;0xff→3 normal write-back;
+0/4/8/12→4 Device; other non-WT values→5. Code1 means unclassified, including
+earlier failure or every page actually WT; it is not a success code. This
+does not relax the expected WT or qualify NC/WB for data access. All256 byte
+encodings, first read/write/last operation and fault/nonidentity precedence
+are host-tested; original requirements and operation count stay unchanged.
