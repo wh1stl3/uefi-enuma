@@ -83,6 +83,8 @@ def main(device_root=None):
     parser.add_argument('--inherited-video-entry-control', action='store_true', help='new isolation: same inherited-video INF/constructors, constant PASS body, no MMIO/map query')
     parser.add_argument('--inherited-video-terminal', action='store_true', help='both PASS/FAIL markers terminate at the same exact driver-return hook, delay2/7; no dispatcher fallback')
     parser.add_argument('--inherited-video-topology-query', type=int, choices=(0,1,2), default=0, help='first-status classification: 1 topology, 2 not-topology; 0 original full predicate; never GOP admission')
+    parser.add_argument('--inherited-video-reason-target', choices=('off','counter-enable','stability','interface','refresh'),default='off',help='first-return reason predicate; never relaxes sampling')
+    parser.add_argument('--inherited-video-reason-query',type=int,choices=(0,1,2),default=0,help='1 selected reason, 2 exact complement; 0 off')
     parser.add_argument('--ram-payload', type=Path, help='build-only: exact FAT in device out/; enable bounded boot-v3 RAM BlockIO and batch report')
     parser.add_argument('--stop-stage', type=int, choices=(0,3,4,5,6,7,8,9,10,11,12,13), default=0)
     parser.add_argument('--stop-delay', type=int, choices=(2,7), default=2)
@@ -123,6 +125,9 @@ def main(device_root=None):
         parser.error('video terminal requires video audit/query1 and no dispatcher completion fallback')
     if args.inherited_video_topology_query and (not args.inherited_video_terminal or args.inherited_video_entry_control):
         parser.error('topology status query requires symmetric video audit and excludes constant control')
+    reason_target={'off':0,'counter-enable':1,'stability':2,'interface':3,'refresh':4}[args.inherited_video_reason_target]
+    if bool(reason_target)!=bool(args.inherited_video_reason_query) or (reason_target and (not args.inherited_video_terminal or args.inherited_video_entry_control or args.inherited_video_topology_query)):
+        parser.error('first-reason target/query requires symmetric video audit and excludes topology/control')
     if args.diagnostic_pixel_preview != (args.diagnostic_gop_step == 13) or (args.diagnostic_pixel_preview and args.diagnostic_gop_query != 1):
         parser.error('Pixel preview requires exactly step13/query1 and its explicit flag; hardware approval is separate')
     if args.diagnostic_gop_query and not (args.diagnostic_simplefb and args.stop_stage == 13 and args.stop_delay in (2, 20) and args.detail_point == 16 and args.dispatch_guid_only and (args.dispatch_completion_fallback or args.inherited_video_terminal) and args.dispatch_guid and args.dispatch_guid.lower() == 'dcfd1e6d-788d-4ffc-8e1b-ca2f75651a92'):
@@ -217,6 +222,8 @@ def main(device_root=None):
     board['firmware']['defines']['ENUMA_GOP_SELFTEST']='1' if args.gop_backend_selftest else '0'
     board['firmware']['defines']['ENUMA_VIDEO_TERMINAL']='1' if args.inherited_video_terminal else '0'
     board['firmware']['defines']['ENUMA_VIDEO_TOPOLOGY_QUERY']=str(args.inherited_video_topology_query)
+    board['firmware']['defines']['ENUMA_VIDEO_REASON_TARGET']=str(reason_target)
+    board['firmware']['defines']['ENUMA_VIDEO_REASON_QUERY']=str(args.inherited_video_reason_query)
     board['firmware']['defines']['ENUMA_RAM_PAYLOAD'] = '1' if args.ram_payload else '0'
     if args.ram_payload:
         os.environ['ENUMA_RAM_PAYLOAD'] = str(args.ram_payload.resolve())
@@ -247,6 +254,7 @@ def main(device_root=None):
         'inherited_video_entry_control':args.inherited_video_entry_control,
         'inherited_video_terminal':args.inherited_video_terminal,
         'inherited_video_topology_query':args.inherited_video_topology_query,
+        'inherited_video_reason_target':reason_target,'inherited_video_reason_query':args.inherited_video_reason_query,
         'official_backend_sha256':hashlib.sha256((args.unixnu/'scripts/unixnu/firmware.py').read_bytes()).hexdigest(),
         'unixnu_qualification':qualification,'firmware_configuration':board['firmware'],
         'diagnostic_stop_stage':args.stop_stage,'diagnostic_delay_seconds':args.stop_delay,

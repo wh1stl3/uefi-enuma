@@ -18,6 +18,13 @@ typedef struct {
 } ENUMA_VIDEO_EVIDENCE;
 // Exactly1 success; a hardware caller may use the already qualified Stall.
 typedef int (*ENUMA_INHERITED_WAIT)(void *,ENUMA_U32);
+// First-return reason only: no extra read, no continuing after a rejection.
+enum { EnumaVideoReasonUnknown,EnumaVideoReasonArguments,EnumaVideoReasonRead,
+  EnumaVideoReasonRevision,EnumaVideoReasonInterfaceInitial,EnumaVideoReasonCounterInitial,
+  EnumaVideoReasonCounterLater,EnumaVideoReasonWait,EnumaVideoReasonPipeline,
+  EnumaVideoReasonStableConfig,EnumaVideoReasonStableInterface,EnumaVideoReasonStableFrame,
+  EnumaVideoReasonComplete,EnumaVideoReasonInterfaceLater };
+ENUMA_U32 EnumaSampleVideoDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
 // Up to330 read callbacks +two100ms waits, no pixels/physical pointers.
 // Output unchanged on failure. Success qualifies stable register configuration
 // and both counter windows, never CPU/SMMU identity or downstream panel routing.

@@ -1,3 +1,5 @@
 
 
 D-205 topology-status isolation: --inherited-video-topology-query 1 asks whether the first returned sampling status is Topology13; query2 is its exact complement. Both retain the same sampling and full-GUID symmetric Core terminal (marker1/5, 2/7 seconds, no fallback). Diagnostic match does not admit GOP or clear address/topology requirements. Query0 retains the original full predicate; invalid states emit no recognized marker. Companion qualification and per-trial publication/recovery gates apply. No new device result is implied by source/host validation.
+
+First-reason isolation: --inherited-video-reason-target counter-enable|stability|interface|refresh plus --inherited-video-reason-query 1|2 adds a bounded first-return reason without new reads or waits. Counter-enable selects the first sample only; stability selects later eligibility changes/configuration/interface/counter progression failures. Original rejection order and output-on-failure remain unchanged; a fixed 8710ebd sampler is the host callback-order oracle. Earlier rejection means later stability was not executed. Companion current handoff owns hardware results and one-shot eligibility.
