@@ -1,0 +1,24 @@
+{
+  "scope": "selected pure source adaptation only; no copied board configuration or hardware writer",
+  "repository": "https://github.com/ht94911/uefi-cas",
+  "reviewed_commit": "a491522d8f5fecd57be706df1e42e8bd3ca79b20",
+  "hardware_tested_source_commit": "893f5025cea91a121f2566730779cb34955325fb",
+  "path": "Platforms/Xiaomi/casPkg/Library/CasDisplayLib/DisplayDecode.c",
+  "upstream_sha256": "b15e588ed5a8f645e9cb0dbcd219316f0a4bf8c364732bad0e776e3141b36172",
+  "license": "BSD-2-Clause-Patent; original file SPDX retained",
+  "changes": [
+    "parameterized board limits instead of cas constants",
+    "explicit video/command policy; no command kick in code",
+    "clear decode output on failure",
+    "requirements remain set on successful layout decode",
+    "callback-only267 read capture with no implicit libc dependencies",
+    "explicit origin mask/offsets; unknown pipe topology rejected"
+  ],
+  "not_imported": [
+    "CasPlatform fixed memory",
+    "DisplayHardware MMIO/pixel writes",
+    "CasGop SetMode/refresh timer",
+    "CasBlt physical pointer code"
+  ],
+  "upstream_license_sha256": "2b031880c646006165194888f9814806719ab4c91c26d330c4eb71e1983f0187"
+}

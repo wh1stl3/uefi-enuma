@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = InheritedScanoutLib
+  FILE_GUID = 718F0FF3-750C-49A7-AB44-5F82B97B7A96
+  MODULE_TYPE = BASE
+  LIBRARY_CLASS = InheritedScanoutLib
+[Sources]
+  Decode.c
+  Capture.c
+[Packages]
+  MdePkg/MdePkg.dec
