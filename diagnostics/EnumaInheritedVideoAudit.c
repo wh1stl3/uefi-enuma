@@ -10,6 +10,19 @@
 #include "InheritedVideo/VideoCapture.c"
 #include "InheritedVideo/Topology.c"
 #include "InheritedVideo/Evidence.c"
+#include "InheritedVideo/VideoResult.h"
+#ifndef ENUMA_VIDEO_TOPOLOGY_QUERY
+#define ENUMA_VIDEO_TOPOLOGY_QUERY 0
+#endif
+#if ENUMA_VIDEO_TOPOLOGY_QUERY < 0 || ENUMA_VIDEO_TOPOLOGY_QUERY > 2
+#error Unsupported topology status query
+#endif
+#if ENUMA_VIDEO_TOPOLOGY_QUERY && !ENUMA_VIDEO_TERMINAL
+#error Topology status query requires symmetric terminal transport
+#endif
+STATIC EFI_STATUS Result(ENUMA_U32 Status,ENUMA_U32 Requirements) {
+  return (EFI_STATUS)EnumaVideoResult(Status,Requirements,ENUMA_VIDEO_TOPOLOGY_QUERY);
+}
 STATIC UINTN mReads,mWaits;
 STATIC ENUMA_VIDEO_EVIDENCE mEvidence;
 STATIC int Read(void *Context,ENUMA_U32 Offset,ENUMA_U32 *Value) {
@@ -29,11 +42,11 @@ EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
   (VOID)Image; (VOID)ST;
   if(LocateMemoryRegionByName("Display MDP",&Mdp)!=EFI_SUCCESS||Mdp.Address!=0xae00000||Mdp.Length!=0x85000||
      Mdp.ArmAttributes!=NS_DEVICE||Mdp.ResourceAttribute!=UNCACHEABLE||Mdp.MemoryType!=MmIO||Mdp.HobOption!=AddDev||
-     LocateMemoryRegionByName("Display Reserved",&Splash)!=EFI_SUCCESS||Splash.Address!=0x9c000000||Splash.Length!=0x2400000) { return ENUMA_GOP_RESULT_FAIL; }
+     LocateMemoryRegionByName("Display Reserved",&Splash)!=EFI_SUCCESS||Splash.Address!=0x9c000000||Splash.Length!=0x2400000) { return Result(EnumaInheritedArguments,0); }
   L.Width=FixedPcdGet32(PcdFrameBufferWidth); L.Height=FixedPcdGet32(PcdFrameBufferHeight);
-  if(L.Width!=1600||L.Height!=2560) { return ENUMA_GOP_RESULT_FAIL; }
+  if(L.Width!=1600||L.Height!=2560) { return Result(EnumaInheritedArguments,0); }
   L.SplashBase=Splash.Address; L.SplashBytes=Splash.Length; L.Mode=ENUMA_MODE_VIDEO;
   Status=EnumaSampleVideo(Read,Wait,NULL,&L,&mEvidence);
   // This is a configuration/counter predicate only, never GOP/address success.
-  return Status==EnumaInheritedOk&&mEvidence.Frame.Requirements==(ENUMA_REQUIRE_ADDRESS|ENUMA_REQUIRE_TOPOLOGY)?ENUMA_GOP_RESULT_PASS:ENUMA_GOP_RESULT_FAIL;
+  return Result(Status,mEvidence.Frame.Requirements);
 }
