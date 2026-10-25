@@ -184,3 +184,5 @@ Code5 does not prove the rest of RAM, visible output, writable pixels, SMMU,
 alpha or blend. A timeout has no read result: stop and recover, never retry.
 This deliberately omits historical Pixel Sync/DC-CIVAC to isolate a single
 CPU data-read step. Host fixtures model the callback, not physical memory.
+The actual loaded word feeds a private volatile CPU-stack sink so it is not
+compiled as a discarded zero-register load; the sink is not logged or kept.

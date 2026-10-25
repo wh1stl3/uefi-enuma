@@ -121,17 +121,18 @@ static ENUMA_U32 EnumaCpuStage1Arm(const ENUMA_INHERITED_FRAME *F) {
 #endif
 }
 #if defined(ENUMA_NATIVE_ROUTE_CPU_READ) && ENUMA_NATIVE_ROUTE_CPU_READ
-typedef struct { ENUMA_U64 Expected;ENUMA_U32 Reads; } ENUMA_CPU_WORD_CONTEXT;
+typedef struct { ENUMA_U64 Expected;ENUMA_U32 Reads;volatile ENUMA_U32 Sink; } ENUMA_CPU_WORD_CONTEXT;
 static int EnumaCpuWordArm(void *Opaque,ENUMA_U64 Address,ENUMA_U32 *Value) {
   ENUMA_CPU_WORD_CONTEXT *C=Opaque;
   if(!C||!Value||C->Reads||Address!=C->Expected||(Address&3)||
      Address<0x9c000000ULL||Address>0x9e3ffffcULL) { return 0; }
   C->Reads++;
   *Value=*(volatile ENUMA_U32 *)Address;
+  C->Sink=*Value; // private CPU-stack value dependency; never exported
   return 1;
 }
 static ENUMA_U32 EnumaCpuReadArmProbe(const ENUMA_INHERITED_FRAME *F,ENUMA_U32 Policy) {
-  ENUMA_CPU_WORD_CONTEXT C={F?F->Base:0,0};
+  ENUMA_CPU_WORD_CONTEXT C={F?F->Base:0,0,0};
   return EnumaCpuReadOnce(F,Policy,EnumaCpuWordArm,&C);
 }
 #endif

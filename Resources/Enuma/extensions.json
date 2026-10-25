@@ -80,6 +80,6 @@
     "diagnostics/EnumaNativeObserve.c": "fd92e784c1a09cee63e62ea2e48dd98775c9f389f10fd88d50f05c50bb3d488f",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/NativeMaskResult.h": "63ab286705d8bfc270ba88c14185dfd1a2f81508672eadda07e7673f3033b783",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/NativeRouteResult.h": "7a026df32dfec0da46901f9e6fcfd6e035bac9bf27431faba185605f3db87f5e",
-    "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/CpuStage1.h": "33e78a268c6038ec719e77b9c1ead70982c65219c146e2a0be4dc6242814acbc"
+    "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/CpuStage1.h": "a2d77319fc7e4ada3fe80827719ea886e4b308d42d94843d237a0ebdae9d9730"
   }
 }
