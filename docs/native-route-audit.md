@@ -63,3 +63,15 @@ GOP publication or memory mapping is added; maximum330 reads/two100ms waits.
 Requirements ADDRESS|TOPOLOGY remain on success. Full native route detail codes
 retain their previous meanings. Host all64 border patterns,330 read failures,
 changed-border and unknown-field rejection pass alongside existing baselines.
+
+## First mixer layout rejection after S-032
+
+S-032 returned the mixer/layout topology category after native border selection.
+The optional --native-route-layout profile requires route detail and excludes
+staging classification. It reports only the first pure layout rejection:
+1 other/unclassified,2 dim/blend,3 processing mode,4 dimensions/local source
+geometry,5 left/right assignment. Code5 is not success in this profile.
+The detailed resolver preserves fixed c45191c status and output across4608
+saved mixer-word perturbations and original negative fixtures. No predicate,
+read, wait, raw snapshot or admission condition changes. Exact terminal mapping
+is covered by14880 host cases. Source categories remain indirect timing evidence.

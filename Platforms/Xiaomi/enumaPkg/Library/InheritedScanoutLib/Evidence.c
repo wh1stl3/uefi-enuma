@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: BSD-2-Clause-Patent
 #include "Evidence.h"
+#ifndef ENUMA_NATIVE_ROUTE_LAYOUT
+#define ENUMA_NATIVE_ROUTE_LAYOUT 0
+#endif
 static int Equal(const void *A,const void *B,ENUMA_U32 N) {
   const unsigned char *X=A,*Y=B; ENUMA_U32 I;
   for(I=0;I<N;I++) { if(X[I]!=Y[I]) { return 0; } } return 1;
@@ -63,7 +66,14 @@ static ENUMA_U32 SampleDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT W
       Scanout=&View;
     }
     Status=EnumaCaptureRoutedMixers(Scanout,Read,Ctx,&S->Mixers); if(Status) { return Finish(Status,Native?EnumaVideoReasonNativeMixerCapture:EnumaVideoReasonPipeline,Reason); }
-    Status=EnumaResolveMixerOrigins(Scanout,&S->Mixers,L,&Limits); if(Status) { return Finish(Status,Native?EnumaVideoReasonNativeMixerLayout:EnumaVideoReasonPipeline,Reason); }
+    ENUMA_U32 LayoutReason=EnumaLayoutOther;
+    Status=EnumaResolveMixerOriginsDetailed(Scanout,&S->Mixers,L,&Limits,&LayoutReason);
+    if(Status) {
+#if ENUMA_NATIVE_ROUTE_LAYOUT
+      if(Native==2) { return Finish(Status,EnumaVideoReasonLayoutOther+LayoutReason,Reason); }
+#endif
+      return Finish(Status,Native?EnumaVideoReasonNativeMixerLayout:EnumaVideoReasonPipeline,Reason);
+    }
     Status=EnumaDecodeInherited(Scanout,&Limits,&Frame); if(Status) { return Finish(Status,Native?EnumaVideoReasonNativeDecode:EnumaVideoReasonPipeline,Reason); }
     if(N) { ENUMA_U32 Why=StableReason(&E.Samples[N-1],S,Native); if(Why) { return Finish(EnumaInheritedRefreshMode,Why,Reason); } }
     if(!N) { E.Limits=Limits; E.Frame=Frame; }

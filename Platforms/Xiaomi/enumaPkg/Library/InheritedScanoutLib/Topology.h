@@ -16,4 +16,7 @@ ENUMA_U32 EnumaResolveMixerOrigins(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_
 enum { EnumaStagingOther,EnumaStagingBorderOnly,EnumaStagingSourceShape,EnumaStagingUnknownFields,EnumaStagingCardinality };
 ENUMA_U32 EnumaClassifyVideoStaging(const ENUMA_INHERITED_SNAPSHOT *);
 ENUMA_U32 EnumaNormalizeVideoBorder(const ENUMA_INHERITED_SNAPSHOT *,ENUMA_INHERITED_SNAPSHOT *);
+// First failed pure layout predicate; no extra reads or admission changes.
+enum { EnumaLayoutOther,EnumaLayoutBlend,EnumaLayoutMode,EnumaLayoutGeometry,EnumaLayoutSides };
+ENUMA_U32 EnumaResolveMixerOriginsDetailed(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_MIXER_SNAPSHOT *,const ENUMA_INHERITED_LIMITS *,ENUMA_INHERITED_LIMITS *,ENUMA_U32 *);
 #endif

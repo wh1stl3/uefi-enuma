@@ -66,7 +66,8 @@ ENUMA_U32 EnumaCaptureRoutedMixers(const ENUMA_INHERITED_SNAPSHOT *S,ENUMA_INHER
   if(Count!=1||Mixers!=2) { return EnumaInheritedTopology; }
   return CaptureMask(Mask,Read,Ctx,Out);
 }
-ENUMA_U32 EnumaResolveMixerOrigins(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA_MIXER_SNAPSHOT *T,const ENUMA_INHERITED_LIMITS *Input,ENUMA_INHERITED_LIMITS *Out) {
+ENUMA_U32 EnumaResolveMixerOriginsDetailed(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA_MIXER_SNAPSHOT *T,const ENUMA_INHERITED_LIMITS *Input,ENUMA_INHERITED_LIMITS *Out,ENUMA_U32 *Why) {
+  if(Why) { *Why=EnumaLayoutOther; }
   ENUMA_INHERITED_LIMITS L; ENUMA_U32 C,M,P,J,Mask=0,Count=0,Left=6,Right=6,Used=0,Owners[8]={0};
   if(!S||!T||!Input||!Out) { return EnumaInheritedArguments; }
   if((S->Revision>>16)!=0x6000||Input->Mode!=ENUMA_MODE_VIDEO||Input->Width==0||Input->Height==0) { return EnumaInheritedTopology; }
@@ -76,10 +77,12 @@ ENUMA_U32 EnumaResolveMixerOrigins(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA
   // unsupported, not guessed. This is a precondition, not downstream proof.
   for(C=0;C<6;C++) {
     if(!S->Ctls[C].IntfActive) { continue; }
+    if(Why) { *Why=EnumaLayoutOther; }
     if(S->Ctls[C].IntfActive!=6||(S->Ctls[C].Top&(1u<<17))||++Count!=1) { return EnumaInheritedTopology; }
     Used=C;
     for(M=0;M<6;M++) {
       const ENUMA_U32 *V=S->Ctls[C].Layers[M]; ENUMA_U32 Sources=0,Pipe=8,Encoded=0,Expected[4]={0};
+      if(Why) { *Why=EnumaLayoutOther; }
       // Exactly one known non-virtual source, no border/unknown staging.
       for(P=0;P<8;P++) { ENUMA_U32 E=Stage(V,P); if(E) { ++Sources; Pipe=P; Encoded=E; } }
       if(!Sources) { for(J=0;J<4;J++) { if(V[J]) { return EnumaInheritedTopology; } } continue; }
@@ -90,25 +93,36 @@ ENUMA_U32 EnumaResolveMixerOrigins(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA
       } else { Expected[2]=Encoded<<((Pipe-6)*4); }
       for(J=0;J<4;J++) { if(V[J]!=Expected[J]) { return EnumaInheritedTopology; } }
       if(Owners[Pipe]) { return EnumaInheritedTopology; } Owners[Pipe]=1; Mask|=1u<<Pipe;
+      if(Why) { *Why=EnumaLayoutBlend; }
       // No dim stage, exact constant FG255/BG0 for non-base stage.
       for(J=0;J<11;J++) { if(T->Mixers[M].Blend[J]&(1u<<16)) { return EnumaInheritedTopology; } }
       if(Encoded>1&&(T->Mixers[M].Blend[Encoded-2]!=0x100||T->Mixers[M].Alpha[Encoded-2]!=0x00ff0000)) { return EnumaInheritedTopology; }
+      if(Why) { *Why=EnumaLayoutMode; }
       // Reject unreviewed LM processing bits. bit30 is not silently accepted.
       if(T->Mixers[M].Mode&~(1u<<31)) { return EnumaInheritedTopology; }
+      if(Why) { *Why=EnumaLayoutGeometry; }
       if((T->Mixers[M].Size>>16)!=Input->Height||!(T->Mixers[M].Size&0xffff)) { return EnumaInheritedTopology; }
+      if(Why) { *Why=EnumaLayoutSides; }
       if(T->Mixers[M].Mode&(1u<<31)) { if(Right!=6) { return EnumaInheritedTopology; } Right=M; L.OriginX[Pipe]=~0u; }
       else { if(Left!=6) { return EnumaInheritedTopology; } Left=M; }
+      if(Why) { *Why=EnumaLayoutGeometry; }
       // Each source fills its local mixer; partial update/scaler paths rejected.
       if(S->Pipes[Pipe].OutXy||S->Pipes[Pipe].OutSize!=T->Mixers[M].Size) { return EnumaInheritedTopology; }
     }
   }
   (void)Used;
-  if(Count!=1||Left==6||Right==6||
-     (T->Mixers[Left].Size&0xffff)+(T->Mixers[Right].Size&0xffff)!=Input->Width) { return EnumaInheritedTopology; }
+  if(Why) { *Why=EnumaLayoutSides; }
+  if(Count!=1||Left==6||Right==6) { return EnumaInheritedTopology; }
+  if(Why) { *Why=EnumaLayoutGeometry; }
+  if((T->Mixers[Left].Size&0xffff)+(T->Mixers[Right].Size&0xffff)!=Input->Width) { return EnumaInheritedTopology; }
   for(P=0;P<8;P++) { if(L.OriginX[P]==~0u) { L.OriginX[P]=T->Mixers[Left].Size&0xffff; } }
   L.OriginMask=Mask;
   *Out=L;
+  if(Why) { *Why=EnumaLayoutOther; }
   return EnumaInheritedOk;
+}
+ENUMA_U32 EnumaResolveMixerOrigins(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA_MIXER_SNAPSHOT *T,const ENUMA_INHERITED_LIMITS *Input,ENUMA_INHERITED_LIMITS *Out) {
+  return EnumaResolveMixerOriginsDetailed(S,T,Input,Out,0);
 }
 // Diagnostic only. Ignore known border bit in local copies, not the snapshot.
 // MiCode52a2f18 CTL_MIXER_BORDER_OUT bit24 may be set with no BASE source.

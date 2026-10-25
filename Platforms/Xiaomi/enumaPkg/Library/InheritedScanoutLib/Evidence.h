@@ -27,7 +27,8 @@ enum { EnumaVideoReasonUnknown,EnumaVideoReasonArguments,EnumaVideoReasonRead,
   EnumaVideoReasonNativeCtl,EnumaVideoReasonNativeStaging,EnumaVideoReasonNativePipe,
   EnumaVideoReasonNativeMixerCapture,EnumaVideoReasonNativeMixerLayout,EnumaVideoReasonNativeDecode,
   EnumaVideoReasonStagingOther,EnumaVideoReasonStagingBorderOnly,EnumaVideoReasonStagingSourceShape,
-  EnumaVideoReasonStagingUnknownFields,EnumaVideoReasonStagingCardinality };
+  EnumaVideoReasonStagingUnknownFields,EnumaVideoReasonStagingCardinality,
+  EnumaVideoReasonLayoutOther,EnumaVideoReasonLayoutBlend,EnumaVideoReasonLayoutMode,EnumaVideoReasonLayoutGeometry,EnumaVideoReasonLayoutSides };
 ENUMA_U32 EnumaSampleVideoDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
 // Independent native STATUS policy: zero timing and non-3 enables allowed;
 // their full words must remain stable. Does not change strict GOP admission.

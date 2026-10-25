@@ -26,4 +26,8 @@ static inline ENUMA_U32 EnumaNativeStagingResult(ENUMA_U32 S,ENUMA_U32 R,ENUMA_U
   if(S!=EnumaInheritedTopology||R||W<EnumaVideoReasonStagingBorderOnly||W>EnumaVideoReasonStagingCardinality) { return 1; }
   return W-EnumaVideoReasonStagingOther+1;
 }
+static inline ENUMA_U32 EnumaNativeLayoutResult(ENUMA_U32 S,ENUMA_U32 R,ENUMA_U32 W) {
+  if(S!=EnumaInheritedTopology||R||W<EnumaVideoReasonLayoutBlend||W>EnumaVideoReasonLayoutSides) { return 1; }
+  return W-EnumaVideoReasonLayoutOther+1;
+}
 #endif
