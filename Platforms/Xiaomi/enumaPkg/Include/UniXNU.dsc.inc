@@ -5,6 +5,14 @@
   FdtLib|MdePkg/Library/BaseFdtLib/BaseFdtLib.inf
 
 [Components]
+!ifdef ENUMA_GOP_SELFTEST
+!if $(ENUMA_GOP_SELFTEST) == 1
+  enumaPkg/Application/EnumaGopSelfTest/EnumaGopSelfTest.inf {
+    <LibraryClasses>
+      InheritedGopLib|enumaPkg/Library/InheritedGopLib/InheritedGopLib.inf
+  }
+!endif
+!endif
 !if $(ENUMA_RAM_PAYLOAD) == 1
   enumaPkg/Drivers/EnumaRamPayloadDxe/EnumaRamPayloadDxe.inf
 !endif

@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = EnumaGopSelfTest
+  FILE_GUID = D28C998D-1221-411C-A92C-6F2B20C22364
+  MODULE_TYPE = UEFI_APPLICATION
+  ENTRY_POINT = EnumaGopSelfTest
+[Sources]
+  EnumaGopSelfTest.c
+[Packages]
+  MdePkg/MdePkg.dec
+  enumaPkg/enumaPkg.dec
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
+  MemoryAllocationLib
+  BaseMemoryLib
+  InheritedGopLib

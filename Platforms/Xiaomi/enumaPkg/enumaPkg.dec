@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+[Defines]
+  DEC_SPECIFICATION = 0x0001001B
+  PACKAGE_NAME = enumaPkg
+  PACKAGE_GUID = B62F273C-5488-49BA-B381-5A3FF45B6705
+  PACKAGE_VERSION = 0.1
+[LibraryClasses]
+  InheritedGopLib|Library/InheritedGopLib/InheritedGop.h
+  InheritedScanoutLib|Library/InheritedScanoutLib/InheritedScanout.h

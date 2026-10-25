@@ -8,5 +8,7 @@
 [Sources]
   Decode.c
   Capture.c
+  Topology.c
+  Evidence.c
 [Packages]
   MdePkg/MdePkg.dec

@@ -73,11 +73,11 @@
     },
     "Platforms/Xiaomi/enumaPkg/Include/UniXNU.dsc.inc": {
       "destination": "Platforms/Xiaomi/enumaPkg/Include/UniXNU.dsc.inc",
-      "sha256": "af94bea69b78c6cdf84afbaac233045a5b5dfb18c5424e91c71143940b7c1bab"
+      "sha256": "347a4a3c8860047be223f388833708faabffa6c6535367f252d193a7be67e38f"
     },
     "Platforms/Xiaomi/enumaPkg/Include/UniXNU.fdf.inc": {
       "destination": "Platforms/Xiaomi/enumaPkg/Include/UniXNU.fdf.inc",
-      "sha256": "eb2e265dab9a94cdb27a828ea035d345771410076ec7218924b4c6ad189bd983"
+      "sha256": "bbae7b39b290bd621712a3eaf1dc989a507176c74d4f8bfa3816e433055471dc"
     },
     "Platforms/Xiaomi/enumaPkg/Library/ConfigurationMapLib/ConfigurationMapLib.c": {
       "destination": "Platforms/Xiaomi/enumaPkg/Library/ConfigurationMapLib/ConfigurationMapLib.c",

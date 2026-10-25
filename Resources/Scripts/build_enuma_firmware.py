@@ -78,6 +78,7 @@ def main(device_root=None):
     parser.add_argument('--reference', type=Path, default=SOURCE)
     parser.add_argument('--unixnu', type=Path, required=True)
     parser.add_argument('--jobs', type=int, default=4)
+    parser.add_argument('--gop-backend-selftest', action='store_true', help='offline link qualification: include non-autostart QEMU RAM-only GOP self-test; not a physical GOP candidate')
     parser.add_argument('--ram-payload', type=Path, help='build-only: exact FAT in device out/; enable bounded boot-v3 RAM BlockIO and batch report')
     parser.add_argument('--stop-stage', type=int, choices=(0,3,4,5,6,7,8,9,10,11,12,13), default=0)
     parser.add_argument('--stop-delay', type=int, choices=(2,7), default=2)
@@ -193,6 +194,7 @@ def main(device_root=None):
     board=tomllib.loads((ROOT/'board.toml').read_text())
     assert board['board']['example'] is True
     board=copy.deepcopy(board)
+    board['firmware']['defines']['ENUMA_GOP_SELFTEST']='1' if args.gop_backend_selftest else '0'
     board['firmware']['defines']['ENUMA_RAM_PAYLOAD'] = '1' if args.ram_payload else '0'
     if args.ram_payload:
         os.environ['ENUMA_RAM_PAYLOAD'] = str(args.ram_payload.resolve())
@@ -218,6 +220,7 @@ def main(device_root=None):
     fd=uefi/board['firmware']['fd'].format(target='DEBUG')
     report={'scope':'firmware-only invocation of the official backend; no device boot or enuma kernel',
         'complete':False,'fd':str(fd.relative_to(ROOT)),'uefi_source_commit':pin['commit'],
+        'gop_backend_selftest_ram_only':args.gop_backend_selftest,
         'official_backend_sha256':hashlib.sha256((args.unixnu/'scripts/unixnu/firmware.py').read_bytes()).hexdigest(),
         'unixnu_qualification':qualification,'firmware_configuration':board['firmware'],
         'diagnostic_stop_stage':args.stop_stage,'diagnostic_delay_seconds':args.stop_delay,

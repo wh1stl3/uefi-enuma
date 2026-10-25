@@ -11,7 +11,7 @@ static ENUMA_U32 Staged (const ENUMA_U32 *Layers, ENUMA_U32 Pipe, ENUMA_U32 Virt
   }
   if (Pipe < 6) {
     ENUMA_U32 Extra = Pipe < 4 ? Pipe * 2 : 16 + (Pipe - 4) * 2;
-    return ((Layers[0] >> Starts[Pipe]) & 7) | ((Layers[1] >> Extra) & 1);
+    return ((Layers[0] >> Starts[Pipe]) & 7) | (((Layers[1] >> Extra) & 1) << 3);
   }
   return (Layers[2] >> ((Pipe - 6) * 4)) & 15;
 }
@@ -62,6 +62,7 @@ static ENUMA_U32 Decode (const ENUMA_INHERITED_SNAPSHOT *S, const ENUMA_INHERITE
     if (L->Mode == ENUMA_MODE_COMMAND && Auto != 0 && Auto != Selected) { return EnumaInheritedRefreshMode; }
     for (M = 0; M < ENUMA_MIXER_COUNT; ++M) {
       for (P = 0; P < ENUMA_PIPE_COUNT; ++P) {
+        if (Staged (Ctl->Layers[M], P, 0) > 12) { return EnumaInheritedRoute; }
         if (Staged (Ctl->Layers[M], P, 1)) { return EnumaInheritedVirtualRect; }
         if (Staged (Ctl->Layers[M], P, 0)) { Local |= 1u << P; }
       }
@@ -121,7 +122,7 @@ static ENUMA_U32 Decode (const ENUMA_INHERITED_SNAPSHOT *S, const ENUMA_INHERITE
   for (P = 0; P < ENUMA_PIPE_COUNT; ++P) {
     ENUMA_U32 Y, End;
     if (!(Mask & (1u << P))) { continue; }
-    Y = S->Pipes[P].OutXy >> 16; End = Y + (S->Pipes[P].OutSize >> 16);
+    Y = (S->Pipes[P].OutXy >> 16) + L->OriginY[P]; End = Y + (S->Pipes[P].OutSize >> 16);
     if (!RowCovered (S, Mask, Y, L) || (End < L->Height && !RowCovered (S, Mask, End, L))) { return EnumaInheritedCoverage; }
   }
   R->Base = Base; R->Bytes = Bytes; R->Width = L->Width; R->Height = L->Height; R->Stride = Stride;

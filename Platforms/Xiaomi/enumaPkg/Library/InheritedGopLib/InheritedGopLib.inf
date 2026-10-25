@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+[Defines]
+  INF_VERSION = 0x0001001B
+  BASE_NAME = InheritedGopLib
+  FILE_GUID = 0C151738-11DC-4209-8668-C85F2066E9F1
+  MODULE_TYPE = BASE
+  LIBRARY_CLASS = InheritedGopLib
+[Sources]
+  InheritedGop.c
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+[LibraryClasses]
+  BaseMemoryLib
+  FrameBufferBltLib
+  MemoryAllocationLib
+  UefiBootServicesTableLib
