@@ -12,6 +12,12 @@
 #if ENUMA_NATIVE_CONTROL != 0 && ENUMA_NATIVE_CONTROL != 1
 #error Unsupported native constant control
 #endif
+#if ENUMA_NATIVE_MASK_FIELD < 0 || ENUMA_NATIVE_MASK_FIELD > 5 || (ENUMA_NATIVE_MASK_FIELD && (ENUMA_NATIVE_CONTROL || ENUMA_NATIVE_OBSERVE_QUERY != 1))
+#error Unsupported native mask profile
+#endif
+#if ENUMA_NATIVE_MASK_FIELD
+#include "InheritedVideo/NativeMaskResult.h"
+#endif
 #if !ENUMA_NATIVE_CONTROL
 STATIC UINTN mReads,mWaits;
 STATIC ENUMA_NATIVE_OBSERVATION mObservation;
@@ -38,17 +44,30 @@ EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
   (VOID)Image; (VOID)ST;
   return ENUMA_NATIVE_OBSERVE_QUERY==1?ENUMA_GOP_RESULT_PASS:ENUMA_GOP_RESULT_FAIL;
 #else
-  EFI_MEMORY_REGION_DESCRIPTOR Mdp={0},Splash={0}; ENUMA_U32 Status; BOOLEAN Match=FALSE;
+  EFI_MEMORY_REGION_DESCRIPTOR Mdp={0},Splash={0}; ENUMA_U32 Status;
+#if ENUMA_NATIVE_MASK_FIELD
+  ENUMA_U32 ResultCode=5;
+#else
+  BOOLEAN Match=FALSE;
+#endif
   (VOID)Image; (VOID)ST;
   if(LocateMemoryRegionByName("Display MDP",&Mdp)==EFI_SUCCESS&&Mdp.Address==0xae00000&&Mdp.Length==0x85000&&
      Mdp.ArmAttributes==NS_DEVICE&&Mdp.ResourceAttribute==UNCACHEABLE&&Mdp.MemoryType==MmIO&&Mdp.HobOption==AddDev&&
      LocateMemoryRegionByName("Display Reserved",&Splash)==EFI_SUCCESS&&Splash.Address==0x9c000000&&Splash.Length==0x2400000&&
      FixedPcdGet32(PcdFrameBufferWidth)==1600&&FixedPcdGet32(PcdFrameBufferHeight)==2560) {
     Status=EnumaObserveNativeVideo(Read,Wait,NULL,&mObservation);
+ #if ENUMA_NATIVE_MASK_FIELD
+    ResultCode=EnumaNativeMaskResult(Status,&mObservation,ENUMA_NATIVE_MASK_FIELD);
+ #else
     Match=(Status==EnumaInheritedOk&&mObservation.ActiveThroughoutMask==3&&mObservation.TimingStableMask==3&&
            mObservation.EnableStableMask==3&&mObservation.MovingMask==3);
+ #endif
   }
   // ExactEnable3 is recorded separately, never a precondition here.
+ #if ENUMA_NATIVE_MASK_FIELD
+  return (EFI_STATUS)ResultCode;
+ #else
   return (Match==(ENUMA_NATIVE_OBSERVE_QUERY==1))?ENUMA_GOP_RESULT_PASS:ENUMA_GOP_RESULT_FAIL;
+ #endif
 #endif
 }

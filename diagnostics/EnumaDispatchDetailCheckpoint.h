@@ -16,6 +16,9 @@
 #ifndef ENUMA_DIAG_GOP_QUERY
 #define ENUMA_DIAG_GOP_QUERY 0
 #endif
+#ifndef ENUMA_NATIVE_MASK_FIELD
+#define ENUMA_NATIVE_MASK_FIELD 0
+#endif
 #ifndef ENUMA_VIDEO_TERMINAL
 #define ENUMA_VIDEO_TERMINAL 0
 #endif
@@ -37,6 +40,9 @@
 #if ENUMA_DIAG_GUID_ENABLED != 0 && ENUMA_DIAG_GUID_ENABLED != 1
 #error Unsupported enuma GUID filter
 #endif
+#if ENUMA_NATIVE_MASK_FIELD < 0 || ENUMA_NATIVE_MASK_FIELD > 5 || (ENUMA_NATIVE_MASK_FIELD && !ENUMA_VIDEO_TERMINAL)
+#error Unsupported native mask terminal
+#endif
 #if ENUMA_VIDEO_TERMINAL != 0 && ENUMA_VIDEO_TERMINAL != 1
 #error Unsupported video terminal selector
 #endif
@@ -56,7 +62,11 @@ STATIC VOID EnumaDispatchDetailCheckpoint (
   // Only the final CoreStartImage return and an exact diagnostic marker count.
   // EFI_SUCCESS, unrelated warnings and install/load failures are not markers.
   if (ENUMA_DIAG_GOP_QUERY != 0) {
-#if ENUMA_VIDEO_TERMINAL
+#if ENUMA_NATIVE_MASK_FIELD
+    if (Point != 13 || ENUMA_DIAG_DETAIL_POINT != 16 || Status < 1 || Status > 5) {
+      return;
+    }
+#elif ENUMA_VIDEO_TERMINAL
     if (Point != 13 || ENUMA_DIAG_DETAIL_POINT != 16 ||
         (Status != ENUMA_GOP_RESULT_PASS && Status != ENUMA_GOP_RESULT_FAIL)) {
       return;
@@ -99,7 +109,12 @@ STATIC VOID EnumaDispatchDetailCheckpoint (
     return;
   }
 #endif
-#if ENUMA_VIDEO_TERMINAL
+#if ENUMA_NATIVE_MASK_FIELD
+  // Exact full GUID and five bounded warning codes only. No fallback or writes.
+  MicroSecondDelay (2000000 + 5000000 * ((UINTN)Status - 1));
+  ResetCold ();
+  CpuDeadLoop ();
+#elif ENUMA_VIDEO_TERMINAL
   // Both exact markers stop HERE, after full GUID filtering. A predicate
   // refusal must never fall through into later dispatcher drivers.
   if (Status == ENUMA_GOP_RESULT_FAIL) {

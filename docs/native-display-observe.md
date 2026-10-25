@@ -50,3 +50,16 @@ sampling or waits. It exists to calibrate host-minus-Linux-uptime boot-origin
 timing after S-019/S-020 produced ambiguous Android readiness deltas. Constant
 calibration is not display evidence. Review its actual PE and complete package
 independently, never reuse consumed images or retroactively reclassify old pairs.
+
+
+After S-021/S-022 boot-origin calibration, `--native-mask-field 1..5` selects
+ActiveThroughout, TimingStable, EnableStable, Moving or ExactEnable3. It requires
+native query1, excludes constant control and preserves the same26-read/two-wait
+collector. Codes1..4 mean mask0..3; code5 is metadata/collection/invalid-mask
+failure, so a zero mask is not confused with failure. Only the full-GUID-filtered
+Core driver-return hook recognizes codes1..5 and delays2/7/12/17/22 seconds then
+ResetCold/deadloop. No dispatcher fallback. Default0 retains the old binary path.
+This wider terminal requires independent actual Core code review and fixed host
+boot-origin decode windows, and never changes GOP eligibility. Maximum terminal
+delay22s plus sampling0.2s remains below the existing75s host observation bound;
+that is not a guarantee of recovery. Stop on ambiguity, timeout or failed recovery.
