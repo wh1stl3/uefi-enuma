@@ -85,6 +85,7 @@ def main(device_root=None):
     parser.add_argument('--inherited-video-topology-query', type=int, choices=(0,1,2), default=0, help='first-status classification: 1 topology, 2 not-topology; 0 original full predicate; never GOP admission')
     parser.add_argument('--inherited-video-reason-target', choices=('off','counter-enable','stability','interface','refresh'),default='off',help='first-return reason predicate; never relaxes sampling')
     parser.add_argument('--inherited-video-reason-query',type=int,choices=(0,1,2),default=0,help='1 selected reason, 2 exact complement; 0 off')
+    parser.add_argument('--native-route-structure-detail',action='store_true',help='Raw stability then pure structural geometry classification')
     parser.add_argument('--native-route-structure',action='store_true',help='Observe geometry/stability with blend unproven')
     parser.add_argument('--native-route-blend',action='store_true',help='Explain captured blend rejection only; no extra reads')
     parser.add_argument('--native-route-layout',action='store_true',help='Classify first mixer layout rejection; no extra reads')
@@ -151,6 +152,8 @@ def main(device_root=None):
         parser.error('video terminal requires video audit/query1 and no dispatcher completion fallback')
     if args.inherited_video_topology_query and (not args.inherited_video_terminal or args.inherited_video_entry_control):
         parser.error('topology status query requires symmetric video audit and excludes constant control')
+    if args.native_route_structure_detail and not args.native_route_structure:
+        parser.error('structural detail requires structure')
     if args.native_route_structure and (not args.native_route_audit or args.native_route_detail or args.native_route_staging or args.native_route_layout or args.native_route_blend):
         parser.error('structure requires route audit and excludes detail profiles')
     if args.native_route_blend and not args.native_route_layout:
@@ -272,6 +275,7 @@ def main(device_root=None):
         word = int(args.ramoops_canary_nonce[i*8:i*8+8], 16) if args.ramoops_canary_nonce else 0
         board['firmware']['defines']['ENUMA_RAMOOPS_NONCE_'+str(i)]=str(word)+'U'
     board['firmware']['defines']['ENUMA_GOP_SELFTEST']='1' if args.gop_backend_selftest else '0'
+    board['firmware']['defines']['ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL']='1' if args.native_route_structure_detail else '0'
     board['firmware']['defines']['ENUMA_NATIVE_ROUTE_STRUCTURE']='1' if args.native_route_structure else '0'
     board['firmware']['defines']['ENUMA_NATIVE_ROUTE_BLEND']='1' if args.native_route_blend else '0'
     board['firmware']['defines']['ENUMA_NATIVE_ROUTE_LAYOUT']='1' if args.native_route_layout else '0'
@@ -314,7 +318,7 @@ def main(device_root=None):
         'inherited_video_audit_read_only':args.inherited_video_audit,
         'inherited_video_entry_control':args.inherited_video_entry_control,
         'inherited_video_terminal':args.inherited_video_terminal,
-        'native_route_structure':args.native_route_structure,'native_route_blend':args.native_route_blend,'native_route_layout':args.native_route_layout,'native_route_staging':args.native_route_staging,'native_route_detail':args.native_route_detail,'native_route_audit':args.native_route_audit,'native_observe_query':args.native_observe_query,'native_observe_control':args.native_observe_control,'native_mask_field':args.native_mask_field,
+        'native_route_structure_detail':args.native_route_structure_detail,'native_route_structure':args.native_route_structure,'native_route_blend':args.native_route_blend,'native_route_layout':args.native_route_layout,'native_route_staging':args.native_route_staging,'native_route_detail':args.native_route_detail,'native_route_audit':args.native_route_audit,'native_observe_query':args.native_observe_query,'native_observe_control':args.native_observe_control,'native_mask_field':args.native_mask_field,
         'inherited_video_topology_query':args.inherited_video_topology_query,
         'inherited_video_reason_target':reason_target,'inherited_video_reason_query':args.inherited_video_reason_query,
         'ramoops_canary_nonce':args.ramoops_canary_nonce,

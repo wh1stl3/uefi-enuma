@@ -12,6 +12,12 @@
 #include "InheritedVideo/Evidence.c"
 #include "InheritedVideo/VideoResult.h"
 #include "InheritedVideo/NativeRouteResult.h"
+#ifndef ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL
+#define ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL 0
+#endif
+#if ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL < 0 || ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL > 1 || (ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL && !ENUMA_NATIVE_ROUTE_STRUCTURE)
+#error Structural geometry detail requires structure profile
+#endif
 #ifndef ENUMA_NATIVE_ROUTE_STRUCTURE
 #define ENUMA_NATIVE_ROUTE_STRUCTURE 0
 #endif
@@ -67,7 +73,9 @@
 #error Topology status query requires symmetric terminal transport
 #endif
 STATIC EFI_STATUS Result(ENUMA_U32 Status,ENUMA_U32 Requirements,ENUMA_U32 Reason) {
-#if ENUMA_NATIVE_ROUTE_STRUCTURE
+#if ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL
+  return (EFI_STATUS)EnumaNativeGeometryResult(Status,Requirements,Reason);
+#elif ENUMA_NATIVE_ROUTE_STRUCTURE
   return (EFI_STATUS)EnumaNativeStructureResult(Status,Requirements,Reason);
 #elif ENUMA_NATIVE_ROUTE_BLEND
   return (EFI_STATUS)EnumaNativeBlendResult(Status,Requirements,Reason);
@@ -111,7 +119,9 @@ EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
   if(L.Width!=1600||L.Height!=2560) { return Result(EnumaInheritedArguments,0,EnumaVideoReasonArguments); }
   L.SplashBase=Splash.Address; L.SplashBytes=Splash.Length; L.Mode=ENUMA_MODE_VIDEO;
 #if ENUMA_NATIVE_ROUTE_AUDIT
-#if ENUMA_NATIVE_ROUTE_STRUCTURE
+#if ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL
+  Status=EnumaSampleNativeGeometryDetailed(Read,Wait,NULL,&L,&mEvidence,&Reason);
+#elif ENUMA_NATIVE_ROUTE_STRUCTURE
   Status=EnumaSampleNativeStructureDetailed(Read,Wait,NULL,&L,&mEvidence,&Reason);
 #elif ENUMA_NATIVE_ROUTE_STAGING
   Status=EnumaSampleNativeVideoDetailed(Read,Wait,NULL,&L,&mEvidence,&Reason);

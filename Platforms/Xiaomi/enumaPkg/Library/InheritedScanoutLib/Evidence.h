@@ -29,7 +29,8 @@ enum { EnumaVideoReasonUnknown,EnumaVideoReasonArguments,EnumaVideoReasonRead,
   EnumaVideoReasonStagingOther,EnumaVideoReasonStagingBorderOnly,EnumaVideoReasonStagingSourceShape,
   EnumaVideoReasonStagingUnknownFields,EnumaVideoReasonStagingCardinality,
   EnumaVideoReasonLayoutOther,EnumaVideoReasonLayoutBlend,EnumaVideoReasonLayoutMode,EnumaVideoReasonLayoutGeometry,EnumaVideoReasonLayoutSides,
-  EnumaVideoReasonBlendOther,EnumaVideoReasonBlendSelectedDim,EnumaVideoReasonBlendOtherDim,EnumaVideoReasonBlendOperation,EnumaVideoReasonBlendAlpha };
+  EnumaVideoReasonBlendOther,EnumaVideoReasonBlendSelectedDim,EnumaVideoReasonBlendOtherDim,EnumaVideoReasonBlendOperation,EnumaVideoReasonBlendAlpha,
+  EnumaVideoReasonGeometryOther,EnumaVideoReasonGeometryMixerSize,EnumaVideoReasonGeometrySourceLocal,EnumaVideoReasonGeometrySides,EnumaVideoReasonGeometryCombinedWidth };
 ENUMA_U32 EnumaSampleVideoDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
 // Independent native STATUS policy: zero timing and non-3 enables allowed;
 // their full words must remain stable. Does not change strict GOP admission.
@@ -45,4 +46,6 @@ ENUMA_U32 EnumaCaptureNativeBorderConfig(ENUMA_INHERITED_READ,void *,ENUMA_U32,E
 ENUMA_U32 EnumaSampleNativeBorderVideoDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
 // Structural observation retains BLEND, ADDRESS and TOPOLOGY requirements.
 ENUMA_U32 EnumaSampleNativeStructureDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
+// Capture and validate raw stability before pure geometry classification.
+ENUMA_U32 EnumaSampleNativeGeometryDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
 #endif

@@ -39,4 +39,8 @@ static inline ENUMA_U32 EnumaNativeStructureResult(ENUMA_U32 S,ENUMA_U32 R,ENUMA
   if(W>=EnumaVideoReasonNativeCtl&&W<=EnumaVideoReasonNativeDecode) { W=EnumaVideoReasonPipeline; }
   return EnumaNativeRouteResult(S,R,W);
 }
+static inline ENUMA_U32 EnumaNativeGeometryResult(ENUMA_U32 S,ENUMA_U32 R,ENUMA_U32 W) {
+  if(S!=EnumaInheritedTopology||R||W<EnumaVideoReasonGeometryMixerSize||W>EnumaVideoReasonGeometryCombinedWidth) { return 1; }
+  return W-EnumaVideoReasonGeometryOther+1;
+}
 #endif

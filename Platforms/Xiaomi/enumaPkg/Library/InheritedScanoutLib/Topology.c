@@ -191,3 +191,21 @@ ENUMA_U32 EnumaResolveMixerOriginsDetailed(const ENUMA_INHERITED_SNAPSHOT *S,con
 // Geometry only, not visual composition: bit31 locates the right mixer.
 // All blend/dim/processing proof remains an external requirement.
 ENUMA_U32 EnumaResolveMixerGeometry(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA_MIXER_SNAPSHOT *T,const ENUMA_INHERITED_LIMITS *Input,ENUMA_INHERITED_LIMITS *Out,ENUMA_U32 *Why) { return ResolveMixerOrigins(S,T,Input,Out,Why,1); }
+
+// Diagnostic explanation of the existing geometry predicate, not admission.
+ENUMA_U32 EnumaClassifyMixerGeometry(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA_MIXER_SNAPSHOT *T,const ENUMA_INHERITED_LIMITS *L) {
+  ENUMA_U32 C,Ms,Ps,M,P,Pipe,Left=6,Right=6;
+  if(!S||!T||!L||(S->Revision>>16)!=0x6000||L->Mode!=ENUMA_MODE_VIDEO||!L->Width||!L->Height||EnumaSelectVideoRoute(S,&C,&Ms,&Ps)) { return EnumaGeometryOther; }
+  for(M=0;M<6;M++) {
+    if(!(Ms&(1u<<M))) { continue; }
+    Pipe=8;for(P=0;P<8;P++)if(Stage(S->Ctls[C].Layers[M],P))Pipe=P;
+    if(Pipe==8) { return EnumaGeometryOther; }
+    if((T->Mixers[M].Size>>16)!=L->Height||!(T->Mixers[M].Size&0xffff)) { return EnumaGeometryMixerSize; }
+    if(T->Mixers[M].Mode&(1u<<31)) { if(Right!=6)return EnumaGeometrySides;Right=M; }
+    else { if(Left!=6)return EnumaGeometrySides;Left=M; }
+    if(S->Pipes[Pipe].OutXy||S->Pipes[Pipe].OutSize!=T->Mixers[M].Size) { return EnumaGeometrySourceLocal; }
+  }
+  if(Left==6||Right==6) { return EnumaGeometrySides; }
+  if((T->Mixers[Left].Size&0xffff)+(T->Mixers[Right].Size&0xffff)!=L->Width) { return EnumaGeometryCombinedWidth; }
+  return EnumaGeometryOther;
+}

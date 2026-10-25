@@ -69,6 +69,10 @@ static ENUMA_U32 SampleDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT W
       Scanout=&View;
     }
     Status=EnumaCaptureRoutedMixers(Scanout,Read,Ctx,&S->Mixers); if(Status) { return Finish(Status,Native?EnumaVideoReasonNativeMixerCapture:EnumaVideoReasonPipeline,Reason); }
+    if(Native==4) {
+      if(N) { ENUMA_U32 Why=StableReason(&E.Samples[N-1],S,Native); if(Why) { return Finish(EnumaInheritedRefreshMode,Why,Reason); } }
+      continue;
+    }
     ENUMA_U32 LayoutReason=EnumaLayoutOther;
     Status=Native==3?EnumaResolveMixerGeometry(Scanout,&S->Mixers,L,&Limits,&LayoutReason):EnumaResolveMixerOriginsDetailed(Scanout,&S->Mixers,L,&Limits,&LayoutReason);
     if(Status) {
@@ -86,9 +90,20 @@ static ENUMA_U32 SampleDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT W
     if(N) { ENUMA_U32 Why=StableReason(&E.Samples[N-1],S,Native); if(Why) { return Finish(EnumaInheritedRefreshMode,Why,Reason); } }
     if(!N) { E.Limits=Limits; E.Frame=Frame; }
   }
+  if(Native==4) {
+    Status=EnumaNormalizeVideoBorder(&E.Samples[0].Scanout,&View);
+    if(Status) { return Finish(Status,EnumaVideoReasonNativeStaging,Reason); }
+    Status=EnumaResolveMixerGeometry(&View,&E.Samples[0].Mixers,L,&Limits,0);
+    if(Status) {
+      return Finish(Status,Status==EnumaInheritedTopology?EnumaVideoReasonGeometryOther+EnumaClassifyMixerGeometry(&View,&E.Samples[0].Mixers,L):EnumaVideoReasonNativeMixerLayout,Reason);
+    }
+    Status=EnumaDecodeInherited(&View,&Limits,&Frame);
+    if(Status) { return Finish(Status,EnumaVideoReasonNativeDecode,Reason); }
+    E.Limits=Limits;E.Frame=Frame;
+  }
   // Stable shadow configuration is not a downstream/physical address proof.
   // Clear only the demonstrated activity/blend/video counter requirements.
-  E.Frame.Requirements=ENUMA_REQUIRE_ADDRESS|ENUMA_REQUIRE_TOPOLOGY|(Native==3?ENUMA_REQUIRE_BLEND:0);
+  E.Frame.Requirements=ENUMA_REQUIRE_ADDRESS|ENUMA_REQUIRE_TOPOLOGY|(Native>=3?ENUMA_REQUIRE_BLEND:0);
   for(I=0;I<sizeof(E);I++) { ((volatile unsigned char *)Out)[I]=((const unsigned char *)&E)[I]; }
   return Finish(EnumaInheritedOk,EnumaVideoReasonComplete,Reason);
 }
@@ -107,3 +122,5 @@ ENUMA_U32 EnumaSampleNativeBorderVideoDetailed(ENUMA_INHERITED_READ Read,ENUMA_I
 }
 
 ENUMA_U32 EnumaSampleNativeStructureDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT Wait,void *Ctx,const ENUMA_INHERITED_LIMITS *L,ENUMA_VIDEO_EVIDENCE *Out,ENUMA_U32 *Reason) { return SampleDetailed(Read,Wait,Ctx,L,Out,Reason,3); }
+
+ENUMA_U32 EnumaSampleNativeGeometryDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT Wait,void *Ctx,const ENUMA_INHERITED_LIMITS *L,ENUMA_VIDEO_EVIDENCE *Out,ENUMA_U32 *Reason) { return SampleDetailed(Read,Wait,Ctx,L,Out,Reason,4); }
