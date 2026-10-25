@@ -12,6 +12,10 @@ static ENUMA_U32 EnumaNativeMaskResult(ENUMA_U32 Status,const ENUMA_NATIVE_OBSER
     case 3: Mask=O->EnableStableMask; break;
     case 4: Mask=O->MovingMask; break;
     case 5: Mask=O->ExactEnable3Mask; break;
+    case 6:
+      if(O->ActiveThroughoutMask>3||O->TimingStableMask>3||O->EnableStableMask>3||O->MovingMask>3) { return 5; }
+      Mask=O->ActiveThroughoutMask&O->TimingStableMask&O->EnableStableMask&O->MovingMask;
+      break;
     default:return 5;
   }
   return Mask<=3?Mask+1:5;

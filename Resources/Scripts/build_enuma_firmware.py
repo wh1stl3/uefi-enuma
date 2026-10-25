@@ -85,7 +85,7 @@ def main(device_root=None):
     parser.add_argument('--inherited-video-topology-query', type=int, choices=(0,1,2), default=0, help='first-status classification: 1 topology, 2 not-topology; 0 original full predicate; never GOP admission')
     parser.add_argument('--inherited-video-reason-target', choices=('off','counter-enable','stability','interface','refresh'),default='off',help='first-return reason predicate; never relaxes sampling')
     parser.add_argument('--inherited-video-reason-query',type=int,choices=(0,1,2),default=0,help='1 selected reason, 2 exact complement; 0 off')
-    parser.add_argument('--native-mask-field',type=int,choices=range(6),default=0,help='0 off;1 active,2 timing,3 enable-stable,4 moving,5 exact-enable3. Codes0..3 plus error use bounded2/7/12/17/22s cold terminal')
+    parser.add_argument('--native-mask-field',type=int,choices=range(7),default=0,help='0 off;1 active,2 timing,3 enable-stable,4 moving,5 exact-enable3,6 same-observation active/timing/enable/moving conjunction. Codes0..3 plus error use bounded2/7/12/17/22s cold terminal')
     parser.add_argument('--native-observe-control',action='store_true',help='same INF/constructors, query1 constant PASS/query2 constant FAIL, no map/MMIO for boot-clock calibration')
     parser.add_argument('--native-observe-query',type=int,choices=(0,1,2),default=0,help='independent native observer: 1 both links active/stable/moving, 2 exact complement; no GOP admission')
     parser.add_argument('--ram-payload', type=Path, help='build-only: exact FAT in device out/; enable bounded boot-v3 RAM BlockIO and batch report')

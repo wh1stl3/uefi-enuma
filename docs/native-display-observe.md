@@ -63,3 +63,10 @@ This wider terminal requires independent actual Core code review and fixed host
 boot-origin decode windows, and never changes GOP eligibility. Maximum terminal
 delay22s plus sampling0.2s remains below the existing75s host observation bound;
 that is not a guarantee of recovery. Stop on ambiguity, timeout or failed recovery.
+
+
+Field6 combines ActiveThroughout, nonzero TimingStable, EnableStable and Moving
+masks from the SAME completed observation. It rejects malformed component masks,
+does not require ExactEnable3, and adds no reads/waits or terminal codes. A result3
+supports both interfaces satisfying these preconditions together; it still does
+not establish topology, scanout-address translation, panel or visible GOP.
