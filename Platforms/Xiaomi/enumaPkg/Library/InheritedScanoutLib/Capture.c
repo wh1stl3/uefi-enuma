@@ -8,7 +8,7 @@ ENUMA_U32 EnumaCaptureInherited(ENUMA_INHERITED_READ Read,void *Context,ENUMA_IN
   ENUMA_INHERITED_SNAPSHOT S; ENUMA_U32 I,J,M,B;
   if (!Read || !Out) { return EnumaInheritedArguments; }
   for(I=0;I<sizeof(S);I++) { ((volatile unsigned char *)&S)[I]=0; }
-#define TAKE(offset,field) do { if (!Read(Context,(offset),&(field))) { return EnumaInheritedBounds; } } while(0)
+#define TAKE(offset,field) do { if (Read(Context,(offset),&(field)) != 1) { return EnumaInheritedBounds; } } while(0)
   TAKE(0,S.Revision);
   if ((S.Revision >>16)!=0x6000) { return EnumaInheritedRevision; }
   for(I=0;I<8;I++) {

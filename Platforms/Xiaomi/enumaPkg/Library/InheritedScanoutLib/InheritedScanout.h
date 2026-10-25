@@ -35,6 +35,7 @@ enum { EnumaInheritedOk,EnumaInheritedRevision,EnumaInheritedRoute,EnumaInherite
 // Neither function dereferences pixel addresses.
 ENUMA_U32 EnumaDecodeInherited(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_INHERITED_LIMITS *,ENUMA_INHERITED_FRAME *);
 // Read callback receives a relative SDE register offset; caller owns aperture/mapping.
+// Exactly1 means success; zero and negative/error values are rejected.
 typedef int (*ENUMA_INHERITED_READ)(void *,ENUMA_U32,ENUMA_U32 *);
 ENUMA_U32 EnumaCaptureInherited(ENUMA_INHERITED_READ,void *,ENUMA_INHERITED_SNAPSHOT *);
 #endif
