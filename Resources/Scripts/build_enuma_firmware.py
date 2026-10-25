@@ -85,6 +85,7 @@ def main(device_root=None):
     parser.add_argument('--inherited-video-topology-query', type=int, choices=(0,1,2), default=0, help='first-status classification: 1 topology, 2 not-topology; 0 original full predicate; never GOP admission')
     parser.add_argument('--inherited-video-reason-target', choices=('off','counter-enable','stability','interface','refresh'),default='off',help='first-return reason predicate; never relaxes sampling')
     parser.add_argument('--inherited-video-reason-query',type=int,choices=(0,1,2),default=0,help='1 selected reason, 2 exact complement; 0 off')
+    parser.add_argument('--native-observe-control',action='store_true',help='same INF/constructors, query1 constant PASS/query2 constant FAIL, no map/MMIO for boot-clock calibration')
     parser.add_argument('--native-observe-query',type=int,choices=(0,1,2),default=0,help='independent native observer: 1 both links active/stable/moving, 2 exact complement; no GOP admission')
     parser.add_argument('--ram-payload', type=Path, help='build-only: exact FAT in device out/; enable bounded boot-v3 RAM BlockIO and batch report')
     parser.add_argument('--ramoops-canary-nonce', help='R-017 single console marker; exactly 32 lower hex digits; stage10/delay2/SimpleFb-omit profile only')
@@ -143,6 +144,8 @@ def main(device_root=None):
         parser.error('video terminal requires video audit/query1 and no dispatcher completion fallback')
     if args.inherited_video_topology_query and (not args.inherited_video_terminal or args.inherited_video_entry_control):
         parser.error('topology status query requires symmetric video audit and excludes constant control')
+    if args.native_observe_control and not args.native_observe_query:
+        parser.error('native control requires native observation query')
     if args.native_observe_query and (not args.inherited_video_terminal or args.inherited_video_entry_control or args.inherited_video_topology_query or args.inherited_video_reason_target!='off'):
         parser.error('native observation requires symmetric video terminal and excludes other classifiers/control')
     os.environ['ENUMA_NATIVE_OBSERVE_QUERY']=str(args.native_observe_query)
@@ -248,6 +251,7 @@ def main(device_root=None):
         word = int(args.ramoops_canary_nonce[i*8:i*8+8], 16) if args.ramoops_canary_nonce else 0
         board['firmware']['defines']['ENUMA_RAMOOPS_NONCE_'+str(i)]=str(word)+'U'
     board['firmware']['defines']['ENUMA_GOP_SELFTEST']='1' if args.gop_backend_selftest else '0'
+    board['firmware']['defines']['ENUMA_NATIVE_CONTROL']='1' if args.native_observe_control else '0'
     board['firmware']['defines']['ENUMA_NATIVE_OBSERVE_QUERY']=str(args.native_observe_query)
     board['firmware']['defines']['ENUMA_VIDEO_TERMINAL']='1' if args.inherited_video_terminal else '0'
     board['firmware']['defines']['ENUMA_VIDEO_TOPOLOGY_QUERY']=str(args.inherited_video_topology_query)
@@ -282,7 +286,7 @@ def main(device_root=None):
         'inherited_video_audit_read_only':args.inherited_video_audit,
         'inherited_video_entry_control':args.inherited_video_entry_control,
         'inherited_video_terminal':args.inherited_video_terminal,
-        'native_observe_query':args.native_observe_query,
+        'native_observe_query':args.native_observe_query,'native_observe_control':args.native_observe_control,
         'inherited_video_topology_query':args.inherited_video_topology_query,
         'inherited_video_reason_target':reason_target,'inherited_video_reason_query':args.inherited_video_reason_query,
         'ramoops_canary_nonce':args.ramoops_canary_nonce,
@@ -342,8 +346,8 @@ def main(device_root=None):
                     assert (staged/'InheritedVideo'/name).read_bytes()==(SOURCE/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'/name).read_bytes()
                 report['inherited_video_compiled_contract']={
                     'entry_source_sha256':hashlib.sha256((staged/'SimpleFb.c').read_bytes()).hexdigest(),
-                    'all_staged_sources_equal':True,'maximum_read_callbacks':0 if args.inherited_video_entry_control else (26 if args.native_observe_query else 330),'maximum_wait_calls':0 if args.inherited_video_entry_control else 2,
-                    'entry_constant_marker':1 if args.inherited_video_entry_control else None,
+                    'all_staged_sources_equal':True,'maximum_read_callbacks':0 if (args.inherited_video_entry_control or args.native_observe_control) else (26 if args.native_observe_query else 330),'maximum_wait_calls':0 if (args.inherited_video_entry_control or args.native_observe_control) else 2,
+                    'entry_constant_marker':(1 if args.native_observe_query==1 else 5) if args.native_observe_control else (1 if args.inherited_video_entry_control else None),
                     'pixel_access':False,'protocol_published':False}
             if args.value_source != 'off':
                 command=(module/'GNUmakefile').read_text()

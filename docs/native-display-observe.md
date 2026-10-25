@@ -42,3 +42,11 @@ Query2 is the exact complement, including metadata/collection refusal. Both exac
 warning markers terminate at the same Core hook (2/7 seconds, cold). No map,
 pixel, full GOP predicate, or protocol publication changes. Requires actual PE,
 flags, packaged Core, full-input qualification and current device gates before use.
+
+
+`--native-observe-control` retains this exact INF/constructor/Core terminal path,
+but returns warning1 for query1 or warning5 for query2, with no map lookup,
+sampling or waits. It exists to calibrate host-minus-Linux-uptime boot-origin
+timing after S-019/S-020 produced ambiguous Android readiness deltas. Constant
+calibration is not display evidence. Review its actual PE and complete package
+independently, never reuse consumed images or retroactively reclassify old pairs.

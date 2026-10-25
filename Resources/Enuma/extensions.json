@@ -5,7 +5,7 @@
   "files": {
     "diagnostics/EnumaDispatchDetailCheckpoint.h": "3a6e0cf398b1a3a7486f5768d0990c85865659e164f4340905a4d873f9968c0c",
     "patches/dxe-dispatch-details.patch": "49a051195269054894262788f65883c4665db5eec170db2f457e265b523be94d",
-    "patches/dispatch-detail-options.patch": "728a831f3d46f98294d8664db081c452ee6f665fe83053e6b551066fdbd46d8d",
+    "patches/dispatch-detail-options.patch": "44fcecd42b44ade0b19559469b38e70aaf9e019acbac4077b3a924c5b85e8f91",
     "Resources/Scripts/enuma_preflight.py": "c1860631021d65f8c75be65292b9dc1bd901d81d477ceffc59e2226e2bb0b220",
     "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af",
     "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f",
@@ -21,7 +21,7 @@
     "diagnostics/EnumaGopAudit.h": "e6db3b2794b9dc49a5c98790ef2cfcf900af1126b3c2f20ebb30297c5eba46e5",
     "patches/simplefb-gop-query.patch": "3a013d8dabf37263db1c1c6b03b34c81d12aeaaf067386e6577928a9fc493071",
     "diagnostics/EnumaGopResult.h": "15439f96c32387cccd57c8f40d5a703600af6478c616eebe896b6a5fb536d184",
-    "Resources/Scripts/build_enuma_firmware.py": "12fd0aed92a42b66139471ebccedd99f59b87e8160d43acb732c55e75fd6f662",
+    "Resources/Scripts/build_enuma_firmware.py": "f2ab9f9d1eaadb050b3f4b2086e01965239af47c4b03b0687dd765fdbf36ef01",
     "Resources/Scripts/enuma_firmware_preflight.py": "eb9af118480cf90166854337ed76cf850485b6e2f890e592ed7a339fbc39521a",
     "diagnostics/EnumaScanoutAudit.h": "8f49f8c27f1211be834e77e2a79a056010d2de0e637f02f82f6b7bd3464ff702",
     "patches/display-mdp-map.patch": "5aa0f4e584349354000c50a181fb7a0aa31c43b1f4128a72bc35469e90fd14b4",
@@ -76,7 +76,7 @@
     "diagnostics/EnumaRamoopsWarmCheckpoint.h": "e3079f8903d24ffa64996ae61464467f6f1238dc20d57b7c8ea7a7f61133669c",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/NativeObserve.c": "6fdafa2d9833fe44926efe692ea3e6db1bc68f345828b61ffcdbdcca52ed51fc",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/NativeObserve.h": "0b3bed21b26eaeefc66b8ac174057713795c0910cb875c21c74e1fc016ae0b07",
-    "docs/native-display-observe.md": "49be9a40f5771aca217f3990302c6cf12f9774a64f2a349ef5c4df4ec8b578ea",
-    "diagnostics/EnumaNativeObserve.c": "4b55a66b958e6f8d96cffd35bf4de59641846719fd4dcf89b40cda55960b93f1"
+    "docs/native-display-observe.md": "f80d5c268f86fb603388b8b5bbce59920faaf1b631642abf6a7fcaa620cefc11",
+    "diagnostics/EnumaNativeObserve.c": "cf7945ccebcf8fb25666d2351675d98e43d39b7d54e6db9addfda22e04181728"
   }
 }
