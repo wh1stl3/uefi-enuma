@@ -12,6 +12,12 @@
 #include "InheritedVideo/Evidence.c"
 #include "InheritedVideo/VideoResult.h"
 #include "InheritedVideo/NativeRouteResult.h"
+#ifndef ENUMA_NATIVE_ROUTE_BLEND
+#define ENUMA_NATIVE_ROUTE_BLEND 0
+#endif
+#if ENUMA_NATIVE_ROUTE_BLEND < 0 || ENUMA_NATIVE_ROUTE_BLEND > 1 || (ENUMA_NATIVE_ROUTE_BLEND && !ENUMA_NATIVE_ROUTE_LAYOUT)
+#error Blend classification requires layout classification
+#endif
 #ifndef ENUMA_NATIVE_ROUTE_LAYOUT
 #define ENUMA_NATIVE_ROUTE_LAYOUT 0
 #endif
@@ -55,7 +61,9 @@
 #error Topology status query requires symmetric terminal transport
 #endif
 STATIC EFI_STATUS Result(ENUMA_U32 Status,ENUMA_U32 Requirements,ENUMA_U32 Reason) {
-#if ENUMA_NATIVE_ROUTE_LAYOUT
+#if ENUMA_NATIVE_ROUTE_BLEND
+  return (EFI_STATUS)EnumaNativeBlendResult(Status,Requirements,Reason);
+#elif ENUMA_NATIVE_ROUTE_LAYOUT
   return (EFI_STATUS)EnumaNativeLayoutResult(Status,Requirements,Reason);
 #elif ENUMA_NATIVE_ROUTE_STAGING
   return (EFI_STATUS)EnumaNativeStagingResult(Status,Requirements,Reason);

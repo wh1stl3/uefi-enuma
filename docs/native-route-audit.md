@@ -75,3 +75,15 @@ The detailed resolver preserves fixed c45191c status and output across4608
 saved mixer-word perturbations and original negative fixtures. No predicate,
 read, wait, raw snapshot or admission condition changes. Exact terminal mapping
 is covered by14880 host cases. Source categories remain indirect timing evidence.
+
+## Captured blend rejection after S-033
+
+S-033 classified dim/blend as the first layout rejection, displacing mode bits
+as the first-blocker hypothesis. --native-route-blend requires layout and keeps
+the same capture and resolver predicates. Only after its blend rejection, a
+pure saved-word classifier distinguishes selected-source-stage dim, dim outside
+that source stage, blend operation mismatch and constant alpha mismatch. These
+are codes2..5;1 is other. Outside-source dim is not assumed inactive. Code5 is
+not success. Tests cover11 source stages by11 dim locations, operation/alpha,
+immutable snapshots, four actual sampler paths (110 reads/no wait), and17280
+selector combinations. No additional hardware access or admission is introduced.

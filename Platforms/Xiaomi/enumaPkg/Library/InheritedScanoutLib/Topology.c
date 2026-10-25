@@ -167,3 +167,20 @@ ENUMA_U32 EnumaNormalizeVideoBorder(const ENUMA_INHERITED_SNAPSHOT *S,ENUMA_INHE
   for(I=0;I<sizeof(V);I++) { ((volatile unsigned char *)Out)[I]=((const unsigned char *)&V)[I]; }
   return EnumaInheritedOk;
 }
+
+// Called only after a blend/dim rejection. Pure saved-word explanation; no
+// admission or additional hardware reads. Outside-source dim is not "inactive".
+ENUMA_U32 EnumaClassifyVideoBlend(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA_MIXER_SNAPSHOT *T) {
+  ENUMA_U32 C,Ms,Ps,M,P,J,E,Dim;
+  if(!S||!T||EnumaSelectVideoRoute(S,&C,&Ms,&Ps)) { return EnumaBlendOther; }
+  for(M=0;M<6;M++) {
+    if(!(Ms&(1u<<M))) { continue; }
+    E=0;for(P=0;P<8;P++) { ENUMA_U32 X=Stage(S->Ctls[C].Layers[M],P);if(X) { E=X; } }
+    if(!E||E>12) { return EnumaBlendOther; }
+    Dim=0;for(J=0;J<11;J++) { Dim|=T->Mixers[M].Blend[J]&(1u<<16); }
+    if(Dim) { return E>1&&(T->Mixers[M].Blend[E-2]&(1u<<16))?EnumaBlendSelectedDim:EnumaBlendOtherDim; }
+    if(E>1&&T->Mixers[M].Blend[E-2]!=0x100) { return EnumaBlendOperation; }
+    if(E>1&&T->Mixers[M].Alpha[E-2]!=0x00ff0000) { return EnumaBlendAlpha; }
+  }
+  return EnumaBlendOther;
+}

@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: BSD-2-Clause-Patent
 #include "Evidence.h"
+#ifndef ENUMA_NATIVE_ROUTE_BLEND
+#define ENUMA_NATIVE_ROUTE_BLEND 0
+#endif
 #ifndef ENUMA_NATIVE_ROUTE_LAYOUT
 #define ENUMA_NATIVE_ROUTE_LAYOUT 0
 #endif
@@ -69,6 +72,11 @@ static ENUMA_U32 SampleDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT W
     ENUMA_U32 LayoutReason=EnumaLayoutOther;
     Status=EnumaResolveMixerOriginsDetailed(Scanout,&S->Mixers,L,&Limits,&LayoutReason);
     if(Status) {
+#if ENUMA_NATIVE_ROUTE_BLEND
+      if(Native==2&&Status==EnumaInheritedTopology&&LayoutReason==EnumaLayoutBlend) {
+        return Finish(Status,EnumaVideoReasonBlendOther+EnumaClassifyVideoBlend(Scanout,&S->Mixers),Reason);
+      }
+#endif
 #if ENUMA_NATIVE_ROUTE_LAYOUT
       if(Native==2) { return Finish(Status,EnumaVideoReasonLayoutOther+LayoutReason,Reason); }
 #endif

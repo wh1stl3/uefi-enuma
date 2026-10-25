@@ -30,4 +30,8 @@ static inline ENUMA_U32 EnumaNativeLayoutResult(ENUMA_U32 S,ENUMA_U32 R,ENUMA_U3
   if(S!=EnumaInheritedTopology||R||W<EnumaVideoReasonLayoutBlend||W>EnumaVideoReasonLayoutSides) { return 1; }
   return W-EnumaVideoReasonLayoutOther+1;
 }
+static inline ENUMA_U32 EnumaNativeBlendResult(ENUMA_U32 S,ENUMA_U32 R,ENUMA_U32 W) {
+  if(S!=EnumaInheritedTopology||R||W<EnumaVideoReasonBlendSelectedDim||W>EnumaVideoReasonBlendAlpha) { return 1; }
+  return W-EnumaVideoReasonBlendOther+1;
+}
 #endif
