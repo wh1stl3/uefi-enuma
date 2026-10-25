@@ -70,3 +70,11 @@ masks from the SAME completed observation. It rejects malformed component masks,
 does not require ExactEnable3, and adds no reads/waits or terminal codes. A result3
 supports both interfaces satisfying these preconditions together; it still does
 not establish topology, scanout-address translation, panel or visible GOP.
+
+
+Field7 checks all three Timing words equal zero per interface, together with
+ActiveThroughout, EnableStable and Moving from the SAME completed observation.
+It derives this from already captured samples, adds no MMIO/read/wait/return
+codes and does not change full GOP admission. A set bit distinguishes a stable
+zero Timing register with activity and frame progress from Timing instability.
+It does not prove a master/slave role, downstream panel or visible pixels.

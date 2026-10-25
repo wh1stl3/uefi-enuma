@@ -16,6 +16,15 @@ static ENUMA_U32 EnumaNativeMaskResult(ENUMA_U32 Status,const ENUMA_NATIVE_OBSER
       if(O->ActiveThroughoutMask>3||O->TimingStableMask>3||O->EnableStableMask>3||O->MovingMask>3) { return 5; }
       Mask=O->ActiveThroughoutMask&O->TimingStableMask&O->EnableStableMask&O->MovingMask;
       break;
+    case 7: {
+      ENUMA_U32 I,N;
+      if(O->ActiveThroughoutMask>3||O->EnableStableMask>3||O->MovingMask>3) { return 5; }
+      Mask=O->ActiveThroughoutMask&O->EnableStableMask&O->MovingMask;
+      for(I=0;I<2;I++)for(N=0;N<3;N++) {
+        if(O->Samples[N].Interfaces[I].Timing!=0) { Mask&=~(1u<<I); }
+      }
+      break;
+    }
     default:return 5;
   }
   return Mask<=3?Mask+1:5;
