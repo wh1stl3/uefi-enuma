@@ -65,6 +65,9 @@
     "diagnostics/EnumaInheritedVideoAudit.c": "a46c470fe989939977a48427c0080bb9f1b0ba2ddd29bd8815960b892944c2f7",
     "diagnostics/EnumaInheritedVideoEntryControl.c": "7b2945d156533f554e7246cf6ced5cc949bfb865e3456437204c8dfa0acd3c6a",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/VideoCapture.c": "308ba7f1c1e8fdf82e7d78b0a4de31a40c9e985445ff40f96d76adc1e7f684e3",
-    "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/VideoResult.h": "b9c9375fad42acd8dd470bd2208e70ccbf17f22a2233f62e8dab30cceec324a7"
+    "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/VideoResult.h": "b9c9375fad42acd8dd470bd2208e70ccbf17f22a2233f62e8dab30cceec324a7",
+    "diagnostics/EnumaRamoopsBuffer.h": "924921468fc8580100eaa9e2ab21ceabf065e87f73db5e03dccb03691ad34aae",
+    "diagnostics/LICENSE.ramoops-upstream": "5b1d3d911103cb0f41641ec0964c5ac1f7e229f57aa072b6ac38bae913a1307b",
+    "docs/ramoops-buffer.md": "709bc955f3eab4a3c3a2a39ea0abc4714987664c93e3838be5db4a34624081b2"
   }
 }
