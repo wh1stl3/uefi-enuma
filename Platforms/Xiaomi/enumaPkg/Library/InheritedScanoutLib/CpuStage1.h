@@ -80,6 +80,19 @@ static inline ENUMA_U32 EnumaCpuReadOnce(const ENUMA_INHERITED_FRAME *F,ENUMA_U3
   if(Read(Ctx,F->Base,&Value)!=1) { return 4; }
   (void)Value;return 5;
 }
+typedef int (*ENUMA_CPU_BARRIER)(void *);
+typedef struct { ENUMA_CPU_WORD_READ Read;ENUMA_CPU_BARRIER Barrier;void *Ctx;ENUMA_U32 Called; } ENUMA_CPU_BARRIER_CONTEXT;
+static inline int EnumaCpuBarrierRead(void *Opaque,ENUMA_U64 Address,ENUMA_U32 *Value) {
+  ENUMA_CPU_BARRIER_CONTEXT *C=Opaque;
+  if(C->Called) { return 0; } C->Called=1;
+  if(C->Barrier(C->Ctx)!=1) { return 0; }
+  return C->Read(C->Ctx,Address,Value);
+}
+static inline ENUMA_U32 EnumaCpuReadWithBarrier(const ENUMA_INHERITED_FRAME *F,ENUMA_U32 Policy,ENUMA_CPU_WORD_READ Read,ENUMA_CPU_BARRIER Barrier,void *Ctx) {
+  ENUMA_CPU_BARRIER_CONTEXT C={Read,Barrier,Ctx,0};
+  if(!Read||!Barrier) { return 4; }
+  return EnumaCpuReadOnce(F,Policy,EnumaCpuBarrierRead,&C);
+}
 #ifdef __aarch64__
 typedef struct { ENUMA_U64 El;ENUMA_U32 Count; } ENUMA_CPU_STAGE1_CONTEXT;
 static int EnumaCpuStage1Translate(void *Opaque,ENUMA_U64 Page,ENUMA_U32 Write,ENUMA_U64 *Par) {
@@ -121,7 +134,7 @@ static ENUMA_U32 EnumaCpuStage1Arm(const ENUMA_INHERITED_FRAME *F) {
 #endif
 }
 #if defined(ENUMA_NATIVE_ROUTE_CPU_READ) && ENUMA_NATIVE_ROUTE_CPU_READ
-typedef struct { ENUMA_U64 Expected;ENUMA_U32 Reads;volatile ENUMA_U32 Sink; } ENUMA_CPU_WORD_CONTEXT;
+typedef struct { ENUMA_U64 Expected;ENUMA_U32 Reads;volatile ENUMA_U32 Sink;ENUMA_U32 Barriers; } ENUMA_CPU_WORD_CONTEXT;
 static int EnumaCpuWordArm(void *Opaque,ENUMA_U64 Address,ENUMA_U32 *Value) {
   ENUMA_CPU_WORD_CONTEXT *C=Opaque;
   if(!C||!Value||C->Reads||Address!=C->Expected||(Address&3)||
@@ -131,9 +144,21 @@ static int EnumaCpuWordArm(void *Opaque,ENUMA_U64 Address,ENUMA_U32 *Value) {
   C->Sink=*Value; // private CPU-stack value dependency; never exported
   return 1;
 }
+#if defined(ENUMA_NATIVE_ROUTE_CPU_BARRIER) && ENUMA_NATIVE_ROUTE_CPU_BARRIER
+static int EnumaCpuBarrierArm(void *Opaque) {
+  ENUMA_CPU_WORD_CONTEXT *C=Opaque;
+  if(!C||C->Barriers) { return 0; } C->Barriers++;
+  __asm__ volatile("dsb sy" ::: "memory");
+  return 1;
+}
+#endif
 static ENUMA_U32 EnumaCpuReadArmProbe(const ENUMA_INHERITED_FRAME *F,ENUMA_U32 Policy) {
-  ENUMA_CPU_WORD_CONTEXT C={F?F->Base:0,0,0};
+  ENUMA_CPU_WORD_CONTEXT C={F?F->Base:0,0,0,0};
+#if defined(ENUMA_NATIVE_ROUTE_CPU_BARRIER) && ENUMA_NATIVE_ROUTE_CPU_BARRIER
+  return EnumaCpuReadWithBarrier(F,Policy,EnumaCpuWordArm,EnumaCpuBarrierArm,&C);
+#else
   return EnumaCpuReadOnce(F,Policy,EnumaCpuWordArm,&C);
+#endif
 }
 #endif
 #endif

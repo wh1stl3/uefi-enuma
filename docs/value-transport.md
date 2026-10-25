@@ -186,3 +186,17 @@ This deliberately omits historical Pixel Sync/DC-CIVAC to isolate a single
 CPU data-read step. Host fixtures model the callback, not physical memory.
 The actual loaded word feeds a private volatile CPU-stack sink so it is not
 compiled as a discarded zero-register load; the sink is not logged or kept.
+
+## S-044 one pre-read DSB SY, no cache-line maintenance
+
+--native-route-cpu-barrier requires the same single-word read profile. The
+original no-barrier API is unchanged. A wrapper adds exactly one barrier
+callback after complete policy/frame/range validation and immediately before
+the same one-word data read. The Arm callback is one DSB SY with count1,
+never DC clean/invalidate, a cache attribute setter or framebuffer store.
+Code1..3 keep prior/policy meanings;4 barrier/read contract or callback
+rejection;5 the single DSB then the single read completed. No inference about
+a barrier after pixel stores or cache-line maintenance follows. Failure or
+timeout is not evidence that the read was reached. Fixed timing and recovery
+hard stops remain. Host checks verify barrier-before-read order, zero calls
+when prerequisites fail, count1 and callback rejection before the read.

@@ -12,6 +12,12 @@
 #include "InheritedVideo/Evidence.c"
 #include "InheritedVideo/VideoResult.h"
 #include "InheritedVideo/NativeRouteResult.h"
+#ifndef ENUMA_NATIVE_ROUTE_CPU_BARRIER
+#define ENUMA_NATIVE_ROUTE_CPU_BARRIER 0
+#endif
+#if ENUMA_NATIVE_ROUTE_CPU_BARRIER < 0 || ENUMA_NATIVE_ROUTE_CPU_BARRIER > 1 || (ENUMA_NATIVE_ROUTE_CPU_BARRIER && !ENUMA_NATIVE_ROUTE_CPU_READ)
+#error Single DSB requires the single-word read profile
+#endif
 #ifndef ENUMA_NATIVE_ROUTE_CPU_READ
 #define ENUMA_NATIVE_ROUTE_CPU_READ 0
 #endif
