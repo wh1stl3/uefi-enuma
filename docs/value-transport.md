@@ -41,3 +41,21 @@ No GOP, pixels, MMIO writes or new mappings. This is not a rendering candidate.
 Xiaomi52a2f18 sde_crtc.c420..476 supports multiple blend operations; its
 sde_hw_lm.c setup_out locates the right mixer using bit31 independently of
 setup_blend_config/setup_color3. Unknown composition remains explicitly unproven.
+
+
+## S-036 structural geometry classification after raw stability
+
+S-035 returned route-or-geometry rejection before completing all samples.
+--native-route-structure-detail requires the independent structure profile.
+Its Native4 sampler retains the same qualified CTL/source selection before
+reading selected mixers, maximum330 reads/two100ms waits. It captures three
+raw snapshots and validates both stable configuration and1..64 nonwrapping
+frame deltas before running pure geometry/source decoding. It can continue
+safe selected-register capture despite a pure geometry predicate that would
+have rejected earlier in Native3; it does not bypass capture preconditions.
+Code2..5 distinguishes mixer size, source local output, left/right assignment
+and combined width rejection, respectively, only after raw stability passed.
+Code1 includes unclassified collection/runtime/decode/success; code5 is a
+rejection. It provides no actual register value or visual composition proof.
+All previous APIs retain their ordering/results; any complete structure still
+requires BLEND|ADDRESS|TOPOLOGY22. No MMIO writes/new mapping/GOP/pixels.
