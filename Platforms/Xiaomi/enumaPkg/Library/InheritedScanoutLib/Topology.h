@@ -25,4 +25,5 @@ ENUMA_U32 EnumaResolveMixerGeometry(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA
 enum { EnumaGeometryOther,EnumaGeometryMixerSize,EnumaGeometrySourceLocal,EnumaGeometrySides,EnumaGeometryCombinedWidth };
 ENUMA_U32 EnumaClassifyMixerGeometry(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_MIXER_SNAPSHOT *,const ENUMA_INHERITED_LIMITS *);
 ENUMA_U32 EnumaNormalizeGlobalMixerOutput(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_MIXER_SNAPSHOT *,const ENUMA_INHERITED_LIMITS *,ENUMA_INHERITED_SNAPSHOT *);
+ENUMA_U32 EnumaNormalize8888AlphaView(const ENUMA_INHERITED_SNAPSHOT *,ENUMA_INHERITED_SNAPSHOT *);
 #endif

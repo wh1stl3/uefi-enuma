@@ -90,3 +90,22 @@ Inconsistent,5 Route/VirtualRect/Secure/RefreshMode/Mode/Topology. Code1 is
 unclassified, including collection, geometry, runtime and complete structure.
 All19680 selector combinations are tested. Same exact GUID/Core1..5 timing,
 330 reads/two100ms, full FAT, no fallback/writes/new mapping/GOP/pixels.
+
+
+## S-039 exact8888 RGB channel view with alpha obligation
+
+S-038 code3 identifies source Format rejection after Native5 prior stages; it
+does not reveal which format/opmode/unpack condition failed. The independent
+--native-route-alpha-view requires global output and excludes source detail.
+Native6 captures raw stability, validates the exact global coordinate model,
+then accepts only selected source formats236ff/237ff with at least one237ff.
+The pinned Xiaomi sde_hw_sspp.c315..322 defines bit8 as SRCC3_EN. A RAM copy
+may clear only that bit to decode RGB storage channels; all raw words remain
+unchanged and participate in stability. Other formats, compressed formats and
+an all-RGBX input are rejected by this hypothesis. Unpack/opmode/secure/stride/
+address/common-layout/coverage checks continue unchanged. Success still
+requires22 BLEND|ADDRESS|TOPOLOGY; alpha opacity and pixel write semantics
+remain explicitly unproven. No GOP is published and no pixels are accessed.
+Do not interpret ReservedMask as permission to write zero alpha into live
+RGBA; an opaque pixel adapter and visual qualification remain separate work.
+Same330 reads/two100ms, no new map/MMIO write. Old Native5 remains strict.

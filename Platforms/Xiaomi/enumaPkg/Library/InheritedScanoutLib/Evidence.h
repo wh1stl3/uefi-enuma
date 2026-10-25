@@ -50,4 +50,6 @@ ENUMA_U32 EnumaSampleNativeStructureDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITE
 ENUMA_U32 EnumaSampleNativeGeometryDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
 // Independent exact global-coordinate view after raw stability.
 ENUMA_U32 EnumaSampleNativeGlobalOutputDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
+// Logical8888 RGB view only; alpha semantics remain in BLEND requirements.
+ENUMA_U32 EnumaSampleNativeAlphaViewDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
 #endif

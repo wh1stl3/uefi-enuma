@@ -230,3 +230,19 @@ ENUMA_U32 EnumaNormalizeGlobalMixerOutput(const ENUMA_INHERITED_SNAPSHOT *S,cons
   if(EnumaResolveMixerGeometry(&V,T,L,&Limits,0)) { return EnumaInheritedTopology; }
   *Out=V;return EnumaInheritedOk;
 }
+
+// Logical RGB channel descriptor only: SRCC3_EN bit8 remains an unproven
+// alpha/blend obligation. No claim of opaque pixels or GOP write semantics.
+ENUMA_U32 EnumaNormalize8888AlphaView(const ENUMA_INHERITED_SNAPSHOT *S,ENUMA_INHERITED_SNAPSHOT *Out) {
+  ENUMA_U32 C,Ms,Ps,P,Changed=0;ENUMA_INHERITED_SNAPSHOT V;
+  if(!S||!Out) { return EnumaInheritedArguments; }
+  if((S->Revision>>16)!=0x6000||EnumaSelectVideoRoute(S,&C,&Ms,&Ps)) { return EnumaInheritedTopology; }
+  V=*S;
+  for(P=0;P<8;P++) {
+    if(!(Ps&(1u<<P))) { continue; }
+    if(S->Pipes[P].Format==0x237ff) { V.Pipes[P].Format=0x236ff;Changed=1; }
+    else if(S->Pipes[P].Format!=0x236ff) { return EnumaInheritedTopology; }
+  }
+  if(!Changed) { return EnumaInheritedTopology; }
+  *Out=V;return EnumaInheritedOk;
+}

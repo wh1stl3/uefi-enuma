@@ -93,8 +93,13 @@ static ENUMA_U32 SampleDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT W
   if(Native>=4) {
     Status=EnumaNormalizeVideoBorder(&E.Samples[0].Scanout,&View);
     if(Status) { return Finish(Status,EnumaVideoReasonNativeStaging,Reason); }
-    if(Native==5) {
+    if(Native>=5) {
       Status=EnumaNormalizeGlobalMixerOutput(&View,&E.Samples[0].Mixers,L,&Global);
+      if(Status) { return Finish(Status,EnumaVideoReasonNativeMixerLayout,Reason); }
+      View=Global;
+    }
+    if(Native==6) {
+      Status=EnumaNormalize8888AlphaView(&View,&Global);
       if(Status) { return Finish(Status,EnumaVideoReasonNativeMixerLayout,Reason); }
       View=Global;
     }
@@ -131,3 +136,5 @@ ENUMA_U32 EnumaSampleNativeStructureDetailed(ENUMA_INHERITED_READ Read,ENUMA_INH
 ENUMA_U32 EnumaSampleNativeGeometryDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT Wait,void *Ctx,const ENUMA_INHERITED_LIMITS *L,ENUMA_VIDEO_EVIDENCE *Out,ENUMA_U32 *Reason) { return SampleDetailed(Read,Wait,Ctx,L,Out,Reason,4); }
 
 ENUMA_U32 EnumaSampleNativeGlobalOutputDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT Wait,void *Ctx,const ENUMA_INHERITED_LIMITS *L,ENUMA_VIDEO_EVIDENCE *Out,ENUMA_U32 *Reason) { return SampleDetailed(Read,Wait,Ctx,L,Out,Reason,5); }
+
+ENUMA_U32 EnumaSampleNativeAlphaViewDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT Wait,void *Ctx,const ENUMA_INHERITED_LIMITS *L,ENUMA_VIDEO_EVIDENCE *Out,ENUMA_U32 *Reason) { return SampleDetailed(Read,Wait,Ctx,L,Out,Reason,6); }
