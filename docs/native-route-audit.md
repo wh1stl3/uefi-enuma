@@ -24,3 +24,13 @@ STATUS before FRAME, configuration/interface/frame stability, strict fixed-sourc
 baseline equivalence, 7200 result mappings and504 terminal/GUID/status cases.
 Hardware qualification belongs to the companion repository; this source commit
 alone is not an on-device result.
+
+S-029 returned the topology category with verified Android recovery. Optional
+`--native-route-detail` records the first failing phase without extra reads or
+continuation: code1 other/contract rejection,2 CTL selection,3 source staging,
+4 mixer capture/origin/layout topology,5 stable candidate. Only statusTopology
+can produce2/3/4. The default route category mapping normalizes new internal
+phase reasons back to the original pipeline reason. Strict sampler reasons and
+callback order remain unchanged. Full native sampling is compared against the
+fafb8a3 fixed source at all330 read failure boundaries; detailed selector has
+10080 status/reason/requirements cases. This does not loosen any topology gate.

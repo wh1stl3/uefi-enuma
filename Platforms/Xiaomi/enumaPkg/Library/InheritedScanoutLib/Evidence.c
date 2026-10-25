@@ -53,10 +53,12 @@ static ENUMA_U32 SampleDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT W
       if(!Native&&(V->CounterEnable&3)!=3) { return Finish(EnumaInheritedRefreshMode,N?EnumaVideoReasonCounterLater:EnumaVideoReasonCounterInitial,Reason); }
       if(!(V->Active&1)) { return Finish(EnumaInheritedRefreshMode,N?EnumaVideoReasonInterfaceLater:EnumaVideoReasonInterfaceInitial,Reason); }
     }
-    Status=EnumaCaptureVideoConfig(Read,Ctx,Revision,&S->Scanout,&S->Scope); if(Status) { return Finish(Status,EnumaVideoReasonPipeline,Reason); }
-    Status=EnumaCaptureRoutedMixers(&S->Scanout,Read,Ctx,&S->Mixers); if(Status) { return Finish(Status,EnumaVideoReasonPipeline,Reason); }
-    Status=EnumaResolveMixerOrigins(&S->Scanout,&S->Mixers,L,&Limits); if(Status) { return Finish(Status,EnumaVideoReasonPipeline,Reason); }
-    Status=EnumaDecodeInherited(&S->Scanout,&Limits,&Frame); if(Status) { return Finish(Status,EnumaVideoReasonPipeline,Reason); }
+    ENUMA_U32 CaptureReason=EnumaVideoReasonPipeline;
+    Status=Native?EnumaCaptureVideoConfigDetailed(Read,Ctx,Revision,&S->Scanout,&S->Scope,&CaptureReason):EnumaCaptureVideoConfig(Read,Ctx,Revision,&S->Scanout,&S->Scope);
+    if(Status) { return Finish(Status,CaptureReason,Reason); }
+    Status=EnumaCaptureRoutedMixers(&S->Scanout,Read,Ctx,&S->Mixers); if(Status) { return Finish(Status,Native?EnumaVideoReasonNativeMixerCapture:EnumaVideoReasonPipeline,Reason); }
+    Status=EnumaResolveMixerOrigins(&S->Scanout,&S->Mixers,L,&Limits); if(Status) { return Finish(Status,Native?EnumaVideoReasonNativeMixerLayout:EnumaVideoReasonPipeline,Reason); }
+    Status=EnumaDecodeInherited(&S->Scanout,&Limits,&Frame); if(Status) { return Finish(Status,Native?EnumaVideoReasonNativeDecode:EnumaVideoReasonPipeline,Reason); }
     if(N) { ENUMA_U32 Why=StableReason(&E.Samples[N-1],S,Native); if(Why) { return Finish(EnumaInheritedRefreshMode,Why,Reason); } }
     if(!N) { E.Limits=Limits; E.Frame=Frame; }
   }

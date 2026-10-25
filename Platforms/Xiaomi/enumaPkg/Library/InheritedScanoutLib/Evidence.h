@@ -23,7 +23,9 @@ enum { EnumaVideoReasonUnknown,EnumaVideoReasonArguments,EnumaVideoReasonRead,
   EnumaVideoReasonRevision,EnumaVideoReasonInterfaceInitial,EnumaVideoReasonCounterInitial,
   EnumaVideoReasonCounterLater,EnumaVideoReasonWait,EnumaVideoReasonPipeline,
   EnumaVideoReasonStableConfig,EnumaVideoReasonStableInterface,EnumaVideoReasonStableFrame,
-  EnumaVideoReasonComplete,EnumaVideoReasonInterfaceLater };
+  EnumaVideoReasonComplete,EnumaVideoReasonInterfaceLater,
+  EnumaVideoReasonNativeCtl,EnumaVideoReasonNativeStaging,EnumaVideoReasonNativePipe,
+  EnumaVideoReasonNativeMixerCapture,EnumaVideoReasonNativeMixerLayout,EnumaVideoReasonNativeDecode };
 ENUMA_U32 EnumaSampleVideoDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
 // Independent native STATUS policy: zero timing and non-3 enables allowed;
 // their full words must remain stable. Does not change strict GOP admission.
@@ -33,4 +35,5 @@ ENUMA_U32 EnumaSampleNativeVideoDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WA
 // and both counter windows, never CPU/SMMU identity or downstream panel routing.
 ENUMA_U32 EnumaSampleVideo(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *);
 ENUMA_U32 EnumaCaptureVideoConfig(ENUMA_INHERITED_READ,void *,ENUMA_U32,ENUMA_INHERITED_SNAPSHOT *,ENUMA_VIDEO_SCOPE *);
+ENUMA_U32 EnumaCaptureVideoConfigDetailed(ENUMA_INHERITED_READ,void *,ENUMA_U32,ENUMA_INHERITED_SNAPSHOT *,ENUMA_VIDEO_SCOPE *,ENUMA_U32 *);
 #endif

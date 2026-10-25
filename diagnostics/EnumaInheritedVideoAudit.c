@@ -12,6 +12,12 @@
 #include "InheritedVideo/Evidence.c"
 #include "InheritedVideo/VideoResult.h"
 #include "InheritedVideo/NativeRouteResult.h"
+#ifndef ENUMA_NATIVE_ROUTE_DETAIL
+#define ENUMA_NATIVE_ROUTE_DETAIL 0
+#endif
+#if ENUMA_NATIVE_ROUTE_DETAIL < 0 || ENUMA_NATIVE_ROUTE_DETAIL > 1 || (ENUMA_NATIVE_ROUTE_DETAIL && !ENUMA_NATIVE_ROUTE_AUDIT)
+#error Route detail requires native route audit
+#endif
 #ifndef ENUMA_NATIVE_ROUTE_AUDIT
 #define ENUMA_NATIVE_ROUTE_AUDIT 0
 #endif
@@ -37,7 +43,10 @@
 #error Topology status query requires symmetric terminal transport
 #endif
 STATIC EFI_STATUS Result(ENUMA_U32 Status,ENUMA_U32 Requirements,ENUMA_U32 Reason) {
-#if ENUMA_NATIVE_ROUTE_AUDIT
+#if ENUMA_NATIVE_ROUTE_DETAIL
+  return (EFI_STATUS)EnumaNativeRouteDetailResult(Status,Requirements,Reason);
+#elif ENUMA_NATIVE_ROUTE_AUDIT
+  if(Reason>=EnumaVideoReasonNativeCtl&&Reason<=EnumaVideoReasonNativeDecode) { Reason=EnumaVideoReasonPipeline; }
   return (EFI_STATUS)EnumaNativeRouteResult(Status,Requirements,Reason);
 #elif ENUMA_VIDEO_REASON_TARGET
   return (EFI_STATUS)EnumaVideoReasonResult(Status,Requirements,Reason,ENUMA_VIDEO_REASON_TARGET,ENUMA_VIDEO_REASON_QUERY);
