@@ -77,3 +77,16 @@ not a proof of physical route or permission to change hardware coordinates.
 Success still requires BLEND|ADDRESS|TOPOLOGY22 and publishes no GOP. Same
 maximum330 reads/two100ms, no pixels/MMIO writes/new mapping. Old samplers
 retain their previous behavior, including rejecting this global fixture.
+
+
+## S-038 source decode status classification
+
+S-037 code4 is broad source capture/decode rejection, not a direct numeric
+status. --native-route-global-detail requires the existing global-output
+profile. It changes only the result selector, not Native5 sampling or any
+capture/geometry/format/address predicate. Only zero output requirements and
+ReasonNativeDecode classify: code2 Geometry/Coverage,3 Format,4 Bounds/
+Inconsistent,5 Route/VirtualRect/Secure/RefreshMode/Mode/Topology. Code1 is
+unclassified, including collection, geometry, runtime and complete structure.
+All19680 selector combinations are tested. Same exact GUID/Core1..5 timing,
+330 reads/two100ms, full FAT, no fallback/writes/new mapping/GOP/pixels.

@@ -43,4 +43,13 @@ static inline ENUMA_U32 EnumaNativeGeometryResult(ENUMA_U32 S,ENUMA_U32 R,ENUMA_
   if(S!=EnumaInheritedTopology||R||W<EnumaVideoReasonGeometryMixerSize||W>EnumaVideoReasonGeometryCombinedWidth) { return 1; }
   return W-EnumaVideoReasonGeometryOther+1;
 }
+// Explain only an actual source decoder rejection, never capture/geometry.
+static inline ENUMA_U32 EnumaNativeGlobalDetailResult(ENUMA_U32 S,ENUMA_U32 R,ENUMA_U32 W) {
+  if(R||W!=EnumaVideoReasonNativeDecode) { return 1; }
+  if(S==EnumaInheritedGeometry||S==EnumaInheritedCoverage) { return 2; }
+  if(S==EnumaInheritedFormat) { return 3; }
+  if(S==EnumaInheritedBounds||S==EnumaInheritedInconsistent) { return 4; }
+  if(S==EnumaInheritedRoute||S==EnumaInheritedVirtualRect||S==EnumaInheritedSecure||S==EnumaInheritedRefreshMode||S==EnumaInheritedMode||S==EnumaInheritedTopology) { return 5; }
+  return 1;
+}
 #endif

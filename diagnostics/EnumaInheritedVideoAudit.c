@@ -12,6 +12,12 @@
 #include "InheritedVideo/Evidence.c"
 #include "InheritedVideo/VideoResult.h"
 #include "InheritedVideo/NativeRouteResult.h"
+#ifndef ENUMA_NATIVE_ROUTE_GLOBAL_DETAIL
+#define ENUMA_NATIVE_ROUTE_GLOBAL_DETAIL 0
+#endif
+#if ENUMA_NATIVE_ROUTE_GLOBAL_DETAIL < 0 || ENUMA_NATIVE_ROUTE_GLOBAL_DETAIL > 1 || (ENUMA_NATIVE_ROUTE_GLOBAL_DETAIL && !ENUMA_NATIVE_ROUTE_GLOBAL_OUTPUT)
+#error Global source detail requires global output profile
+#endif
 #ifndef ENUMA_NATIVE_ROUTE_GLOBAL_OUTPUT
 #define ENUMA_NATIVE_ROUTE_GLOBAL_OUTPUT 0
 #endif
@@ -79,7 +85,9 @@
 #error Topology status query requires symmetric terminal transport
 #endif
 STATIC EFI_STATUS Result(ENUMA_U32 Status,ENUMA_U32 Requirements,ENUMA_U32 Reason) {
-#if ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL
+#if ENUMA_NATIVE_ROUTE_GLOBAL_DETAIL
+  return (EFI_STATUS)EnumaNativeGlobalDetailResult(Status,Requirements,Reason);
+#elif ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL
   return (EFI_STATUS)EnumaNativeGeometryResult(Status,Requirements,Reason);
 #elif ENUMA_NATIVE_ROUTE_STRUCTURE
   return (EFI_STATUS)EnumaNativeStructureResult(Status,Requirements,Reason);
