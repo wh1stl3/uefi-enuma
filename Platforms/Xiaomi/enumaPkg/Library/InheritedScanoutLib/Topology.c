@@ -209,3 +209,24 @@ ENUMA_U32 EnumaClassifyMixerGeometry(const ENUMA_INHERITED_SNAPSHOT *S,const ENU
   if((T->Mixers[Left].Size&0xffff)+(T->Mixers[Right].Size&0xffff)!=L->Width) { return EnumaGeometryCombinedWidth; }
   return EnumaGeometryOther;
 }
+
+// Diagnostic coordinate view only. Exact full-width global right origin is
+// represented as local zero plus an explicit logical origin. Raw S is retained;
+// physical routing and blend remain unproven. No hardware reads or writes.
+ENUMA_U32 EnumaNormalizeGlobalMixerOutput(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA_MIXER_SNAPSHOT *T,const ENUMA_INHERITED_LIMITS *L,ENUMA_INHERITED_SNAPSHOT *Out) {
+  ENUMA_U32 C,Ms,Ps,M,P,Left=6,Right=6,Pipes[6];ENUMA_INHERITED_SNAPSHOT V;ENUMA_INHERITED_LIMITS Limits;
+  if(!S||!T||!L||!Out) { return EnumaInheritedArguments; }
+  if((S->Revision>>16)!=0x6000||L->Mode!=ENUMA_MODE_VIDEO||!L->Width||!L->Height||EnumaSelectVideoRoute(S,&C,&Ms,&Ps)) { return EnumaInheritedTopology; }
+  for(M=0;M<6;M++) {
+    Pipes[M]=8;if(!(Ms&(1u<<M))) { continue; }
+    for(P=0;P<8;P++)if(Stage(S->Ctls[C].Layers[M],P))Pipes[M]=P;
+    if(Pipes[M]==8||(T->Mixers[M].Size>>16)!=L->Height||!(T->Mixers[M].Size&0xffff)||S->Pipes[Pipes[M]].OutSize!=T->Mixers[M].Size) { return EnumaInheritedTopology; }
+    if(T->Mixers[M].Mode&(1u<<31)) { if(Right!=6)return EnumaInheritedTopology;Right=M; }
+    else { if(Left!=6)return EnumaInheritedTopology;Left=M; }
+  }
+  if(Left==6||Right==6||(T->Mixers[Left].Size&0xffff)+(T->Mixers[Right].Size&0xffff)!=L->Width||
+     S->Pipes[Pipes[Left]].OutXy||S->Pipes[Pipes[Right]].OutXy!=(T->Mixers[Left].Size&0xffff)) { return EnumaInheritedTopology; }
+  V=*S;V.Pipes[Pipes[Right]].OutXy=0;
+  if(EnumaResolveMixerGeometry(&V,T,L,&Limits,0)) { return EnumaInheritedTopology; }
+  *Out=V;return EnumaInheritedOk;
+}

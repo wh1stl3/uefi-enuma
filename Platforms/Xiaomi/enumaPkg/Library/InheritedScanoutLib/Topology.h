@@ -24,4 +24,5 @@ ENUMA_U32 EnumaClassifyVideoBlend(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_M
 ENUMA_U32 EnumaResolveMixerGeometry(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_MIXER_SNAPSHOT *,const ENUMA_INHERITED_LIMITS *,ENUMA_INHERITED_LIMITS *,ENUMA_U32 *);
 enum { EnumaGeometryOther,EnumaGeometryMixerSize,EnumaGeometrySourceLocal,EnumaGeometrySides,EnumaGeometryCombinedWidth };
 ENUMA_U32 EnumaClassifyMixerGeometry(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_MIXER_SNAPSHOT *,const ENUMA_INHERITED_LIMITS *);
+ENUMA_U32 EnumaNormalizeGlobalMixerOutput(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_MIXER_SNAPSHOT *,const ENUMA_INHERITED_LIMITS *,ENUMA_INHERITED_SNAPSHOT *);
 #endif

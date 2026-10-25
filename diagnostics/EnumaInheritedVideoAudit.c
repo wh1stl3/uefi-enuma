@@ -12,6 +12,12 @@
 #include "InheritedVideo/Evidence.c"
 #include "InheritedVideo/VideoResult.h"
 #include "InheritedVideo/NativeRouteResult.h"
+#ifndef ENUMA_NATIVE_ROUTE_GLOBAL_OUTPUT
+#define ENUMA_NATIVE_ROUTE_GLOBAL_OUTPUT 0
+#endif
+#if ENUMA_NATIVE_ROUTE_GLOBAL_OUTPUT < 0 || ENUMA_NATIVE_ROUTE_GLOBAL_OUTPUT > 1 || (ENUMA_NATIVE_ROUTE_GLOBAL_OUTPUT && (!ENUMA_NATIVE_ROUTE_STRUCTURE || ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL))
+#error Global output view requires structure and excludes structure detail
+#endif
 #ifndef ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL
 #define ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL 0
 #endif
@@ -119,7 +125,9 @@ EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
   if(L.Width!=1600||L.Height!=2560) { return Result(EnumaInheritedArguments,0,EnumaVideoReasonArguments); }
   L.SplashBase=Splash.Address; L.SplashBytes=Splash.Length; L.Mode=ENUMA_MODE_VIDEO;
 #if ENUMA_NATIVE_ROUTE_AUDIT
-#if ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL
+#if ENUMA_NATIVE_ROUTE_GLOBAL_OUTPUT
+  Status=EnumaSampleNativeGlobalOutputDetailed(Read,Wait,NULL,&L,&mEvidence,&Reason);
+#elif ENUMA_NATIVE_ROUTE_STRUCTURE_DETAIL
   Status=EnumaSampleNativeGeometryDetailed(Read,Wait,NULL,&L,&mEvidence,&Reason);
 #elif ENUMA_NATIVE_ROUTE_STRUCTURE
   Status=EnumaSampleNativeStructureDetailed(Read,Wait,NULL,&L,&mEvidence,&Reason);

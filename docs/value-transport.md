@@ -59,3 +59,21 @@ Code1 includes unclassified collection/runtime/decode/success; code5 is a
 rejection. It provides no actual register value or visual composition proof.
 All previous APIs retain their ordering/results; any complete structure still
 requires BLEND|ADDRESS|TOPOLOGY22. No MMIO writes/new mapping/GOP/pixels.
+
+
+## S-037 exact global-output coordinate hypothesis
+
+S-036 code3 supports raw stable source-local-output rejection after both frame
+windows; it does not distinguish OutXy from OutSize. The independent Native5
+profile --native-route-global-output requires structure and excludes geometry
+detail. It captures/checks raw stability first, then requires exact two-source
+route, unique left/right bit31, full-height/nonzero mixer widths, matching
+source output sizes, combined panel width, left OutXy0 and right OutXy equal
+to the left width (Y0). Only then may a RAM copy express right XY as local0
+with the existing explicit logical origin. Raw snapshots remain unchanged.
+Strict geometry and complete source format/stride/address/coverage decode
+follow on that copy. This is a counterfactual logical descriptor contract,
+not a proof of physical route or permission to change hardware coordinates.
+Success still requires BLEND|ADDRESS|TOPOLOGY22 and publishes no GOP. Same
+maximum330 reads/two100ms, no pixels/MMIO writes/new mapping. Old samplers
+retain their previous behavior, including rejecting this global fixture.

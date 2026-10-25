@@ -48,4 +48,6 @@ ENUMA_U32 EnumaSampleNativeBorderVideoDetailed(ENUMA_INHERITED_READ,ENUMA_INHERI
 ENUMA_U32 EnumaSampleNativeStructureDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
 // Capture and validate raw stability before pure geometry classification.
 ENUMA_U32 EnumaSampleNativeGeometryDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
+// Independent exact global-coordinate view after raw stability.
+ENUMA_U32 EnumaSampleNativeGlobalOutputDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
 #endif
