@@ -11,6 +11,10 @@
 #include "InheritedVideo/Topology.c"
 #include "InheritedVideo/Evidence.c"
 #include "InheritedVideo/VideoResult.h"
+#include "InheritedVideo/NativeRouteResult.h"
+#ifndef ENUMA_NATIVE_ROUTE_AUDIT
+#define ENUMA_NATIVE_ROUTE_AUDIT 0
+#endif
 #ifndef ENUMA_VIDEO_TOPOLOGY_QUERY
 #define ENUMA_VIDEO_TOPOLOGY_QUERY 0
 #endif
@@ -33,7 +37,9 @@
 #error Topology status query requires symmetric terminal transport
 #endif
 STATIC EFI_STATUS Result(ENUMA_U32 Status,ENUMA_U32 Requirements,ENUMA_U32 Reason) {
-#if ENUMA_VIDEO_REASON_TARGET
+#if ENUMA_NATIVE_ROUTE_AUDIT
+  return (EFI_STATUS)EnumaNativeRouteResult(Status,Requirements,Reason);
+#elif ENUMA_VIDEO_REASON_TARGET
   return (EFI_STATUS)EnumaVideoReasonResult(Status,Requirements,Reason,ENUMA_VIDEO_REASON_TARGET,ENUMA_VIDEO_REASON_QUERY);
 #else
   (VOID)Reason;
@@ -63,7 +69,11 @@ EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
   L.Width=FixedPcdGet32(PcdFrameBufferWidth); L.Height=FixedPcdGet32(PcdFrameBufferHeight);
   if(L.Width!=1600||L.Height!=2560) { return Result(EnumaInheritedArguments,0,EnumaVideoReasonArguments); }
   L.SplashBase=Splash.Address; L.SplashBytes=Splash.Length; L.Mode=ENUMA_MODE_VIDEO;
+#if ENUMA_NATIVE_ROUTE_AUDIT
+  Status=EnumaSampleNativeVideoDetailed(Read,Wait,NULL,&L,&mEvidence,&Reason);
+#else
   Status=EnumaSampleVideoDetailed(Read,Wait,NULL,&L,&mEvidence,&Reason);
+#endif
   // This is a configuration/counter predicate only, never GOP/address success.
   return Result(Status,mEvidence.Frame.Requirements,Reason);
 }

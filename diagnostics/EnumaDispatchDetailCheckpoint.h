@@ -16,6 +16,12 @@
 #ifndef ENUMA_DIAG_GOP_QUERY
 #define ENUMA_DIAG_GOP_QUERY 0
 #endif
+#ifndef ENUMA_NATIVE_ROUTE_AUDIT
+#define ENUMA_NATIVE_ROUTE_AUDIT 0
+#endif
+#if ENUMA_NATIVE_ROUTE_AUDIT < 0 || ENUMA_NATIVE_ROUTE_AUDIT > 1
+#error Invalid native route audit
+#endif
 #ifndef ENUMA_NATIVE_MASK_FIELD
 #define ENUMA_NATIVE_MASK_FIELD 0
 #endif
@@ -40,6 +46,9 @@
 #if ENUMA_DIAG_GUID_ENABLED != 0 && ENUMA_DIAG_GUID_ENABLED != 1
 #error Unsupported enuma GUID filter
 #endif
+#if ENUMA_NATIVE_ROUTE_AUDIT && (!ENUMA_VIDEO_TERMINAL || ENUMA_NATIVE_MASK_FIELD)
+#error Native route requires terminal and excludes mask field
+#endif
 #if ENUMA_NATIVE_MASK_FIELD < 0 || ENUMA_NATIVE_MASK_FIELD > 7 || (ENUMA_NATIVE_MASK_FIELD && !ENUMA_VIDEO_TERMINAL)
 #error Unsupported native mask terminal
 #endif
@@ -62,7 +71,7 @@ STATIC VOID EnumaDispatchDetailCheckpoint (
   // Only the final CoreStartImage return and an exact diagnostic marker count.
   // EFI_SUCCESS, unrelated warnings and install/load failures are not markers.
   if (ENUMA_DIAG_GOP_QUERY != 0) {
-#if ENUMA_NATIVE_MASK_FIELD
+#if ENUMA_NATIVE_MASK_FIELD || ENUMA_NATIVE_ROUTE_AUDIT
     if (Point != 13 || ENUMA_DIAG_DETAIL_POINT != 16 || Status < 1 || Status > 5) {
       return;
     }
@@ -109,7 +118,7 @@ STATIC VOID EnumaDispatchDetailCheckpoint (
     return;
   }
 #endif
-#if ENUMA_NATIVE_MASK_FIELD
+#if ENUMA_NATIVE_MASK_FIELD || ENUMA_NATIVE_ROUTE_AUDIT
   // Exact full GUID and five bounded warning codes only. No fallback or writes.
   MicroSecondDelay (2000000 + 5000000 * ((UINTN)Status - 1));
   ResetCold ();

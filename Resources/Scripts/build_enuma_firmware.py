@@ -85,6 +85,7 @@ def main(device_root=None):
     parser.add_argument('--inherited-video-topology-query', type=int, choices=(0,1,2), default=0, help='first-status classification: 1 topology, 2 not-topology; 0 original full predicate; never GOP admission')
     parser.add_argument('--inherited-video-reason-target', choices=('off','counter-enable','stability','interface','refresh'),default='off',help='first-return reason predicate; never relaxes sampling')
     parser.add_argument('--inherited-video-reason-query',type=int,choices=(0,1,2),default=0,help='1 selected reason, 2 exact complement; 0 off')
+    parser.add_argument('--native-route-audit',action='store_true',help='Read-only native STATUS gated full video pipeline audit; five result categories')
     parser.add_argument('--native-mask-field',type=int,choices=range(8),default=0,help='0 off;1 active,2 timing,3 enable-stable,4 moving,5 exact-enable3,6 same-observation active/timing/enable/moving conjunction,7 all-zero timing with active/stable-enable/moving. Codes0..3 plus error use bounded2/7/12/17/22s cold terminal')
     parser.add_argument('--native-observe-control',action='store_true',help='same INF/constructors, query1 constant PASS/query2 constant FAIL, no map/MMIO for boot-clock calibration')
     parser.add_argument('--native-observe-query',type=int,choices=(0,1,2),default=0,help='independent native observer: 1 both links active/stable/moving, 2 exact complement; no GOP admission')
@@ -145,6 +146,8 @@ def main(device_root=None):
         parser.error('video terminal requires video audit/query1 and no dispatcher completion fallback')
     if args.inherited_video_topology_query and (not args.inherited_video_terminal or args.inherited_video_entry_control):
         parser.error('topology status query requires symmetric video audit and excludes constant control')
+    if args.native_route_audit and (not args.inherited_video_terminal or args.native_observe_query or args.native_observe_control or args.native_mask_field or args.inherited_video_entry_control or args.inherited_video_topology_query or args.inherited_video_reason_target!='off'):
+        parser.error('native route requires video terminal and excludes other selectors')
     if args.native_mask_field and (args.native_observe_query!=1 or args.native_observe_control):
         parser.error('native mask requires native query1 and excludes constant control')
     if args.native_observe_control and not args.native_observe_query:
@@ -254,6 +257,7 @@ def main(device_root=None):
         word = int(args.ramoops_canary_nonce[i*8:i*8+8], 16) if args.ramoops_canary_nonce else 0
         board['firmware']['defines']['ENUMA_RAMOOPS_NONCE_'+str(i)]=str(word)+'U'
     board['firmware']['defines']['ENUMA_GOP_SELFTEST']='1' if args.gop_backend_selftest else '0'
+    board['firmware']['defines']['ENUMA_NATIVE_ROUTE_AUDIT']='1' if args.native_route_audit else '0'
     board['firmware']['defines']['ENUMA_NATIVE_MASK_FIELD']=str(args.native_mask_field)
     board['firmware']['defines']['ENUMA_NATIVE_CONTROL']='1' if args.native_observe_control else '0'
     board['firmware']['defines']['ENUMA_NATIVE_OBSERVE_QUERY']=str(args.native_observe_query)
@@ -290,7 +294,7 @@ def main(device_root=None):
         'inherited_video_audit_read_only':args.inherited_video_audit,
         'inherited_video_entry_control':args.inherited_video_entry_control,
         'inherited_video_terminal':args.inherited_video_terminal,
-        'native_observe_query':args.native_observe_query,'native_observe_control':args.native_observe_control,'native_mask_field':args.native_mask_field,
+        'native_route_audit':args.native_route_audit,'native_observe_query':args.native_observe_query,'native_observe_control':args.native_observe_control,'native_mask_field':args.native_mask_field,
         'inherited_video_topology_query':args.inherited_video_topology_query,
         'inherited_video_reason_target':reason_target,'inherited_video_reason_query':args.inherited_video_reason_query,
         'ramoops_canary_nonce':args.ramoops_canary_nonce,
@@ -346,7 +350,7 @@ def main(device_root=None):
                 staged=uefi/'Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe'
                 entry='EnumaNativeObserve.c' if args.native_observe_query else ('EnumaInheritedVideoEntryControl.c' if args.inherited_video_entry_control else 'EnumaInheritedVideoAudit.c')
                 assert (staged/'SimpleFb.c').read_bytes()==(SOURCE/'diagnostics'/entry).read_bytes()
-                for name in ('InheritedScanout.h','Decode.c','Capture.c','VideoCapture.c','Topology.h','Topology.c','Evidence.h','Evidence.c','VideoResult.h','NativeObserve.h','NativeObserve.c','NativeMaskResult.h'):
+                for name in ('InheritedScanout.h','Decode.c','Capture.c','VideoCapture.c','Topology.h','Topology.c','Evidence.h','Evidence.c','VideoResult.h','NativeObserve.h','NativeObserve.c','NativeMaskResult.h','NativeRouteResult.h'):
                     assert (staged/'InheritedVideo'/name).read_bytes()==(SOURCE/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'/name).read_bytes()
                 report['inherited_video_compiled_contract']={
                     'entry_source_sha256':hashlib.sha256((staged/'SimpleFb.c').read_bytes()).hexdigest(),

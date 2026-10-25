@@ -25,6 +25,9 @@ enum { EnumaVideoReasonUnknown,EnumaVideoReasonArguments,EnumaVideoReasonRead,
   EnumaVideoReasonStableConfig,EnumaVideoReasonStableInterface,EnumaVideoReasonStableFrame,
   EnumaVideoReasonComplete,EnumaVideoReasonInterfaceLater };
 ENUMA_U32 EnumaSampleVideoDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
+// Independent native STATUS policy: zero timing and non-3 enables allowed;
+// their full words must remain stable. Does not change strict GOP admission.
+ENUMA_U32 EnumaSampleNativeVideoDetailed(ENUMA_INHERITED_READ,ENUMA_INHERITED_WAIT,void *,const ENUMA_INHERITED_LIMITS *,ENUMA_VIDEO_EVIDENCE *,ENUMA_U32 *);
 // Up to330 read callbacks +two100ms waits, no pixels/physical pointers.
 // Output unchanged on failure. Success qualifies stable register configuration
 // and both counter windows, never CPU/SMMU identity or downstream panel routing.
