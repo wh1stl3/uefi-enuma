@@ -12,6 +12,12 @@
 #include "InheritedVideo/Evidence.c"
 #include "InheritedVideo/VideoResult.h"
 #include "InheritedVideo/NativeRouteResult.h"
+#ifndef ENUMA_NATIVE_ROUTE_CPU_READ
+#define ENUMA_NATIVE_ROUTE_CPU_READ 0
+#endif
+#if ENUMA_NATIVE_ROUTE_CPU_READ < 0 || ENUMA_NATIVE_ROUTE_CPU_READ > 1 || (ENUMA_NATIVE_ROUTE_CPU_READ && !ENUMA_NATIVE_ROUTE_CPU_POLICY)
+#error Single CPU word read requires whole-range policy audit
+#endif
 #ifndef ENUMA_NATIVE_ROUTE_CPU_POLICY
 #define ENUMA_NATIVE_ROUTE_CPU_POLICY 0
 #endif
@@ -178,7 +184,11 @@ EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
 #endif
 #if ENUMA_NATIVE_ROUTE_CPU_STAGE1
   if(Status==EnumaInheritedOk&&Reason==EnumaVideoReasonComplete&&mEvidence.Frame.Requirements==22) {
+#if ENUMA_NATIVE_ROUTE_CPU_READ
+    return (EFI_STATUS)EnumaCpuReadArmProbe(&mEvidence.Frame,EnumaCpuStage1Arm(&mEvidence.Frame));
+#else
     return (EFI_STATUS)EnumaCpuStage1Arm(&mEvidence.Frame);
+#endif
   }
   // Collapse all earlier failures; never classify them as translation results.
   (VOID)Result(Status,mEvidence.Frame.Requirements,Reason);

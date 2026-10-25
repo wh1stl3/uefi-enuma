@@ -159,7 +159,7 @@ the underlying callback; it is never changed by this normalization. No data,
 cache maintenance or table writes. Fault/nonidentity/callback/earlier failures
 yield code1. Only full traversal yields2 all normalNC,3 all normalWT,4 all
 normalWB,5 mixed/other (not normal admission). Allocation/transient hints are
-retained in raw observations but deliberately not exported; no raw byte value
+inspected transiently and not retained or exported; no raw byte value
 or identical-MAIR claim follows. Same requirements22 and unproven data/SMMU/
 alpha/blend/downstream obligations. This does not certify any cache policy
 for real data access. Host tests cover all256 encodings, mixed policies,
@@ -168,3 +168,19 @@ within-policy hint changes, first/last faults and18432 maximum queries.
 Normal MAIR nibble format:4 NC;1..3 or8..b WT;5..7 orc..f WB;0 other.
 See Arm [MAIR encoding table](https://documentation-service.arm.com/static/61b75264a2506b46a5c32065).
 This is the common register field format, not board-specific MPU setup.
+
+## S-043 one data word, separate from the AT-only baseline
+
+--native-route-cpu-read requires whole-range policy, so all earlier sampling
+and per-page R/W identity checks execute again. Only the same normal-WT policy
+observed in S-042 permits exactly one aligned volatile32-bit load at the decoded
+frame base. The word is not exported or interpreted. No pixel store, cache
+maintenance, page/table modification, SMMU programming or GOP publication.
+Frame geometry/extent/alignment/requirements22 are rechecked before the read;
+the Arm callback additionally checks exact expected base and single-call bound.
+Code1 prior/context/fault/nonidentity;2 other Normal policy instead ofWT;
+3 mixed/unknown policy;4 read contract/callback rejection;5 one word completed.
+Code5 does not prove the rest of RAM, visible output, writable pixels, SMMU,
+alpha or blend. A timeout has no read result: stop and recover, never retry.
+This deliberately omits historical Pixel Sync/DC-CIVAC to isolate a single
+CPU data-read step. Host fixtures model the callback, not physical memory.

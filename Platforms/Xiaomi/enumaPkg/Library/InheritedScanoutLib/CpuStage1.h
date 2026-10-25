@@ -67,6 +67,19 @@ static inline ENUMA_U32 EnumaCpuWholePolicy(const ENUMA_INHERITED_FRAME *F,ENUMA
   if(C.Mixed||C.Policy<2||C.Policy>4) { return 5; }
   return C.Policy;
 }
+// Separate data-read follow-up: exactly one aligned word, no cache operation,
+// no data export and no clearing of requirements. A successful AT is not data.
+typedef int (*ENUMA_CPU_WORD_READ)(void *,ENUMA_U64,ENUMA_U32 *);
+static inline ENUMA_U32 EnumaCpuReadOnce(const ENUMA_INHERITED_FRAME *F,ENUMA_U32 Policy,ENUMA_CPU_WORD_READ Read,void *Ctx) {
+  ENUMA_U32 Value=0;
+  if(Policy!=3) { return Policy==2||Policy==4?2:Policy==5?3:1; }
+  if(!F||!Read||F->Requirements!=22||F->Width!=1600||F->Height!=2560||
+     F->Stride<6400||(F->Stride&3)||F->Bytes!=(ENUMA_U64)F->Stride*F->Height||
+     (F->Base&3)||F->Base<0x9c000000ULL||F->Base>=0x9e400000ULL||
+     !F->Bytes||F->Bytes>0x9e400000ULL-F->Base) { return 4; }
+  if(Read(Ctx,F->Base,&Value)!=1) { return 4; }
+  (void)Value;return 5;
+}
 #ifdef __aarch64__
 typedef struct { ENUMA_U64 El;ENUMA_U32 Count; } ENUMA_CPU_STAGE1_CONTEXT;
 static int EnumaCpuStage1Translate(void *Opaque,ENUMA_U64 Page,ENUMA_U32 Write,ENUMA_U64 *Par) {
@@ -107,5 +120,20 @@ static ENUMA_U32 EnumaCpuStage1Arm(const ENUMA_INHERITED_FRAME *F) {
   return EnumaCpuStage1(F,EnumaCpuStage1Translate,&C);
 #endif
 }
+#if defined(ENUMA_NATIVE_ROUTE_CPU_READ) && ENUMA_NATIVE_ROUTE_CPU_READ
+typedef struct { ENUMA_U64 Expected;ENUMA_U32 Reads; } ENUMA_CPU_WORD_CONTEXT;
+static int EnumaCpuWordArm(void *Opaque,ENUMA_U64 Address,ENUMA_U32 *Value) {
+  ENUMA_CPU_WORD_CONTEXT *C=Opaque;
+  if(!C||!Value||C->Reads||Address!=C->Expected||(Address&3)||
+     Address<0x9c000000ULL||Address>0x9e3ffffcULL) { return 0; }
+  C->Reads++;
+  *Value=*(volatile ENUMA_U32 *)Address;
+  return 1;
+}
+static ENUMA_U32 EnumaCpuReadArmProbe(const ENUMA_INHERITED_FRAME *F,ENUMA_U32 Policy) {
+  ENUMA_CPU_WORD_CONTEXT C={F?F->Base:0,0};
+  return EnumaCpuReadOnce(F,Policy,EnumaCpuWordArm,&C);
+}
+#endif
 #endif
 #endif
