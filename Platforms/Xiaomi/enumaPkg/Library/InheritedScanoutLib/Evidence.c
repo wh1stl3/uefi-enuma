@@ -18,7 +18,7 @@ static int Stable(const ENUMA_VIDEO_SAMPLE *A,const ENUMA_VIDEO_SAMPLE *B) {
   }
   for(I=0;I<2;I++) {
     const ENUMA_VIDEO_INTF *X=&A->Interfaces[I],*Y=&B->Interfaces[I];
-    if(!(X->Active&1)||!(Y->Active&1)||!X->Timing||!(X->CounterEnable&1)||X->Timing!=Y->Timing||
+    if(!(X->Active&1)||!(Y->Active&1)||!X->Timing||(X->CounterEnable&3)!=3||X->Timing!=Y->Timing||
        X->CounterEnable!=Y->CounterEnable||Y->Frame<=X->Frame||Y->Frame-X->Frame>64) { return 0; }
   }
   return 1;
@@ -32,12 +32,13 @@ ENUMA_U32 EnumaSampleVideo(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT Wait,v
     ENUMA_VIDEO_SAMPLE *S=&E.Samples[N];
     if(N&&Wait(Ctx,100000)!=1) { return EnumaInheritedRefreshMode; }
     Status=EnumaCaptureInherited(Read,Ctx,&S->Scanout); if(Status) { return Status; }
-    Status=EnumaCaptureRoutedMixers(&S->Scanout,Read,Ctx,&S->Mixers); if(Status) { return Status; }
     for(I=0;I<2;I++) {
       ENUMA_U32 Base=0x6b800+I*0x800; ENUMA_VIDEO_INTF *V=&S->Interfaces[I];
       if(Read(Ctx,Base,&V->Timing)!=1||Read(Ctx,Base+0xa8,&V->CounterEnable)!=1||
          Read(Ctx,Base+0x26c,&V->Active)!=1||Read(Ctx,Base+0xac,&V->Frame)!=1) { return EnumaInheritedBounds; }
+      if(!V->Timing||(V->CounterEnable&3)!=3||!(V->Active&1)) { return EnumaInheritedRefreshMode; }
     }
+    Status=EnumaCaptureRoutedMixers(&S->Scanout,Read,Ctx,&S->Mixers); if(Status) { return Status; }
     Status=EnumaResolveMixerOrigins(&S->Scanout,&S->Mixers,L,&Limits); if(Status) { return Status; }
     Status=EnumaDecodeInherited(&S->Scanout,&Limits,&Frame); if(Status) { return Status; }
     if(N&&!Stable(&E.Samples[N-1],S)) { return EnumaInheritedRefreshMode; }
