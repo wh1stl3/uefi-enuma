@@ -21,4 +21,5 @@ enum { EnumaLayoutOther,EnumaLayoutBlend,EnumaLayoutMode,EnumaLayoutGeometry,Enu
 ENUMA_U32 EnumaResolveMixerOriginsDetailed(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_MIXER_SNAPSHOT *,const ENUMA_INHERITED_LIMITS *,ENUMA_INHERITED_LIMITS *,ENUMA_U32 *);
 enum { EnumaBlendOther,EnumaBlendSelectedDim,EnumaBlendOtherDim,EnumaBlendOperation,EnumaBlendAlpha };
 ENUMA_U32 EnumaClassifyVideoBlend(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_MIXER_SNAPSHOT *);
+ENUMA_U32 EnumaResolveMixerGeometry(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_MIXER_SNAPSHOT *,const ENUMA_INHERITED_LIMITS *,ENUMA_INHERITED_LIMITS *,ENUMA_U32 *);
 #endif

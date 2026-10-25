@@ -66,7 +66,7 @@ ENUMA_U32 EnumaCaptureRoutedMixers(const ENUMA_INHERITED_SNAPSHOT *S,ENUMA_INHER
   if(Count!=1||Mixers!=2) { return EnumaInheritedTopology; }
   return CaptureMask(Mask,Read,Ctx,Out);
 }
-ENUMA_U32 EnumaResolveMixerOriginsDetailed(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA_MIXER_SNAPSHOT *T,const ENUMA_INHERITED_LIMITS *Input,ENUMA_INHERITED_LIMITS *Out,ENUMA_U32 *Why) {
+static ENUMA_U32 ResolveMixerOrigins(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA_MIXER_SNAPSHOT *T,const ENUMA_INHERITED_LIMITS *Input,ENUMA_INHERITED_LIMITS *Out,ENUMA_U32 *Why,int GeometryOnly) {
   if(Why) { *Why=EnumaLayoutOther; }
   ENUMA_INHERITED_LIMITS L; ENUMA_U32 C,M,P,J,Mask=0,Count=0,Left=6,Right=6,Used=0,Owners[8]={0};
   if(!S||!T||!Input||!Out) { return EnumaInheritedArguments; }
@@ -94,12 +94,14 @@ ENUMA_U32 EnumaResolveMixerOriginsDetailed(const ENUMA_INHERITED_SNAPSHOT *S,con
       for(J=0;J<4;J++) { if(V[J]!=Expected[J]) { return EnumaInheritedTopology; } }
       if(Owners[Pipe]) { return EnumaInheritedTopology; } Owners[Pipe]=1; Mask|=1u<<Pipe;
       if(Why) { *Why=EnumaLayoutBlend; }
+      if(!GeometryOnly) {
       // No dim stage, exact constant FG255/BG0 for non-base stage.
       for(J=0;J<11;J++) { if(T->Mixers[M].Blend[J]&(1u<<16)) { return EnumaInheritedTopology; } }
       if(Encoded>1&&(T->Mixers[M].Blend[Encoded-2]!=0x100||T->Mixers[M].Alpha[Encoded-2]!=0x00ff0000)) { return EnumaInheritedTopology; }
       if(Why) { *Why=EnumaLayoutMode; }
       // Reject unreviewed LM processing bits. bit30 is not silently accepted.
       if(T->Mixers[M].Mode&~(1u<<31)) { return EnumaInheritedTopology; }
+      }
       if(Why) { *Why=EnumaLayoutGeometry; }
       if((T->Mixers[M].Size>>16)!=Input->Height||!(T->Mixers[M].Size&0xffff)) { return EnumaInheritedTopology; }
       if(Why) { *Why=EnumaLayoutSides; }
@@ -184,3 +186,8 @@ ENUMA_U32 EnumaClassifyVideoBlend(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA_
   }
   return EnumaBlendOther;
 }
+
+ENUMA_U32 EnumaResolveMixerOriginsDetailed(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA_MIXER_SNAPSHOT *T,const ENUMA_INHERITED_LIMITS *Input,ENUMA_INHERITED_LIMITS *Out,ENUMA_U32 *Why) { return ResolveMixerOrigins(S,T,Input,Out,Why,0); }
+// Geometry only, not visual composition: bit31 locates the right mixer.
+// All blend/dim/processing proof remains an external requirement.
+ENUMA_U32 EnumaResolveMixerGeometry(const ENUMA_INHERITED_SNAPSHOT *S,const ENUMA_MIXER_SNAPSHOT *T,const ENUMA_INHERITED_LIMITS *Input,ENUMA_INHERITED_LIMITS *Out,ENUMA_U32 *Why) { return ResolveMixerOrigins(S,T,Input,Out,Why,1); }

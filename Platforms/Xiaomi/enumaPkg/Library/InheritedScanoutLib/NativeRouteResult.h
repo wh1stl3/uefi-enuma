@@ -34,4 +34,9 @@ static inline ENUMA_U32 EnumaNativeBlendResult(ENUMA_U32 S,ENUMA_U32 R,ENUMA_U32
   if(S!=EnumaInheritedTopology||R||W<EnumaVideoReasonBlendSelectedDim||W>EnumaVideoReasonBlendAlpha) { return 1; }
   return W-EnumaVideoReasonBlendOther+1;
 }
+static inline ENUMA_U32 EnumaNativeStructureResult(ENUMA_U32 S,ENUMA_U32 R,ENUMA_U32 W) {
+  if(S==EnumaInheritedOk) { return W==EnumaVideoReasonComplete&&R==(ENUMA_REQUIRE_BLEND|ENUMA_REQUIRE_ADDRESS|ENUMA_REQUIRE_TOPOLOGY)?5:1; }
+  if(W>=EnumaVideoReasonNativeCtl&&W<=EnumaVideoReasonNativeDecode) { W=EnumaVideoReasonPipeline; }
+  return EnumaNativeRouteResult(S,R,W);
+}
 #endif
