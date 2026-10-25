@@ -7,6 +7,31 @@ static ENUMA_U32 Stage(const ENUMA_U32 *L,ENUMA_U32 P) {
   if(P<6) { return ((L[0]>>Shift[P])&7)|(((L[1]>>(P<4?P*2:16+(P-4)*2))&1)<<3); }
   return (L[2]>>((P-6)*4))&15;
 }
+ENUMA_U32 EnumaSelectVideoRoute(const ENUMA_INHERITED_SNAPSHOT *S,ENUMA_U32 *Ctl,ENUMA_U32 *MixerMask,ENUMA_U32 *PipeMask) {
+  ENUMA_U32 C,M,P,J,Count=0,Selected=0,Ms=0,Ps=0,Total=0;
+  if(!S||!Ctl||!MixerMask||!PipeMask) { return EnumaInheritedArguments; }
+  for(C=0;C<6;C++) {
+    if(!S->Ctls[C].IntfActive) { continue; }
+    if(++Count!=1||S->Ctls[C].IntfActive!=6||(S->Ctls[C].Top&(1u<<17))) { return EnumaInheritedTopology; }
+    Selected=C;
+    for(M=0;M<6;M++) {
+      const ENUMA_U32 *V=S->Ctls[C].Layers[M]; ENUMA_U32 N=0,Pipe=8,E=0,Expected[4]={0},Any=0;
+      for(J=0;J<4;J++) { Any|=V[J]; }
+      if(!Any) { continue; }
+      for(P=0;P<8;P++) { ENUMA_U32 X=Stage(V,P); if(X) { N++; Pipe=P; E=X; } }
+      if(N!=1||E>12) { return EnumaInheritedTopology; }
+      if(Pipe<6) {
+        static const ENUMA_U32 Shift[6]={0,3,6,26,18,21};
+        Expected[0]=(E&7)<<Shift[Pipe]; Expected[1]=(E>>3)<<(Pipe<4?Pipe*2:16+(Pipe-4)*2);
+      } else { Expected[2]=E<<((Pipe-6)*4); }
+      for(J=0;J<4;J++) { if(V[J]!=Expected[J]) { return EnumaInheritedTopology; } }
+      if(Ps&(1u<<Pipe)) { return EnumaInheritedTopology; }
+      Ps|=1u<<Pipe; Ms|=1u<<M; Total++;
+    }
+  }
+  if(Count!=1||Total!=2) { return EnumaInheritedTopology; }
+  *Ctl=Selected; *MixerMask=Ms; *PipeMask=Ps; return EnumaInheritedOk;
+}
 static ENUMA_U32 CaptureMask(ENUMA_U32 Mask,ENUMA_INHERITED_READ Read,void *Ctx,ENUMA_MIXER_SNAPSHOT *Out) {
   ENUMA_MIXER_SNAPSHOT S; ENUMA_U32 M,J,B;
   if(!Read||!Out) { return EnumaInheritedArguments; }

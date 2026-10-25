@@ -288,11 +288,11 @@ def main(device_root=None):
                 staged=uefi/'Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe'
                 entry='EnumaInheritedVideoEntryControl.c' if args.inherited_video_entry_control else 'EnumaInheritedVideoAudit.c'
                 assert (staged/'SimpleFb.c').read_bytes()==(SOURCE/'diagnostics'/entry).read_bytes()
-                for name in ('InheritedScanout.h','Decode.c','Capture.c','Topology.h','Topology.c','Evidence.h','Evidence.c'):
+                for name in ('InheritedScanout.h','Decode.c','Capture.c','VideoCapture.c','Topology.h','Topology.c','Evidence.h','Evidence.c'):
                     assert (staged/'InheritedVideo'/name).read_bytes()==(SOURCE/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'/name).read_bytes()
                 report['inherited_video_compiled_contract']={
                     'entry_source_sha256':hashlib.sha256((staged/'SimpleFb.c').read_bytes()).hexdigest(),
-                    'all_staged_sources_equal':True,'maximum_read_callbacks':0 if args.inherited_video_entry_control else 969,'maximum_wait_calls':0 if args.inherited_video_entry_control else 2,
+                    'all_staged_sources_equal':True,'maximum_read_callbacks':0 if args.inherited_video_entry_control else 330,'maximum_wait_calls':0 if args.inherited_video_entry_control else 2,
                     'entry_constant_marker':1 if args.inherited_video_entry_control else None,
                     'pixel_access':False,'protocol_published':False}
             if args.value_source != 'off':

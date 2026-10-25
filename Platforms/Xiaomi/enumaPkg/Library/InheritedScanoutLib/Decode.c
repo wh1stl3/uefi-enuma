@@ -96,8 +96,9 @@ static ENUMA_U32 Decode (const ENUMA_INHERITED_SNAPSHOT *S, const ENUMA_INHERITE
     if (Pipe->Secure & 15) { return EnumaInheritedSecure; }
     if (Pipe->Multirect & 7) { return EnumaInheritedVirtualRect; }
     // Linear, tightly packed, interleaved 8:8:8:8; no scaling/rotation/YUV/UBWC.
-    // Source alpha enable is permitted. Its byte is written opaque by the GOP.
-    if ((Pipe->Format & ~(1u << 8)) != 0x000236ff ||
+    // Mu FrameBufferBltLib treats the fourth byte as reserved, not opaque alpha.
+    // Admit only RGBX with source-alpha disabled until an opaque adapter exists.
+    if (Pipe->Format != 0x000236ff ||
         (Pipe->OpMode & ((1u << 0) | (1u << 13) | (1u << 14) | (3u << 22)))) {
       return EnumaInheritedFormat;
     }

@@ -10,5 +10,6 @@
   Capture.c
   Topology.c
   Evidence.c
+  VideoCapture.c
 [Packages]
   MdePkg/MdePkg.dec

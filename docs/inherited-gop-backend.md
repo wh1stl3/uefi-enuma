@@ -22,10 +22,12 @@ CTL, border/virtual/unknown staging, dim and unreviewed processing are rejected.
 This is a conservative supported topology, not a claim that enuma uses it.
 
 `Evidence.c` gathers three same-boot scanout/LM/interface snapshots with two
-100ms waits: at most969 reads, max offset0x73830, no physical pixel dereference.
-Only the two CTL-selected mixers are read; unsupported CTL/mixer-count state
-stops before any LM blend reads. The separate full144-read LM capture API is
-for offline analysis; it is not called by the live sampler.
+100ms waits: at most330 reads, max offset0x6c26c, no physical pixel dereference.
+Video-only capture first checks the two live interfaces, then reads CTL active
+words, selected video CTL routes, only the two selected SSPPs and mixers. No
+command refresh, PP, unused SSPP/CTL config, START/FLUSH or idle mixer access.
+Explicit scope masks identify observed fields; zero placeholders for unobserved
+fields never mean hardware zeros. Full267/144-read capture APIs are offline only.
 Each interface must be active, timing/counter enabled and increase1..64 in each
 window without wrap; descriptors, staging and blend must remain stable. Transient
 START/FLUSH are recorded but excluded from stability. Success retains ADDRESS
@@ -44,7 +46,7 @@ Host qualification links the actual pinned Mu FrameBufferBltLib, UEFI headers
 and production backend, with only allocation/TPL/BaseLib primitives modeled.
 Tests cover24 byte permutations, four operations, overlap, padding/guards,
 allocation failures and stale-ownership refusal; topology includes reversed LM
-identities and144 read failures; evidence injects failure at all969 positions.
+identities and144 read failures; current evidence injects failure at all330 positions.
 All execute with ASan/UBSan; AArch64 objects are compiled separately.
 
 `--gop-backend-selftest` includes a non-autostart UEFI application in the FD for
@@ -74,3 +76,14 @@ a constant PASS body with no map queries/MMIO/pixels/allocations/waits/protocols
 It isolates entry/return transport from the sample body, not a retry of S-008 or
 the old frozen value plan. A separate actual-PE/full-input qualification is
 required before any temporary boot. See companion D-197 operations/handoff.
+
+S-009 c7c29bb constant control auto-returned to Android (ADB21.156s,
+complete35.219s) with independent original partition/backup verification. Actual
+72-PE comparison found70 identical, provider-only runtime change, and8 bytes of
+PcdDxe RSDS GUID metadata. This supports S-008 body access as the primary suspect,
+not an exact register fault. Current330-read sampler is an offline fix, not yet
+an enuma-tested image. No active-source-alpha format is admitted: actual Mu
+VideoFill combines RGB masks only, while cas's physical writer sets its reserved
+mask opaque. An opaque-alpha writer needs separate implementation/qualification.
+The default saved panel topology2/0/2 means two LM, zero compression encoders,
+two interfaces; it does not specify two independent SSPPs or prove UEFI state.

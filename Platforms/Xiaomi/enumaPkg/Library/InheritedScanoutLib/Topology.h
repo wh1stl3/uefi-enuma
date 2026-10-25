@@ -9,5 +9,7 @@ typedef struct { ENUMA_U32 Mode,Size,Blend[11],Alpha[11]; } ENUMA_MIXER_STATE;
 typedef struct { ENUMA_MIXER_STATE Mixers[6]; } ENUMA_MIXER_SNAPSHOT;
 ENUMA_U32 EnumaCaptureMixers(ENUMA_INHERITED_READ,void *,ENUMA_MIXER_SNAPSHOT *);
 ENUMA_U32 EnumaCaptureRoutedMixers(const ENUMA_INHERITED_SNAPSHOT *,ENUMA_INHERITED_READ,void *,ENUMA_MIXER_SNAPSHOT *);
+// Pure strict route selector; no hardware reads. Outputs unchanged on failure.
+ENUMA_U32 EnumaSelectVideoRoute(const ENUMA_INHERITED_SNAPSHOT *,ENUMA_U32 *,ENUMA_U32 *,ENUMA_U32 *);
 ENUMA_U32 EnumaResolveMixerOrigins(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_MIXER_SNAPSHOT *,const ENUMA_INHERITED_LIMITS *,ENUMA_INHERITED_LIMITS *);
 #endif

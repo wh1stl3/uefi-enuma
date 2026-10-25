@@ -12,7 +12,9 @@
     "clear decode output on failure",
     "requirements remain set on successful layout decode",
     "callback-only267 read capture with no implicit libc dependencies",
-    "explicit origin mask/offsets; unknown pipe topology rejected"
+    "explicit origin mask/offsets; unknown pipe topology rejected",
+    "video-only routed runtime capture with explicit observed masks; legacy full capture offline only",
+    "reject active source alpha because Mu Blt reserved byte is not cas opaque alpha"
   ],
   "not_imported": [
     "CasPlatform fixed memory",
