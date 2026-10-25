@@ -160,6 +160,8 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
             shutil.copyfile(source/'diagnostics'/name, target/name)
     if os.environ.get('ENUMA_RAMOOPS_READ_HEADER') == '1':
         shutil.copyfile(source/'diagnostics/EnumaRamoopsReadCheckpoint.h', dxe/'DxeMain/EnumaStageCheckpoint.h')
+    if os.environ.get('ENUMA_RAMOOPS_WARM_CONTROL') == '1':
+        shutil.copyfile(source/'diagnostics/EnumaRamoopsWarmCheckpoint.h', dxe/'DxeMain/EnumaStageCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchCheckpoint.h', dxe/'Dispatcher/EnumaDispatchCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaGopResult.h', dxe/'Dispatcher/EnumaGopResult.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchDetailCheckpoint.h', dxe/'Dispatcher/EnumaDispatchDetailCheckpoint.h')

@@ -89,6 +89,7 @@ def main(device_root=None):
     parser.add_argument('--ramoops-canary-nonce', help='R-017 single console marker; exactly 32 lower hex digits; stage10/delay2/SimpleFb-omit profile only')
     parser.add_argument('--ramoops-map-control', action='store_true', help='isolation: same console map, original stage10/cold gate, no console contents accessed')
     parser.add_argument('--ramoops-read-header', action='store_true', help='three console header loads only; same map/stage10/cold profile')
+    parser.add_argument('--ramoops-warm-control', action='store_true', help='same map/stage10/delay2, warm request, no console accesses')
     parser.add_argument('--stop-stage', type=int, choices=(0,3,4,5,6,7,8,9,10,11,12,13), default=0)
     parser.add_argument('--stop-delay', type=int, choices=(2,7), default=2)
     parser.add_argument('--dispatch-ordinal', type=int, default=1)
@@ -113,9 +114,10 @@ def main(device_root=None):
         os.environ['ENUMA_RAMOOPS_CANARY'] = '1'
     else:
         os.environ.pop('ENUMA_RAMOOPS_CANARY', None)
+    os.environ['ENUMA_RAMOOPS_WARM_CONTROL'] = '1' if args.ramoops_warm_control else '0'
     os.environ['ENUMA_RAMOOPS_READ_HEADER'] = '1' if args.ramoops_read_header else '0'
-    if args.ramoops_canary_nonce is not None or args.ramoops_map_control or args.ramoops_read_header:
-        if (sum([args.ramoops_canary_nonce is not None, args.ramoops_map_control, args.ramoops_read_header]) != 1 or
+    if args.ramoops_canary_nonce is not None or args.ramoops_map_control or args.ramoops_read_header or args.ramoops_warm_control:
+        if (sum([args.ramoops_canary_nonce is not None, args.ramoops_map_control, args.ramoops_read_header, args.ramoops_warm_control]) != 1 or
             (args.ramoops_canary_nonce is not None and (args.ramoops_map_control or re.fullmatch(r'[0-9a-f]{32}', args.ramoops_canary_nonce) is None)) or
             args.stop_stage != 10 or args.stop_delay != 2 or not args.diagnostic_simplefb or
             args.diagnostic_gop_query or args.diagnostic_gop_step or args.value_source != 'off' or
@@ -235,7 +237,8 @@ def main(device_root=None):
     assert board['board']['example'] is True
     board=copy.deepcopy(board)
     board['firmware']['defines']['ENUMA_RAMOOPS_CANARY']='1' if args.ramoops_canary_nonce else '0'
-    board['firmware']['defines']['ENUMA_RAMOOPS_MAP']='1' if (args.ramoops_canary_nonce or args.ramoops_map_control or args.ramoops_read_header) else '0'
+    board['firmware']['defines']['ENUMA_RAMOOPS_MAP']='1' if (args.ramoops_canary_nonce or args.ramoops_map_control or args.ramoops_read_header or args.ramoops_warm_control) else '0'
+    board['firmware']['defines']['ENUMA_RAMOOPS_WARM_CONTROL']='1' if args.ramoops_warm_control else '0'
     board['firmware']['defines']['ENUMA_RAMOOPS_READ_HEADER']='1' if args.ramoops_read_header else '0'
     for i in range(4):
         word = int(args.ramoops_canary_nonce[i*8:i*8+8], 16) if args.ramoops_canary_nonce else 0
@@ -277,7 +280,7 @@ def main(device_root=None):
         'inherited_video_topology_query':args.inherited_video_topology_query,
         'inherited_video_reason_target':reason_target,'inherited_video_reason_query':args.inherited_video_reason_query,
         'ramoops_canary_nonce':args.ramoops_canary_nonce,
-        'ramoops_map_control':args.ramoops_map_control,'ramoops_read_header':args.ramoops_read_header,
+        'ramoops_map_control':args.ramoops_map_control,'ramoops_read_header':args.ramoops_read_header,'ramoops_warm_control':args.ramoops_warm_control,
         'official_backend_sha256':hashlib.sha256((args.unixnu/'scripts/unixnu/firmware.py').read_bytes()).hexdigest(),
         'unixnu_qualification':qualification,'firmware_configuration':board['firmware'],
         'diagnostic_stop_stage':args.stop_stage,'diagnostic_delay_seconds':args.stop_delay,
@@ -290,7 +293,7 @@ def main(device_root=None):
         'diagnostic_omitted_oem_modules':(['CPRDxe','DisplayDxe','UFSDxe'] if args.diagnostic_simplefb else ['UFSDxe'] if args.diagnostic_without_ufs else []),
         'diagnostic_simplefb_metadata_only':args.diagnostic_simplefb and not args.diagnostic_pixel_preview and not args.inherited_video_audit,
         'diagnostic_pixel_preview':args.diagnostic_pixel_preview,
-        'hardware_review_required':'R-017-READ' if args.ramoops_read_header else 'R-017-MAP' if args.ramoops_map_control else ('R-017' if args.ramoops_canary_nonce else ('R-005' if args.diagnostic_pixel_preview else None)),
+        'hardware_review_required':'R-017-WARM' if args.ramoops_warm_control else 'R-017-READ' if args.ramoops_read_header else 'R-017-MAP' if args.ramoops_map_control else ('R-017' if args.ramoops_canary_nonce else ('R-005' if args.diagnostic_pixel_preview else None)),
         'diagnostic_gop_query':args.diagnostic_gop_query,
         'diagnostic_gop_step':args.diagnostic_gop_step,
         'value_probe':{'source':args.value_source,'constant_code':args.value_code,
