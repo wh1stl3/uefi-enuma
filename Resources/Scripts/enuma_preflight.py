@@ -144,7 +144,8 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     for name in ('EnumaGopAudit.h', 'EnumaGopResult.h', 'EnumaScanoutAudit.h', 'EnumaScanoutDescriptor.h', 'EnumaPixelPreview.h', 'EnumaPixelPreviewArm.h', 'EnumaDsiCounters.h', 'EnumaDsiNativeProgress.h', 'EnumaScanoutRoute.h', 'EnumaScanoutGeometry.h', 'EnumaScanoutBlend.h', 'EnumaScanoutBlendReason.h', 'EnumaScanoutSoleStage.h', 'EnumaValueProbe.h'):
         shutil.copyfile(source/'diagnostics'/name, (uefi/simplefb).parent/name)
     if os.environ.get('ENUMA_INHERITED_VIDEO_AUDIT')=='1':
-        audit_source=source/'diagnostics/EnumaInheritedVideoAudit.c'
+        entry='EnumaInheritedVideoEntryControl.c' if os.environ.get('ENUMA_INHERITED_VIDEO_ENTRY_CONTROL')=='1' else 'EnumaInheritedVideoAudit.c'
+        audit_source=source/'diagnostics'/entry
         shutil.copyfile(audit_source,uefi/simplefb)
         lib=source/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'
         target=(uefi/simplefb).parent/'InheritedVideo'; target.mkdir(exist_ok=True)

@@ -80,6 +80,7 @@ def main(device_root=None):
     parser.add_argument('--jobs', type=int, default=4)
     parser.add_argument('--gop-backend-selftest', action='store_true', help='offline link qualification: include non-autostart QEMU RAM-only GOP self-test; not a physical GOP candidate')
     parser.add_argument('--inherited-video-audit', action='store_true', help='read-only same-boot video audit instead of metadata SimpleFb; no GOP/pixels; requires exact bounded SimpleFb query profile')
+    parser.add_argument('--inherited-video-entry-control', action='store_true', help='new isolation: same inherited-video INF/constructors, constant PASS body, no MMIO/map query')
     parser.add_argument('--ram-payload', type=Path, help='build-only: exact FAT in device out/; enable bounded boot-v3 RAM BlockIO and batch report')
     parser.add_argument('--stop-stage', type=int, choices=(0,3,4,5,6,7,8,9,10,11,12,13), default=0)
     parser.add_argument('--stop-delay', type=int, choices=(2,7), default=2)
@@ -114,6 +115,8 @@ def main(device_root=None):
         parser.error('GOP steps require --diagnostic-gop-query')
     if args.inherited_video_audit and (not args.diagnostic_simplefb or args.diagnostic_gop_step or not args.diagnostic_gop_query or args.value_source!='off' or args.gop_backend_selftest):
         parser.error('inherited video audit requires SimpleFb query step0, value off, no RAM self-test')
+    if args.inherited_video_entry_control and not args.inherited_video_audit:
+        parser.error('video entry control requires inherited video audit profile')
     if args.diagnostic_pixel_preview != (args.diagnostic_gop_step == 13) or (args.diagnostic_pixel_preview and args.diagnostic_gop_query != 1):
         parser.error('Pixel preview requires exactly step13/query1 and its explicit flag; hardware approval is separate')
     if args.diagnostic_gop_query and not (args.diagnostic_simplefb and args.stop_stage == 13 and args.stop_delay in (2, 20) and args.detail_point == 16 and args.dispatch_guid_only and args.dispatch_completion_fallback and args.dispatch_guid and args.dispatch_guid.lower() == 'dcfd1e6d-788d-4ffc-8e1b-ca2f75651a92'):
@@ -189,6 +192,10 @@ def main(device_root=None):
         os.environ['ENUMA_INHERITED_VIDEO_AUDIT']='1'
     else:
         os.environ.pop('ENUMA_INHERITED_VIDEO_AUDIT',None)
+    if args.inherited_video_entry_control:
+        os.environ['ENUMA_INHERITED_VIDEO_ENTRY_CONTROL']='1'
+    else:
+        os.environ.pop('ENUMA_INHERITED_VIDEO_ENTRY_CONTROL',None)
     wrappers=core/'BaseTools/BinWrappers/PosixLike'
     for path in wrappers.iterdir():
         if path.is_file(): path.chmod(path.stat().st_mode | 0o111)
@@ -229,6 +236,7 @@ def main(device_root=None):
         'complete':False,'fd':str(fd.relative_to(ROOT)),'uefi_source_commit':pin['commit'],
         'gop_backend_selftest_ram_only':args.gop_backend_selftest,
         'inherited_video_audit_read_only':args.inherited_video_audit,
+        'inherited_video_entry_control':args.inherited_video_entry_control,
         'official_backend_sha256':hashlib.sha256((args.unixnu/'scripts/unixnu/firmware.py').read_bytes()).hexdigest(),
         'unixnu_qualification':qualification,'firmware_configuration':board['firmware'],
         'diagnostic_stop_stage':args.stop_stage,'diagnostic_delay_seconds':args.stop_delay,
@@ -278,12 +286,14 @@ def main(device_root=None):
                 'core_checkpoint_sha256':hashlib.sha256((SOURCE/'diagnostics/EnumaStageCheckpoint.h').read_bytes()).hexdigest()}
             if args.inherited_video_audit:
                 staged=uefi/'Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe'
-                assert (staged/'SimpleFb.c').read_bytes()==(SOURCE/'diagnostics/EnumaInheritedVideoAudit.c').read_bytes()
+                entry='EnumaInheritedVideoEntryControl.c' if args.inherited_video_entry_control else 'EnumaInheritedVideoAudit.c'
+                assert (staged/'SimpleFb.c').read_bytes()==(SOURCE/'diagnostics'/entry).read_bytes()
                 for name in ('InheritedScanout.h','Decode.c','Capture.c','Topology.h','Topology.c','Evidence.h','Evidence.c'):
                     assert (staged/'InheritedVideo'/name).read_bytes()==(SOURCE/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'/name).read_bytes()
                 report['inherited_video_compiled_contract']={
                     'entry_source_sha256':hashlib.sha256((staged/'SimpleFb.c').read_bytes()).hexdigest(),
-                    'all_staged_sources_equal':True,'maximum_read_callbacks':969,'maximum_wait_calls':2,
+                    'all_staged_sources_equal':True,'maximum_read_callbacks':0 if args.inherited_video_entry_control else 969,'maximum_wait_calls':0 if args.inherited_video_entry_control else 2,
+                    'entry_constant_marker':1 if args.inherited_video_entry_control else None,
                     'pixel_access':False,'protocol_published':False}
             if args.value_source != 'off':
                 command=(module/'GNUmakefile').read_text()

@@ -65,3 +65,12 @@ versus7s dispatcher fallback is host timing evidence, never a unique log or a
 claim that the panel displays those sources. A75s host timeout stops all further
 boots and requires recovery. This new read-only candidate is independent of old
 consumed pixel/value-transport experiments, which remain frozen.
+
+S-008 sample audit898ae25 timed out and was consumed; Android/root/A-slot and
+original partition/backup digests were independently rechecked after manual
+recovery. No sampler-entry or register-specific conclusion follows. The NEW
+`--inherited-video-entry-control` keeps this INF/GUID and constructors but uses
+a constant PASS body with no map queries/MMIO/pixels/allocations/waits/protocols.
+It isolates entry/return transport from the sample body, not a retry of S-008 or
+the old frozen value plan. A separate actual-PE/full-input qualification is
+required before any temporary boot. See companion D-197 operations/handoff.
