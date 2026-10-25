@@ -93,6 +93,19 @@ static inline ENUMA_U32 EnumaCpuReadWithBarrier(const ENUMA_INHERITED_FRAME *F,E
   if(!Read||!Barrier) { return 4; }
   return EnumaCpuReadOnce(F,Policy,EnumaCpuBarrierRead,&C);
 }
+// The first word reuses every existing gate and the one pre-read barrier.
+// Remaining1023 words cover only128x8 at the decoded origin, skipping padding.
+static inline ENUMA_U32 EnumaCpuReadRoi(const ENUMA_INHERITED_FRAME *F,ENUMA_U32 Policy,ENUMA_U64 El,ENUMA_CPU_WORD_READ Read,ENUMA_CPU_BARRIER Barrier,void *Ctx) {
+  ENUMA_U32 S,X,Y,Value;
+  if(El!=4&&El!=8) { return 1; }
+  S=EnumaCpuReadWithBarrier(F,Policy,Read,Barrier,Ctx);
+  if(S!=5) { return S==1?1:S==2?2:3; }
+  for(Y=0;Y<8;Y++) { for(X=0;X<128;X++) {
+    if(!X&&!Y) { continue; }
+    if(Read(Ctx,F->Base+(ENUMA_U64)Y*F->Stride+(ENUMA_U64)X*4,&Value)!=1) { return 3; }
+  } }
+  return El==4?4:5;
+}
 #ifdef __aarch64__
 typedef struct { ENUMA_U64 El;ENUMA_U32 Count; } ENUMA_CPU_STAGE1_CONTEXT;
 static int EnumaCpuStage1Translate(void *Opaque,ENUMA_U64 Page,ENUMA_U32 Write,ENUMA_U64 *Par) {
@@ -113,9 +126,10 @@ static int EnumaCpuStage1Translate(void *Opaque,ENUMA_U64 Page,ENUMA_U32 Write,E
   __asm__ volatile("msr par_el1, %0\nmsr daif, %1" :: "r"(SavedPar),"r"(SavedDaif) : "memory");
   return 1;
 }
-static ENUMA_U32 EnumaCpuStage1Arm(const ENUMA_INHERITED_FRAME *F) {
+static ENUMA_U32 EnumaCpuStage1ArmDetailed(const ENUMA_INHERITED_FRAME *F,ENUMA_U64 *ElOut) {
   ENUMA_CPU_STAGE1_CONTEXT C={0};ENUMA_U64 Sctlr,Tcr,Mmfr,Hcr;
   __asm__ volatile("mrs %0, CurrentEL\nmrs %1, id_aa64mmfr0_el1" : "=r"(C.El),"=r"(Mmfr));
+  if(ElOut) { *ElOut=C.El; }
   if((Mmfr&15)>5) { return 1; } // bounded pre-LPA2 PAR layout, <=48-bit PA
   if(C.El==4) {
     __asm__ volatile("mrs %0, sctlr_el1\nmrs %1, tcr_el1" : "=r"(Sctlr),"=r"(Tcr));
@@ -133,11 +147,20 @@ static ENUMA_U32 EnumaCpuStage1Arm(const ENUMA_INHERITED_FRAME *F) {
   return EnumaCpuStage1(F,EnumaCpuStage1Translate,&C);
 #endif
 }
+static inline ENUMA_U32 EnumaCpuStage1Arm(const ENUMA_INHERITED_FRAME *F) { return EnumaCpuStage1ArmDetailed(F,0); }
 #if defined(ENUMA_NATIVE_ROUTE_CPU_READ) && ENUMA_NATIVE_ROUTE_CPU_READ
-typedef struct { ENUMA_U64 Expected;ENUMA_U32 Reads;volatile ENUMA_U32 Sink;ENUMA_U32 Barriers; } ENUMA_CPU_WORD_CONTEXT;
+typedef struct { ENUMA_U64 Expected;ENUMA_U32 Reads;volatile ENUMA_U32 Sink;ENUMA_U32 Barriers,Stride; } ENUMA_CPU_WORD_CONTEXT;
 static int EnumaCpuWordArm(void *Opaque,ENUMA_U64 Address,ENUMA_U32 *Value) {
   ENUMA_CPU_WORD_CONTEXT *C=Opaque;
-  if(!C||!Value||C->Reads||Address!=C->Expected||(Address&3)||
+  ENUMA_U64 Expected;
+  if(!C) { return 0; }
+#if defined(ENUMA_NATIVE_ROUTE_CPU_ROI) && ENUMA_NATIVE_ROUTE_CPU_ROI
+  if(C->Reads>=1024||C->Stride<6400||(C->Stride&3)) { return 0; }
+  Expected=C->Expected+(ENUMA_U64)(C->Reads/128)*C->Stride+(ENUMA_U64)(C->Reads%128)*4;
+#else
+  if(C->Reads) { return 0; } Expected=C->Expected;
+#endif
+  if(!Value||Address!=Expected||(Address&3)||
      Address<0x9c000000ULL||Address>0x9e3ffffcULL) { return 0; }
   C->Reads++;
   *Value=*(volatile ENUMA_U32 *)Address;
@@ -152,14 +175,20 @@ static int EnumaCpuBarrierArm(void *Opaque) {
   return 1;
 }
 #endif
-static ENUMA_U32 EnumaCpuReadArmProbe(const ENUMA_INHERITED_FRAME *F,ENUMA_U32 Policy) {
-  ENUMA_CPU_WORD_CONTEXT C={F?F->Base:0,0,0,0};
+static inline ENUMA_U32 EnumaCpuReadArmProbe(const ENUMA_INHERITED_FRAME *F,ENUMA_U32 Policy) {
+  ENUMA_CPU_WORD_CONTEXT C={F?F->Base:0,0,0,0,F?F->Stride:0};
 #if defined(ENUMA_NATIVE_ROUTE_CPU_BARRIER) && ENUMA_NATIVE_ROUTE_CPU_BARRIER
   return EnumaCpuReadWithBarrier(F,Policy,EnumaCpuWordArm,EnumaCpuBarrierArm,&C);
 #else
   return EnumaCpuReadOnce(F,Policy,EnumaCpuWordArm,&C);
 #endif
 }
+#if defined(ENUMA_NATIVE_ROUTE_CPU_ROI) && ENUMA_NATIVE_ROUTE_CPU_ROI
+static ENUMA_U32 EnumaCpuReadRoiArmProbe(const ENUMA_INHERITED_FRAME *F,ENUMA_U32 Policy,ENUMA_U64 El) {
+  ENUMA_CPU_WORD_CONTEXT C={F?F->Base:0,0,0,0,F?F->Stride:0};
+  return EnumaCpuReadRoi(F,Policy,El,EnumaCpuWordArm,EnumaCpuBarrierArm,&C);
+}
+#endif
 #endif
 #endif
 #endif

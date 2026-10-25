@@ -12,6 +12,12 @@
 #include "InheritedVideo/Evidence.c"
 #include "InheritedVideo/VideoResult.h"
 #include "InheritedVideo/NativeRouteResult.h"
+#ifndef ENUMA_NATIVE_ROUTE_CPU_ROI
+#define ENUMA_NATIVE_ROUTE_CPU_ROI 0
+#endif
+#if ENUMA_NATIVE_ROUTE_CPU_ROI < 0 || ENUMA_NATIVE_ROUTE_CPU_ROI > 1 || (ENUMA_NATIVE_ROUTE_CPU_ROI && !ENUMA_NATIVE_ROUTE_CPU_BARRIER)
+#error ROI read requires the barrier/read profile
+#endif
 #ifndef ENUMA_NATIVE_ROUTE_CPU_BARRIER
 #define ENUMA_NATIVE_ROUTE_CPU_BARRIER 0
 #endif
@@ -190,7 +196,10 @@ EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
 #endif
 #if ENUMA_NATIVE_ROUTE_CPU_STAGE1
   if(Status==EnumaInheritedOk&&Reason==EnumaVideoReasonComplete&&mEvidence.Frame.Requirements==22) {
-#if ENUMA_NATIVE_ROUTE_CPU_READ
+#if ENUMA_NATIVE_ROUTE_CPU_ROI
+    ENUMA_U64 El=0;ENUMA_U32 Policy=EnumaCpuStage1ArmDetailed(&mEvidence.Frame,&El);
+    return (EFI_STATUS)EnumaCpuReadRoiArmProbe(&mEvidence.Frame,Policy,El);
+#elif ENUMA_NATIVE_ROUTE_CPU_READ
     return (EFI_STATUS)EnumaCpuReadArmProbe(&mEvidence.Frame,EnumaCpuStage1Arm(&mEvidence.Frame));
 #else
     return (EFI_STATUS)EnumaCpuStage1Arm(&mEvidence.Frame);

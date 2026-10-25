@@ -5,7 +5,7 @@
   "files": {
     "diagnostics/EnumaDispatchDetailCheckpoint.h": "94410c586f4be25733202b53a5cc44ec749bc470cee69def233bb099fcf97358",
     "patches/dxe-dispatch-details.patch": "49a051195269054894262788f65883c4665db5eec170db2f457e265b523be94d",
-    "patches/dispatch-detail-options.patch": "d1be824c1050504eb866d8be1e7743ffd3cb15c5a2e922d23def16a7e614d479",
+    "patches/dispatch-detail-options.patch": "c0d70c24999822ad9800b4ad3e0943574b403b8d33680b38653058bad9570e85",
     "Resources/Scripts/enuma_preflight.py": "18b0dc4c1de967ccb0f8e92223d0132ffa969104c2bd7ec6ce48267d98e51cc8",
     "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af",
     "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f",
@@ -21,7 +21,7 @@
     "diagnostics/EnumaGopAudit.h": "e6db3b2794b9dc49a5c98790ef2cfcf900af1126b3c2f20ebb30297c5eba46e5",
     "patches/simplefb-gop-query.patch": "3a013d8dabf37263db1c1c6b03b34c81d12aeaaf067386e6577928a9fc493071",
     "diagnostics/EnumaGopResult.h": "15439f96c32387cccd57c8f40d5a703600af6478c616eebe896b6a5fb536d184",
-    "Resources/Scripts/build_enuma_firmware.py": "f07ab0af84c00b7cf54e4bec249e4ecc7324c8a74d91d743610a667b1ff37b56",
+    "Resources/Scripts/build_enuma_firmware.py": "9c3f1ff383be049893b7fe759f3287a8de32ed493e0d12c09c66e916f89dc49d",
     "Resources/Scripts/enuma_firmware_preflight.py": "eb9af118480cf90166854337ed76cf850485b6e2f890e592ed7a339fbc39521a",
     "diagnostics/EnumaScanoutAudit.h": "8f49f8c27f1211be834e77e2a79a056010d2de0e637f02f82f6b7bd3464ff702",
     "patches/display-mdp-map.patch": "5aa0f4e584349354000c50a181fb7a0aa31c43b1f4128a72bc35469e90fd14b4",
@@ -62,7 +62,7 @@
     "Platforms/Xiaomi/enumaPkg/Application/EnumaGopSelfTest/EnumaGopSelfTest.c": "2ba9a69f941458b8bd83fc3ee4bf4b7e33f1714a46e5dd30c40fad21a9398e62",
     "Platforms/Xiaomi/enumaPkg/Application/EnumaGopSelfTest/EnumaGopSelfTest.inf": "0b7178c55067180a40e51f5407dfc947e86e6c26a3e3e98d2a6345869f73b7e7",
     "Platforms/Xiaomi/enumaPkg/enumaPkg.dec": "95e718eec6757efee7f59e17b6d6f4f31a9d01932711e6e05a52ca3ab19ea8ef",
-    "diagnostics/EnumaInheritedVideoAudit.c": "5dedb464fbab9c25982222b7152044ba4e57586df19e5667153de79e2e80c6bc",
+    "diagnostics/EnumaInheritedVideoAudit.c": "60289efbc80f257178f6d0308324b3fa17521054718fb5a85d31e969aa2316a4",
     "diagnostics/EnumaInheritedVideoEntryControl.c": "7b2945d156533f554e7246cf6ced5cc949bfb865e3456437204c8dfa0acd3c6a",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/VideoCapture.c": "42a38eb9d85540e1fd6a6f0b948507a70e017ae1e8361bedeffa4eec06b3d49b",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/VideoResult.h": "b9c9375fad42acd8dd470bd2208e70ccbf17f22a2233f62e8dab30cceec324a7",
@@ -80,6 +80,6 @@
     "diagnostics/EnumaNativeObserve.c": "fd92e784c1a09cee63e62ea2e48dd98775c9f389f10fd88d50f05c50bb3d488f",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/NativeMaskResult.h": "63ab286705d8bfc270ba88c14185dfd1a2f81508672eadda07e7673f3033b783",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/NativeRouteResult.h": "7a026df32dfec0da46901f9e6fcfd6e035bac9bf27431faba185605f3db87f5e",
-    "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/CpuStage1.h": "5bd11cc6b15fd127478e2c03f018f5fbc7cffbd6d01d0b1c076ba8366ad350f1"
+    "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/CpuStage1.h": "816cd4ac72e2f6ea3afa61b99cd55f7a4eda40d6366e4957a30484501ba788a6"
   }
 }

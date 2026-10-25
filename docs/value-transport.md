@@ -200,3 +200,20 @@ a barrier after pixel stores or cache-line maintenance follows. Failure or
 timeout is not evidence that the read was reached. Fixed timing and recovery
 hard stops remain. Host checks verify barrier-before-read order, zero calls
 when prerequisites fail, count1 and callback rejection before the read.
+
+## S-045 planned128x8 read-only region and completion EL
+
+--native-route-cpu-roi requires the barrier/read profile. The first word uses
+every original frame/policy guard and the one DSB;1023 further words read
+only128 columns across8 rows at decoded origin, using actual stride and
+skipping padding. The Arm callback bounds1024 accesses, checks each expected
+row/column address/alignment/Splash containment and uses the private stack
+sink. No data retained/exported, pixel store or new cache operation.
+
+The existing CurrentEL MRS is reused through an optional output in the Arm
+query helper; no extra MRS or EL switch. Code1 prior/context/fault/nonidentity;
+2 other Normal policy;3 mixed/contract/barrier/read rejection with unknown
+partial count;4 all1024 reads and one DSB complete atEL1;5 same atEL2. Only
+completion codes reveal EL. EL1 finalstage2 remains unknown; neither code
+proves device SMMU equivalence, stores, alpha/blend or visible output. Old
+strict-WT/attribute/policy/one-word/barrier interfaces keep their semantics.
