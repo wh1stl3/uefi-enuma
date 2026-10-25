@@ -49,7 +49,7 @@
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/Decode.c": "dde2a43b870a368c3ecc7cdbcc07947ba2ba3abb3f18efee58d2bfac27a1734c",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/InheritedScanout.h": "9d218ba072b12f8d430b4458359006eaa45b164ee00c609660b89db2b141349e",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/InheritedScanoutLib.inf": "4467e5148edd92f98f2734d88588438556e8d5fa8a12db27ad7bb9c9691e976d",
-    "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/NOTICE.md": "bf17bbfe6f8733653778c492ef51265df3e09a8ee9c4232bd025d0dade845eec",
+    "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/NOTICE.md": "5ce7481bac2c684fd41ee12b79b89ae70ee68082982da1053c6c668ef903046f",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/sources.json": "4ab78eb85c232145c7aba30b1b0ecb8e60167f8f4d817e770f326663ec2e0fb0",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/LICENSE.upstream": "2b031880c646006165194888f9814806719ab4c91c26d330c4eb71e1983f0187",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedGopLib/InheritedGop.c": "1b3dc06d5e638d01c666bdb6e5f0226288a4044bb0da3a9243697d7dec1b9307",
@@ -73,6 +73,9 @@
     "diagnostics/EnumaRamoopsStageCheckpoint.h": "ff3b5d6b5c19ba60646fd47c47379332e9f39c35482b60db88fb74c8f4a68936",
     "patches/ramoops-console-map.patch": "28c3ce50d0dc7c64657aad56dc22494f9c0982fbacbd8b876b6d56fcc97ca43b",
     "diagnostics/EnumaRamoopsReadCheckpoint.h": "b0a6b246596e8f8c7f8d8b9d8d9abbc4bc182371123f661fe281cf1cfaee7451",
-    "diagnostics/EnumaRamoopsWarmCheckpoint.h": "e3079f8903d24ffa64996ae61464467f6f1238dc20d57b7c8ea7a7f61133669c"
+    "diagnostics/EnumaRamoopsWarmCheckpoint.h": "e3079f8903d24ffa64996ae61464467f6f1238dc20d57b7c8ea7a7f61133669c",
+    "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/NativeObserve.c": "6fdafa2d9833fe44926efe692ea3e6db1bc68f345828b61ffcdbdcca52ed51fc",
+    "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/NativeObserve.h": "0b3bed21b26eaeefc66b8ac174057713795c0910cb875c21c74e1fc016ae0b07",
+    "docs/native-display-observe.md": "13ce6b5f762610b7113b220235007b0c4ce701c23f4f00f346d0cd610c8b7615"
   }
 }

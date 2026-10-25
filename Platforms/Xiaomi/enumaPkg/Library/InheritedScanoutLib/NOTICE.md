@@ -9,3 +9,8 @@ up to330 reads over three samples with explicit observation masks and no command
 refresh, PP or unused pipe accesses. The source-alpha-enabled format is rejected:
 Mu Blt does not provide cas's opaque reserved-byte writer. These changes do not
 import kernel hardware-control implementation or establish physical GOP success.
+
+NativeObserve.c/.h is a separate unbound diagnostic. It records interface
+activity, Timing/Enable stability and native frame movement independently, with
+no Enable==3 admission gate. It is not listed in an INF or runtime provider.
+See docs/native-display-observe.md; production Evidence.c remains unchanged.
