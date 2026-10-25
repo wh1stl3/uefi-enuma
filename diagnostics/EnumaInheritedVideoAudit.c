@@ -87,7 +87,11 @@ EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
   if(L.Width!=1600||L.Height!=2560) { return Result(EnumaInheritedArguments,0,EnumaVideoReasonArguments); }
   L.SplashBase=Splash.Address; L.SplashBytes=Splash.Length; L.Mode=ENUMA_MODE_VIDEO;
 #if ENUMA_NATIVE_ROUTE_AUDIT
+#if ENUMA_NATIVE_ROUTE_STAGING
   Status=EnumaSampleNativeVideoDetailed(Read,Wait,NULL,&L,&mEvidence,&Reason);
+#else
+  Status=EnumaSampleNativeBorderVideoDetailed(Read,Wait,NULL,&L,&mEvidence,&Reason);
+#endif
 #else
   Status=EnumaSampleVideoDetailed(Read,Wait,NULL,&L,&mEvidence,&Reason);
 #endif

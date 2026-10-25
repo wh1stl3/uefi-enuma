@@ -46,3 +46,21 @@ Code3 means known-source count/encoding rejection,4 other/virtual fields,
 success in this mode. Raw snapshots and strict admission remain unchanged.
 The classifier has64 border-mask and768 single-bit perturbation checks plus
 negative shape/field/cardinality cases; the marker selector has12480 cases.
+# Native border view after S-031 (2026-10-26)
+
+S-031's predeclared time code supported border-only normalized two-source
+staging; this does not establish downstream validity. Non-staging native route
+audit now calls the separate EnumaSampleNativeBorderVideoDetailed wrapper.
+The strict and original native sampler APIs remain unchanged. Staging mode
+retains its original diagnostic-only behavior.
+
+Capture selects sources using a RAM copy clearing only CTL layer word0 bit24,
+with the original strict route selector still required. Raw snapshots are
+returned unchanged. Mixer capture, origin resolution and decode use the same
+normalized view; stability compares original raw staging across all samples,
+including border changes. No additional MMIO address/count, wait, pixel access,
+GOP publication or memory mapping is added; maximum330 reads/two100ms waits.
+Requirements ADDRESS|TOPOLOGY remain on success. Full native route detail codes
+retain their previous meanings. Host all64 border patterns,330 read failures,
+changed-border and unknown-field rejection pass alongside existing baselines.
+

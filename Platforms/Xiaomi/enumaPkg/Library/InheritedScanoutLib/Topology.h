@@ -15,4 +15,5 @@ ENUMA_U32 EnumaResolveMixerOrigins(const ENUMA_INHERITED_SNAPSHOT *,const ENUMA_
 // Pure classification of already captured staging; never admission.
 enum { EnumaStagingOther,EnumaStagingBorderOnly,EnumaStagingSourceShape,EnumaStagingUnknownFields,EnumaStagingCardinality };
 ENUMA_U32 EnumaClassifyVideoStaging(const ENUMA_INHERITED_SNAPSHOT *);
+ENUMA_U32 EnumaNormalizeVideoBorder(const ENUMA_INHERITED_SNAPSHOT *,ENUMA_INHERITED_SNAPSHOT *);
 #endif

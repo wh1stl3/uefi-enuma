@@ -6,10 +6,10 @@
 #ifndef ENUMA_NATIVE_ROUTE_STAGING
 #define ENUMA_NATIVE_ROUTE_STAGING 0
 #endif
-ENUMA_U32 EnumaCaptureVideoConfigDetailed(ENUMA_INHERITED_READ Read,void *Ctx,ENUMA_U32 Revision,ENUMA_INHERITED_SNAPSHOT *Out,ENUMA_VIDEO_SCOPE *Scope,ENUMA_U32 *Reason) {
+static ENUMA_U32 CaptureDetailed(ENUMA_INHERITED_READ Read,void *Ctx,ENUMA_U32 Revision,ENUMA_INHERITED_SNAPSHOT *Out,ENUMA_VIDEO_SCOPE *Scope,ENUMA_U32 *Reason,int NativeBorder) {
   static const ENUMA_U32 Pipes[8]={0x5000,0x7000,0x9000,0xb000,0x25000,0x27000,0x29000,0x2b000};
   static const ENUMA_U32 Fields[11]={0,8,12,16,20,36,48,52,56,0x170,0x70};
-  ENUMA_INHERITED_SNAPSHOT S; ENUMA_U32 C=0,I,J,M,Count=0,Mask,PipeMask,Status,B;
+  ENUMA_INHERITED_SNAPSHOT S,V; ENUMA_U32 C=0,I,J,M,Count=0,Mask,PipeMask,Status,B;
   if(Reason) { *Reason=EnumaVideoReasonPipeline; }
   if(!Read||!Out||!Scope) { return EnumaInheritedArguments; }
   if((Revision>>16)!=0x6000) { return EnumaInheritedRevision; }
@@ -28,7 +28,10 @@ ENUMA_U32 EnumaCaptureVideoConfigDetailed(ENUMA_INHERITED_READ Read,void *Ctx,EN
     TAKE(B+0x70+M*4,S.Ctls[C].Layers[M][2]); TAKE(B+0xa0+M*4,S.Ctls[C].Layers[M][3]);
   }
   if(Reason) { *Reason=EnumaVideoReasonNativeStaging; }
-  Status=EnumaSelectVideoRoute(&S,&C,&Mask,&PipeMask);
+  if(NativeBorder) {
+    Status=EnumaNormalizeVideoBorder(&S,&V);
+    if(!Status) { Status=EnumaSelectVideoRoute(&V,&C,&Mask,&PipeMask); }
+  } else { Status=EnumaSelectVideoRoute(&S,&C,&Mask,&PipeMask); }
   if(Status) {
 #if ENUMA_NATIVE_ROUTE_STAGING
     if(Reason&&Status==EnumaInheritedTopology) { *Reason=EnumaVideoReasonStagingOther+EnumaClassifyVideoStaging(&S); }
@@ -50,4 +53,11 @@ ENUMA_U32 EnumaCaptureVideoConfigDetailed(ENUMA_INHERITED_READ Read,void *Ctx,EN
 }
 ENUMA_U32 EnumaCaptureVideoConfig(ENUMA_INHERITED_READ Read,void *Ctx,ENUMA_U32 Revision,ENUMA_INHERITED_SNAPSHOT *Out,ENUMA_VIDEO_SCOPE *Scope) {
   return EnumaCaptureVideoConfigDetailed(Read,Ctx,Revision,Out,Scope,0);
+}
+
+ENUMA_U32 EnumaCaptureVideoConfigDetailed(ENUMA_INHERITED_READ Read,void *Ctx,ENUMA_U32 Revision,ENUMA_INHERITED_SNAPSHOT *Out,ENUMA_VIDEO_SCOPE *Scope,ENUMA_U32 *Reason) {
+  return CaptureDetailed(Read,Ctx,Revision,Out,Scope,Reason,0);
+}
+ENUMA_U32 EnumaCaptureNativeBorderConfig(ENUMA_INHERITED_READ Read,void *Ctx,ENUMA_U32 Revision,ENUMA_INHERITED_SNAPSHOT *Out,ENUMA_VIDEO_SCOPE *Scope,ENUMA_U32 *Reason) {
+  return CaptureDetailed(Read,Ctx,Revision,Out,Scope,Reason,1);
 }

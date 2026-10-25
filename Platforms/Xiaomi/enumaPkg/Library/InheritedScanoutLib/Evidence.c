@@ -29,7 +29,7 @@ static ENUMA_U32 Finish(ENUMA_U32 Status,ENUMA_U32 Why,ENUMA_U32 *Reason) {
   if(Reason) { *Reason=Why; } return Status;
 }
 static ENUMA_U32 SampleDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT Wait,void *Ctx,const ENUMA_INHERITED_LIMITS *L,ENUMA_VIDEO_EVIDENCE *Out,ENUMA_U32 *Reason,int Native) {
-  ENUMA_VIDEO_EVIDENCE E; ENUMA_U32 N,I,Status; ENUMA_INHERITED_LIMITS Limits; ENUMA_INHERITED_FRAME Frame;
+  ENUMA_INHERITED_SNAPSHOT View; ENUMA_VIDEO_EVIDENCE E; ENUMA_U32 N,I,Status; ENUMA_INHERITED_LIMITS Limits; ENUMA_INHERITED_FRAME Frame;
   if(Reason) { *Reason=EnumaVideoReasonUnknown; }
   if(!Read||!Wait||!L||!Out||L->Mode!=ENUMA_MODE_VIDEO) { return Finish(EnumaInheritedArguments,EnumaVideoReasonArguments,Reason); }
   // No allocation or implicit runtime memory helpers in the freestanding path.
@@ -54,11 +54,17 @@ static ENUMA_U32 SampleDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT W
       if(!(V->Active&1)) { return Finish(EnumaInheritedRefreshMode,N?EnumaVideoReasonInterfaceLater:EnumaVideoReasonInterfaceInitial,Reason); }
     }
     ENUMA_U32 CaptureReason=EnumaVideoReasonPipeline;
-    Status=Native?EnumaCaptureVideoConfigDetailed(Read,Ctx,Revision,&S->Scanout,&S->Scope,&CaptureReason):EnumaCaptureVideoConfig(Read,Ctx,Revision,&S->Scanout,&S->Scope);
+    Status=Native==2?EnumaCaptureNativeBorderConfig(Read,Ctx,Revision,&S->Scanout,&S->Scope,&CaptureReason):Native?EnumaCaptureVideoConfigDetailed(Read,Ctx,Revision,&S->Scanout,&S->Scope,&CaptureReason):EnumaCaptureVideoConfig(Read,Ctx,Revision,&S->Scanout,&S->Scope);
     if(Status) { return Finish(Status,CaptureReason,Reason); }
-    Status=EnumaCaptureRoutedMixers(&S->Scanout,Read,Ctx,&S->Mixers); if(Status) { return Finish(Status,Native?EnumaVideoReasonNativeMixerCapture:EnumaVideoReasonPipeline,Reason); }
-    Status=EnumaResolveMixerOrigins(&S->Scanout,&S->Mixers,L,&Limits); if(Status) { return Finish(Status,Native?EnumaVideoReasonNativeMixerLayout:EnumaVideoReasonPipeline,Reason); }
-    Status=EnumaDecodeInherited(&S->Scanout,&Limits,&Frame); if(Status) { return Finish(Status,Native?EnumaVideoReasonNativeDecode:EnumaVideoReasonPipeline,Reason); }
+    const ENUMA_INHERITED_SNAPSHOT *Scanout=&S->Scanout;
+    if(Native==2) {
+      Status=EnumaNormalizeVideoBorder(&S->Scanout,&View);
+      if(Status) { return Finish(Status,EnumaVideoReasonNativeStaging,Reason); }
+      Scanout=&View;
+    }
+    Status=EnumaCaptureRoutedMixers(Scanout,Read,Ctx,&S->Mixers); if(Status) { return Finish(Status,Native?EnumaVideoReasonNativeMixerCapture:EnumaVideoReasonPipeline,Reason); }
+    Status=EnumaResolveMixerOrigins(Scanout,&S->Mixers,L,&Limits); if(Status) { return Finish(Status,Native?EnumaVideoReasonNativeMixerLayout:EnumaVideoReasonPipeline,Reason); }
+    Status=EnumaDecodeInherited(Scanout,&Limits,&Frame); if(Status) { return Finish(Status,Native?EnumaVideoReasonNativeDecode:EnumaVideoReasonPipeline,Reason); }
     if(N) { ENUMA_U32 Why=StableReason(&E.Samples[N-1],S,Native); if(Why) { return Finish(EnumaInheritedRefreshMode,Why,Reason); } }
     if(!N) { E.Limits=Limits; E.Frame=Frame; }
   }
@@ -76,4 +82,8 @@ ENUMA_U32 EnumaSampleNativeVideoDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERIT
 }
 ENUMA_U32 EnumaSampleVideo(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT Wait,void *Ctx,const ENUMA_INHERITED_LIMITS *L,ENUMA_VIDEO_EVIDENCE *Out) {
   return EnumaSampleVideoDetailed(Read,Wait,Ctx,L,Out,0);
+}
+
+ENUMA_U32 EnumaSampleNativeBorderVideoDetailed(ENUMA_INHERITED_READ Read,ENUMA_INHERITED_WAIT Wait,void *Ctx,const ENUMA_INHERITED_LIMITS *L,ENUMA_VIDEO_EVIDENCE *Out,ENUMA_U32 *Reason) {
+  return SampleDetailed(Read,Wait,Ctx,L,Out,Reason,2);
 }

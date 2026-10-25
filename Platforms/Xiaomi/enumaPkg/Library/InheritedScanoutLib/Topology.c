@@ -140,3 +140,16 @@ ENUMA_U32 EnumaClassifyVideoStaging(const ENUMA_INHERITED_SNAPSHOT *S) {
   if(Total!=2) { return EnumaStagingCardinality; }
   return Border?EnumaStagingBorderOnly:EnumaStagingOther;
 }
+
+// Native-only RAM view. Keep raw snapshots for stability/evidence. Admission
+// still requires the strict selector after clearing the documented border bit.
+ENUMA_U32 EnumaNormalizeVideoBorder(const ENUMA_INHERITED_SNAPSHOT *S,ENUMA_INHERITED_SNAPSHOT *Out) {
+  ENUMA_INHERITED_SNAPSHOT V; ENUMA_U32 I,C,M,Ctl,Mixers,Pipes,Status;
+  if(!S||!Out) { return EnumaInheritedArguments; }
+  for(I=0;I<sizeof(V);I++) { ((volatile unsigned char *)&V)[I]=((const unsigned char *)S)[I]; }
+  for(C=0;C<6;C++) { if(V.Ctls[C].IntfActive) { for(M=0;M<6;M++) { V.Ctls[C].Layers[M][0]&=~(1u<<24); } } }
+  Status=EnumaSelectVideoRoute(&V,&Ctl,&Mixers,&Pipes);
+  if(Status) { return Status; }
+  for(I=0;I<sizeof(V);I++) { ((volatile unsigned char *)Out)[I]=((const unsigned char *)&V)[I]; }
+  return EnumaInheritedOk;
+}
