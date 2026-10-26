@@ -395,7 +395,8 @@ def main(device_root=None):
         firmware.build(ctx,{},uefi,core)
         core_module=uefi/'Build/enumaPkg/DEBUG_CLANGPDB/AARCH64/MdeModulePkg/Core/Dxe/DxeMain'
         core_makefile=core_module/'DxeCore.makefile'
-        core_flags=core_makefile.read_text()
+        core_response=core_module/'OUTPUT/cc_resp.txt'
+        core_flags=core_response.read_text()
         expected='-DENUMA_BOOT_JOURNAL='+('1' if args.boot_journal else '0')
         if expected not in core_flags.split():
             raise ValueError('boot journal selector absent from actual Core compiler flags')
@@ -404,6 +405,7 @@ def main(device_root=None):
             raise ValueError('staged Core journal differs from pinned source')
         report['boot_journal']['actual_core_cc_define']=expected
         report['boot_journal']['core_makefile_sha256']=hashlib.sha256(core_makefile.read_bytes()).hexdigest()
+        report['boot_journal']['core_cc_response_sha256']=hashlib.sha256(core_response.read_bytes()).hexdigest()
         report['boot_journal']['staged_header_sha256']=hashlib.sha256(staged_journal.read_bytes()).hexdigest()
         report['boot_journal']['core_pe_sha256']=hashlib.sha256((core_module/'OUTPUT/DxeCore.efi').read_bytes()).hexdigest()
         report['complete']=fd.is_file()
