@@ -26,11 +26,11 @@ typedef struct {
 
 // Zero-initialize once per boot. Latest 128 events retained; loss is explicit.
 STATIC inline BOOLEAN EnumaBootLogAppend (
-  ENUMA_BOOT_LOG *Log, UINT32 Point, UINT32 Ordinal,
+  volatile ENUMA_BOOT_LOG *Log, UINT32 Point, UINT32 Ordinal,
   CONST EFI_GUID *Guid, UINT64 Status
   )
 {
-  ENUMA_BOOT_EVENT *Event;
+  volatile ENUMA_BOOT_EVENT *Event;
   UINT32 Index;
   if (Log == NULL || Log->Head >= ENUMA_BOOT_LOG_CAPACITY ||
       Log->Count > ENUMA_BOOT_LOG_CAPACITY || Log->NextSequence == MAX_UINT64) {

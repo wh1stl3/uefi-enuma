@@ -3,9 +3,9 @@
   "baseline_uefi_commit": "3376c4411e08442f45f4120ed6d96f2e302c51e8",
   "original_migration_files_unchanged": false,
   "files": {
-    "diagnostics/EnumaDispatchDetailCheckpoint.h": "0a843a13ac43103a4ad07cfa6f33de8d51972dd512291424b44842932c57c8fa",
+    "diagnostics/EnumaDispatchDetailCheckpoint.h": "459e6a72d98ce24efb1dbb1760d9722ba179b42c65914db24ecec1691deff3ae",
     "patches/dxe-dispatch-details.patch": "49a051195269054894262788f65883c4665db5eec170db2f457e265b523be94d",
-    "patches/dispatch-detail-options.patch": "009a2fc330dc4cf599f8512db7e386f9c36e3ee131b9700a8491c6f139a678eb",
+    "patches/dispatch-detail-options.patch": "7352d908f4fd81e4ed33601cf4d1d02b3645e6a798f4e5f4c003ad74763e611b",
     "Resources/Scripts/enuma_preflight.py": "8bd90eb6956b6878e81d2169e0e9ec769897ce5c40fb17e9c52a3ef19f89939f",
     "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af",
     "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f",
@@ -21,7 +21,7 @@
     "diagnostics/EnumaGopAudit.h": "e6db3b2794b9dc49a5c98790ef2cfcf900af1126b3c2f20ebb30297c5eba46e5",
     "patches/simplefb-gop-query.patch": "3a013d8dabf37263db1c1c6b03b34c81d12aeaaf067386e6577928a9fc493071",
     "diagnostics/EnumaGopResult.h": "15439f96c32387cccd57c8f40d5a703600af6478c616eebe896b6a5fb536d184",
-    "Resources/Scripts/build_enuma_firmware.py": "db123bf1050d0357c1675a00659ba72956029dd141070b487f936590619d3a4c",
+    "Resources/Scripts/build_enuma_firmware.py": "ba7b4cd1893dbb10499e7d1bccfe76a308ae1db4f2afb3aef15ddf636b2209c1",
     "Resources/Scripts/enuma_firmware_preflight.py": "eb9af118480cf90166854337ed76cf850485b6e2f890e592ed7a339fbc39521a",
     "diagnostics/EnumaScanoutAudit.h": "8f49f8c27f1211be834e77e2a79a056010d2de0e637f02f82f6b7bd3464ff702",
     "patches/display-mdp-map.patch": "5aa0f4e584349354000c50a181fb7a0aa31c43b1f4128a72bc35469e90fd14b4",
@@ -84,7 +84,7 @@
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/PixelTransaction.h": "5ac8df846986ae8a3edd2d6f45dafe0a136487866087ee98a528ab3546103e2a",
     "diagnostics/EnumaPixelTransactionArm.h": "dda67853c73b69c0bf7fbe6878179df813a12972dd43f9d94d386c7500ee6098",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/PixelText.h": "a42c3d58ce581511dd66175f8f7dffeaabe968fc55925c0ee806a96c85fe9c89",
-    "diagnostics/EnumaBootJournal.h": "99fc95bf310fc1d30a40a0c4fa57f841fa445f26c466339e6d4e60612ddfed4d",
-    "docs/boot-journal.md": "08ab8ab5643c64092624f1d87d355ba155c1492d50e25be4628d1572f6d9eaee"
+    "diagnostics/EnumaBootJournal.h": "eb48820349ea1b6b9b8e1ec7dac6d853e894bca1dcf11d8dd3d7551e210cbb51",
+    "docs/boot-journal.md": "51942a38be4263c41f40cc49d947e672a75aebc4d41ccc48fdda4ab1a82ab325"
   }
 }

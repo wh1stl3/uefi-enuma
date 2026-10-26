@@ -12,7 +12,7 @@
 #endif
 #if ENUMA_BOOT_JOURNAL
 #include "EnumaBootJournal.h"
-STATIC ENUMA_BOOT_LOG EnumaDxeBootLog;
+STATIC volatile ENUMA_BOOT_LOG EnumaDxeBootLog;
 // Core-local accessor, NOT a protocol or a cross-module exported service.
 // Called only with producer quiescent; caller supplies separate storage.
 BOOLEAN EnumaDxeBootLogSnapshot (ENUMA_BOOT_LOG *Output)

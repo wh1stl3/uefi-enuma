@@ -11,7 +11,7 @@ excluded by the existing image bridge; this is not an exhaustive image tracer.
 
 There is no physical address, timer, allocation, file write, reset, framebuffer
 access, protocol publication, cache or page-table change in the journal.
-Storage is DXE Core BSS, zero initialized each boot. Latest 128 records are kept;
+Storage is volatile DXE Core BSS (retain real stores under LTO), zero initialized each boot. Volatile does not add synchronization or persistence. Latest 128 records are kept;
 overwrite loss is counted (saturating UINT64). Sequence exhaustion rejects append.
 No cross-reset persistence or physical RAM region is implied.
 
