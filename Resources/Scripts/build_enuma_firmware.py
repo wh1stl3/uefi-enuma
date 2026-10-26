@@ -78,6 +78,7 @@ def main(device_root=None):
     parser.add_argument('--reference', type=Path, default=SOURCE)
     parser.add_argument('--unixnu', type=Path, required=True)
     parser.add_argument('--jobs', type=int, default=4)
+    parser.add_argument('--boot-log-hold-seconds',type=int,choices=(2,8),default=2,help='cached-log hold only;8s is new R-022 scope, not an old-image repeat')
     parser.add_argument('--boot-log-replay', action='store_true', help='R-020 actual DXE cached return status,256x96/2s/save/revalidate/restore; requires journal and exact pixel profile')
     parser.add_argument('--boot-journal', action='store_true', help='DXE-local bounded RAM status journal only; no DEBUG/SEC/console/pixel transport')
     parser.add_argument('--gop-backend-selftest', action='store_true', help='offline link qualification: include non-autostart QEMU RAM-only GOP self-test; not a physical GOP candidate')
@@ -165,6 +166,8 @@ def main(device_root=None):
         parser.error('video terminal requires video audit/query1 and no dispatcher completion fallback')
     if args.inherited_video_topology_query and (not args.inherited_video_terminal or args.inherited_video_entry_control):
         parser.error('topology status query requires symmetric video audit and excludes constant control')
+    if args.boot_log_hold_seconds!=2 and not args.boot_log_replay:
+        parser.error('extended hold requires real cached-log replay')
     if args.boot_log_replay and (not args.boot_journal or not args.native_route_cpu_pattern or args.native_route_cpu_text):
         parser.error('log replay requires journal/pixel transaction and excludes fixed text')
     if args.native_route_cpu_text and not args.native_route_cpu_pattern:
@@ -314,6 +317,7 @@ def main(device_root=None):
     board['firmware']['defines']['ENUMA_GOP_SELFTEST']='1' if args.gop_backend_selftest else '0'
     board['firmware']['defines']['ENUMA_BOOT_JOURNAL']='1' if args.boot_journal else '0'
     board['firmware']['defines']['ENUMA_BOOT_LOG_REPLAY']='1' if args.boot_log_replay else '0'
+    board['firmware']['defines']['ENUMA_BOOT_LOG_HOLD_US']=str(args.boot_log_hold_seconds*1000000)
     board['firmware']['defines']['ENUMA_NATIVE_ROUTE_CPU_TEXT']='1' if args.native_route_cpu_text else '0'
     board['firmware']['defines']['ENUMA_NATIVE_ROUTE_CPU_PATTERN']='1' if args.native_route_cpu_pattern else '0'
     board['firmware']['defines']['ENUMA_NATIVE_ROUTE_CPU_ROI']='1' if args.native_route_cpu_roi else '0'
@@ -369,7 +373,7 @@ def main(device_root=None):
         'inherited_video_entry_control':args.inherited_video_entry_control,
         'inherited_video_terminal':args.inherited_video_terminal,
         'native_route_cpu_text':args.native_route_cpu_text,'native_route_cpu_pattern':args.native_route_cpu_pattern,'native_route_cpu_roi':args.native_route_cpu_roi,'native_route_cpu_barrier':args.native_route_cpu_barrier,'native_route_cpu_read':args.native_route_cpu_read,'native_route_cpu_policy':args.native_route_cpu_policy,'native_route_cpu_attribute':args.native_route_cpu_attribute,'native_route_cpu_stage1':args.native_route_cpu_stage1,'native_route_alpha_view':args.native_route_alpha_view,'native_route_global_detail':args.native_route_global_detail,'native_route_global_output':args.native_route_global_output,'native_route_structure_detail':args.native_route_structure_detail,'native_route_structure':args.native_route_structure,'native_route_blend':args.native_route_blend,'native_route_layout':args.native_route_layout,'native_route_staging':args.native_route_staging,'native_route_detail':args.native_route_detail,'native_route_audit':args.native_route_audit,'native_observe_query':args.native_observe_query,'native_observe_control':args.native_observe_control,'native_mask_field':args.native_mask_field,
-        'boot_log_replay':args.boot_log_replay,
+        'boot_log_replay':args.boot_log_replay,'boot_log_hold_seconds':args.boot_log_hold_seconds if args.boot_log_replay else None,
         'boot_journal':{'enabled':args.boot_journal,'scope':'DXE-local RAM only','capacity':128,'screen_sink':args.boot_log_replay,'global_debug':False,'core_snapshot_protocol':args.boot_log_replay},
         'inherited_video_topology_query':args.inherited_video_topology_query,
         'inherited_video_reason_target':reason_target,'inherited_video_reason_query':args.inherited_video_reason_query,
@@ -387,7 +391,7 @@ def main(device_root=None):
         'diagnostic_omitted_oem_modules':(['CPRDxe','DisplayDxe','UFSDxe'] if args.diagnostic_simplefb else ['UFSDxe'] if args.diagnostic_without_ufs else []),
         'diagnostic_simplefb_metadata_only':args.diagnostic_simplefb and not args.diagnostic_pixel_preview and not args.inherited_video_audit,
         'diagnostic_pixel_preview':args.diagnostic_pixel_preview,
-        'hardware_review_required':'R-020' if args.boot_log_replay else 'R-019' if args.native_route_cpu_text else 'R-018' if args.native_route_cpu_pattern else 'R-017-WARM' if args.ramoops_warm_control else 'R-017-READ' if args.ramoops_read_header else 'R-017-MAP' if args.ramoops_map_control else ('R-017' if args.ramoops_canary_nonce else ('R-005' if args.diagnostic_pixel_preview else None)),
+        'hardware_review_required':'R-022' if args.boot_log_replay and args.boot_log_hold_seconds==8 else 'R-020' if args.boot_log_replay else 'R-019' if args.native_route_cpu_text else 'R-018' if args.native_route_cpu_pattern else 'R-017-WARM' if args.ramoops_warm_control else 'R-017-READ' if args.ramoops_read_header else 'R-017-MAP' if args.ramoops_map_control else ('R-017' if args.ramoops_canary_nonce else ('R-005' if args.diagnostic_pixel_preview else None)),
         'diagnostic_gop_query':args.diagnostic_gop_query,
         'diagnostic_gop_step':args.diagnostic_gop_step,
         'value_probe':{'source':args.value_source,'constant_code':args.value_code,

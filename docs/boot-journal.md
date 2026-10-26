@@ -48,3 +48,20 @@ Those tests do not establish FD execution or screen visibility. Before hardware:
 qualify the exact FD/PE/macros and payload, design/approve the precise replay pixel
 scope and gates, publish current documents, then fresh identity/backup/recovery and
 camera checks. No consumed S-001..047 image or R-018/R-019 permission is reused.
+
+
+R-022 offline profile: --boot-log-hold-seconds 8 changes the actual Stall argument
+from2000000 to8000000 through ENUMA_BOOT_LOG_HOLD_US. Default2s and older scopes
+stay unchanged; only2s/8s are compile-admitted. The same256x96 page, glyphs,
+save/verify/restore loops,73728loads/49152stores/3DSB and660MDP/four100ms are kept.
+This is a real new firmware candidate, not a renamed/repackaged consumed image.
+No new address, mapping, framebuffer area, GOP or verified claim is introduced.
+
+The old broad fixed windows cannot be reused for8s: failure holds may be rejected
+or complete, so codes2..4 conservatively allow0..8.4s and can overlap. Any failure
+code or overlap stops. The unique code5 window predeclares nominal8s plus0..0.4s
+sampling and the existing baseline/tolerance; only whole-interval unique5 plus
+independent recovery supports transaction completion. It remains indirect timing,
+not a guarantee or readable content proof. The75s host observation bound stays.
+New image/scope qualification and concrete human approval after the observation
+stop are required before a trial, followed by a fresh capture-start confirmation.
