@@ -85,6 +85,7 @@ def main(device_root=None):
     parser.add_argument('--inherited-video-topology-query', type=int, choices=(0,1,2), default=0, help='first-status classification: 1 topology, 2 not-topology; 0 original full predicate; never GOP admission')
     parser.add_argument('--inherited-video-reason-target', choices=('off','counter-enable','stability','interface','refresh'),default='off',help='first-return reason predicate; never relaxes sampling')
     parser.add_argument('--inherited-video-reason-query',type=int,choices=(0,1,2),default=0,help='1 selected reason, 2 exact complement; 0 off')
+    parser.add_argument('--native-route-cpu-text',action='store_true',help='R-019 fixed UEFI bitmap in128x32, exact approval/camera required')
     parser.add_argument('--native-route-cpu-pattern',action='store_true',help='R-018 pending: bounded save/pattern/restore transaction, camera and exact approval required')
     parser.add_argument('--native-route-cpu-roi',action='store_true',help='Read1024 words in128x8 at decoded origin; one barrier and existing CurrentEL classification')
     parser.add_argument('--native-route-cpu-barrier',action='store_true',help='One DSB SY before single CPU read, no cache clean/invalidate or pixel store')
@@ -162,6 +163,8 @@ def main(device_root=None):
         parser.error('video terminal requires video audit/query1 and no dispatcher completion fallback')
     if args.inherited_video_topology_query and (not args.inherited_video_terminal or args.inherited_video_entry_control):
         parser.error('topology status query requires symmetric video audit and excludes constant control')
+    if args.native_route_cpu_text and not args.native_route_cpu_pattern:
+        parser.error('Text requires bounded pixel transaction')
     if args.native_route_cpu_pattern and not args.native_route_cpu_roi:
         parser.error('Pixel transaction requires ROI profile')
     if args.native_route_cpu_roi and not args.native_route_cpu_barrier:
@@ -305,6 +308,7 @@ def main(device_root=None):
         word = int(args.ramoops_canary_nonce[i*8:i*8+8], 16) if args.ramoops_canary_nonce else 0
         board['firmware']['defines']['ENUMA_RAMOOPS_NONCE_'+str(i)]=str(word)+'U'
     board['firmware']['defines']['ENUMA_GOP_SELFTEST']='1' if args.gop_backend_selftest else '0'
+    board['firmware']['defines']['ENUMA_NATIVE_ROUTE_CPU_TEXT']='1' if args.native_route_cpu_text else '0'
     board['firmware']['defines']['ENUMA_NATIVE_ROUTE_CPU_PATTERN']='1' if args.native_route_cpu_pattern else '0'
     board['firmware']['defines']['ENUMA_NATIVE_ROUTE_CPU_ROI']='1' if args.native_route_cpu_roi else '0'
     board['firmware']['defines']['ENUMA_NATIVE_ROUTE_CPU_BARRIER']='1' if args.native_route_cpu_barrier else '0'
@@ -358,7 +362,7 @@ def main(device_root=None):
         'inherited_video_audit_read_only':args.inherited_video_audit and not args.native_route_cpu_pattern,
         'inherited_video_entry_control':args.inherited_video_entry_control,
         'inherited_video_terminal':args.inherited_video_terminal,
-        'native_route_cpu_pattern':args.native_route_cpu_pattern,'native_route_cpu_roi':args.native_route_cpu_roi,'native_route_cpu_barrier':args.native_route_cpu_barrier,'native_route_cpu_read':args.native_route_cpu_read,'native_route_cpu_policy':args.native_route_cpu_policy,'native_route_cpu_attribute':args.native_route_cpu_attribute,'native_route_cpu_stage1':args.native_route_cpu_stage1,'native_route_alpha_view':args.native_route_alpha_view,'native_route_global_detail':args.native_route_global_detail,'native_route_global_output':args.native_route_global_output,'native_route_structure_detail':args.native_route_structure_detail,'native_route_structure':args.native_route_structure,'native_route_blend':args.native_route_blend,'native_route_layout':args.native_route_layout,'native_route_staging':args.native_route_staging,'native_route_detail':args.native_route_detail,'native_route_audit':args.native_route_audit,'native_observe_query':args.native_observe_query,'native_observe_control':args.native_observe_control,'native_mask_field':args.native_mask_field,
+        'native_route_cpu_text':args.native_route_cpu_text,'native_route_cpu_pattern':args.native_route_cpu_pattern,'native_route_cpu_roi':args.native_route_cpu_roi,'native_route_cpu_barrier':args.native_route_cpu_barrier,'native_route_cpu_read':args.native_route_cpu_read,'native_route_cpu_policy':args.native_route_cpu_policy,'native_route_cpu_attribute':args.native_route_cpu_attribute,'native_route_cpu_stage1':args.native_route_cpu_stage1,'native_route_alpha_view':args.native_route_alpha_view,'native_route_global_detail':args.native_route_global_detail,'native_route_global_output':args.native_route_global_output,'native_route_structure_detail':args.native_route_structure_detail,'native_route_structure':args.native_route_structure,'native_route_blend':args.native_route_blend,'native_route_layout':args.native_route_layout,'native_route_staging':args.native_route_staging,'native_route_detail':args.native_route_detail,'native_route_audit':args.native_route_audit,'native_observe_query':args.native_observe_query,'native_observe_control':args.native_observe_control,'native_mask_field':args.native_mask_field,
         'inherited_video_topology_query':args.inherited_video_topology_query,
         'inherited_video_reason_target':reason_target,'inherited_video_reason_query':args.inherited_video_reason_query,
         'ramoops_canary_nonce':args.ramoops_canary_nonce,
@@ -375,7 +379,7 @@ def main(device_root=None):
         'diagnostic_omitted_oem_modules':(['CPRDxe','DisplayDxe','UFSDxe'] if args.diagnostic_simplefb else ['UFSDxe'] if args.diagnostic_without_ufs else []),
         'diagnostic_simplefb_metadata_only':args.diagnostic_simplefb and not args.diagnostic_pixel_preview and not args.inherited_video_audit,
         'diagnostic_pixel_preview':args.diagnostic_pixel_preview,
-        'hardware_review_required':'R-018' if args.native_route_cpu_pattern else 'R-017-WARM' if args.ramoops_warm_control else 'R-017-READ' if args.ramoops_read_header else 'R-017-MAP' if args.ramoops_map_control else ('R-017' if args.ramoops_canary_nonce else ('R-005' if args.diagnostic_pixel_preview else None)),
+        'hardware_review_required':'R-019' if args.native_route_cpu_text else 'R-018' if args.native_route_cpu_pattern else 'R-017-WARM' if args.ramoops_warm_control else 'R-017-READ' if args.ramoops_read_header else 'R-017-MAP' if args.ramoops_map_control else ('R-017' if args.ramoops_canary_nonce else ('R-005' if args.diagnostic_pixel_preview else None)),
         'diagnostic_gop_query':args.diagnostic_gop_query,
         'diagnostic_gop_step':args.diagnostic_gop_step,
         'value_probe':{'source':args.value_source,'constant_code':args.value_code,
@@ -414,13 +418,13 @@ def main(device_root=None):
                 staged=uefi/'Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe'
                 entry='EnumaNativeObserve.c' if args.native_observe_query else ('EnumaInheritedVideoEntryControl.c' if args.inherited_video_entry_control else 'EnumaInheritedVideoAudit.c')
                 assert (staged/'SimpleFb.c').read_bytes()==(SOURCE/'diagnostics'/entry).read_bytes()
-                for name in ('InheritedScanout.h','Decode.c','Capture.c','VideoCapture.c','Topology.h','Topology.c','Evidence.h','Evidence.c','VideoResult.h','NativeObserve.h','NativeObserve.c','NativeMaskResult.h','NativeRouteResult.h','CpuStage1.h','PixelTransaction.h'):
+                for name in ('InheritedScanout.h','Decode.c','Capture.c','VideoCapture.c','Topology.h','Topology.c','Evidence.h','Evidence.c','VideoResult.h','NativeObserve.h','NativeObserve.c','NativeMaskResult.h','NativeRouteResult.h','CpuStage1.h','PixelTransaction.h','PixelText.h'):
                     assert (staged/'InheritedVideo'/name).read_bytes()==(SOURCE/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'/name).read_bytes()
                 report['inherited_video_compiled_contract']={
                     'entry_source_sha256':hashlib.sha256((staged/'SimpleFb.c').read_bytes()).hexdigest(),
                     'all_staged_sources_equal':True,'maximum_read_callbacks':660 if args.native_route_cpu_pattern else 0 if (args.inherited_video_entry_control or args.native_observe_control) else (26 if args.native_observe_query else 330),'maximum_wait_calls':5 if args.native_route_cpu_pattern else 0 if (args.inherited_video_entry_control or args.native_observe_control) else 2,
                     'entry_constant_marker':(1 if args.native_observe_query==1 else 5) if args.native_observe_control else (1 if args.inherited_video_entry_control else None),
-                    'pixel_access':args.native_route_cpu_read,'maximum_framebuffer_reads':3072 if args.native_route_cpu_pattern else 1024 if args.native_route_cpu_roi else 1 if args.native_route_cpu_read else 0,'framebuffer_writes':2048 if args.native_route_cpu_pattern else 0,'cache_maintenance':False,'protocol_published':False}
+                    'pixel_access':args.native_route_cpu_read,'maximum_framebuffer_reads':12288 if args.native_route_cpu_text else 3072 if args.native_route_cpu_pattern else 1024 if args.native_route_cpu_roi else 1 if args.native_route_cpu_read else 0,'framebuffer_writes':8192 if args.native_route_cpu_text else 2048 if args.native_route_cpu_pattern else 0,'cache_maintenance':False,'protocol_published':False}
             if args.value_source != 'off':
                 command=(module/'GNUmakefile').read_text()
                 for name in ('ENUMA_VALUE_SOURCE','ENUMA_VALUE_CODE','ENUMA_VALUE_INDEX','ENUMA_VALUE_SHIFT'):

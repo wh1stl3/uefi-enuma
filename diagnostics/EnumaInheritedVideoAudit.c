@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BSD-2-Clause-Patent
-// Opt-in READ ONLY audit entry, materialized instead of metadata SimpleFb.c.
+// Read-only by default; separately gated bounded pixel profiles are explicit opt-ins.
 // Keeps the existing audited entry/Core-warning transport; publishes NO GOP.
 #include <Uefi.h>
 #include <Library/UefiBootServicesTableLib.h>
@@ -12,6 +12,12 @@
 #include "InheritedVideo/Evidence.c"
 #include "InheritedVideo/VideoResult.h"
 #include "InheritedVideo/NativeRouteResult.h"
+#ifndef ENUMA_NATIVE_ROUTE_CPU_TEXT
+#define ENUMA_NATIVE_ROUTE_CPU_TEXT 0
+#endif
+#if ENUMA_NATIVE_ROUTE_CPU_TEXT < 0 || ENUMA_NATIVE_ROUTE_CPU_TEXT > 1 || (ENUMA_NATIVE_ROUTE_CPU_TEXT && !ENUMA_NATIVE_ROUTE_CPU_PATTERN)
+#error Text requires the bounded pixel transaction profile
+#endif
 #ifndef ENUMA_NATIVE_ROUTE_CPU_PATTERN
 #define ENUMA_NATIVE_ROUTE_CPU_PATTERN 0
 #endif

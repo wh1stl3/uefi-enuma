@@ -5,8 +5,8 @@
   "files": {
     "diagnostics/EnumaDispatchDetailCheckpoint.h": "94410c586f4be25733202b53a5cc44ec749bc470cee69def233bb099fcf97358",
     "patches/dxe-dispatch-details.patch": "49a051195269054894262788f65883c4665db5eec170db2f457e265b523be94d",
-    "patches/dispatch-detail-options.patch": "b8a54eb46f970e1086b6c5b58bb0a4b1f1c4cea7d1af0135d2626581e68c2ba8",
-    "Resources/Scripts/enuma_preflight.py": "6ef30f5b9468c984edea120547da88850f2f3c681d6c70c27e9663f597a4c814",
+    "patches/dispatch-detail-options.patch": "009a2fc330dc4cf599f8512db7e386f9c36e3ee131b9700a8491c6f139a678eb",
+    "Resources/Scripts/enuma_preflight.py": "5b294a8536a9f2dfbdebaeda07848f380f43765de3a122f101e23d70dd5b9c97",
     "Resources/Scripts/check_enuma_source.py": "b072717b35d63bf5b74ffb857e05d77de4ec13d84e641b25533246d2600975af",
     "patches/apriori-metronome.patch": "59f37df69981dc61593fedb1e20b382d0881b01d3dfefc05d6fcc1028f85f01f",
     "patches/diagnostic-ufs-selection.patch": "b79be283dc09951a91aa6fc99ec26aea7187f9845080d28445bf6dd50db5a523",
@@ -21,7 +21,7 @@
     "diagnostics/EnumaGopAudit.h": "e6db3b2794b9dc49a5c98790ef2cfcf900af1126b3c2f20ebb30297c5eba46e5",
     "patches/simplefb-gop-query.patch": "3a013d8dabf37263db1c1c6b03b34c81d12aeaaf067386e6577928a9fc493071",
     "diagnostics/EnumaGopResult.h": "15439f96c32387cccd57c8f40d5a703600af6478c616eebe896b6a5fb536d184",
-    "Resources/Scripts/build_enuma_firmware.py": "6211be5db56c2c35b0ff6a65923689bd5902c48ad6c4662b73d667beff2ce438",
+    "Resources/Scripts/build_enuma_firmware.py": "d40424356c50ce3f85cca88366607a897c0558f3222b9d87378abf394f0e77c6",
     "Resources/Scripts/enuma_firmware_preflight.py": "eb9af118480cf90166854337ed76cf850485b6e2f890e592ed7a339fbc39521a",
     "diagnostics/EnumaScanoutAudit.h": "8f49f8c27f1211be834e77e2a79a056010d2de0e637f02f82f6b7bd3464ff702",
     "patches/display-mdp-map.patch": "5aa0f4e584349354000c50a181fb7a0aa31c43b1f4128a72bc35469e90fd14b4",
@@ -62,7 +62,7 @@
     "Platforms/Xiaomi/enumaPkg/Application/EnumaGopSelfTest/EnumaGopSelfTest.c": "2ba9a69f941458b8bd83fc3ee4bf4b7e33f1714a46e5dd30c40fad21a9398e62",
     "Platforms/Xiaomi/enumaPkg/Application/EnumaGopSelfTest/EnumaGopSelfTest.inf": "0b7178c55067180a40e51f5407dfc947e86e6c26a3e3e98d2a6345869f73b7e7",
     "Platforms/Xiaomi/enumaPkg/enumaPkg.dec": "95e718eec6757efee7f59e17b6d6f4f31a9d01932711e6e05a52ca3ab19ea8ef",
-    "diagnostics/EnumaInheritedVideoAudit.c": "f6002932a6521ad9f6b2169c8436704ab8ff16593f734436ec1ea2292130c2bd",
+    "diagnostics/EnumaInheritedVideoAudit.c": "635741983884c49a8c9bbe6ec6f0115c6e0241802d9c94324c145de2ea4b9ced",
     "diagnostics/EnumaInheritedVideoEntryControl.c": "7b2945d156533f554e7246cf6ced5cc949bfb865e3456437204c8dfa0acd3c6a",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/VideoCapture.c": "42a38eb9d85540e1fd6a6f0b948507a70e017ae1e8361bedeffa4eec06b3d49b",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/VideoResult.h": "b9c9375fad42acd8dd470bd2208e70ccbf17f22a2233f62e8dab30cceec324a7",
@@ -81,7 +81,8 @@
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/NativeMaskResult.h": "63ab286705d8bfc270ba88c14185dfd1a2f81508672eadda07e7673f3033b783",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/NativeRouteResult.h": "7a026df32dfec0da46901f9e6fcfd6e035bac9bf27431faba185605f3db87f5e",
     "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/CpuStage1.h": "87fa42ebd700bf5aeefa33edae286d9f64cac9cc56e26b3688138acce6e46c6f",
-    "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/PixelTransaction.h": "7ab68cc083835963d81f40f11709a2202412c02772cc928e0c7716f7738cfb59",
-    "diagnostics/EnumaPixelTransactionArm.h": "d4dac1403573ff395ae6bc947c2ba3c022286e9106b2d0b5f22456f65fd5c69c"
+    "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/PixelTransaction.h": "5ac8df846986ae8a3edd2d6f45dafe0a136487866087ee98a528ab3546103e2a",
+    "diagnostics/EnumaPixelTransactionArm.h": "dda67853c73b69c0bf7fbe6878179df813a12972dd43f9d94d386c7500ee6098",
+    "Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib/PixelText.h": "a42c3d58ce581511dd66175f8f7dffeaabe968fc55925c0ee806a96c85fe9c89"
   }
 }

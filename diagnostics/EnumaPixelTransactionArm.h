@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BSD-2-Clause-Patent
-// R-018 candidate only. Included after the bounded MDP Read/Wait callbacks.
+// Protected R-018/R-019 candidates only. Included after the bounded MDP Read/Wait callbacks.
 #ifndef ENUMA_PIXEL_TRANSACTION_ARM_H
 #define ENUMA_PIXEL_TRANSACTION_ARM_H
 #include "InheritedVideo/PixelTransaction.h"
@@ -15,16 +15,16 @@ STATIC int PixelAddressOk(ENUMA_PIXEL_CONTEXT *C,ENUMA_U64 A) {
   if(!C||!EnumaPixelFrameValid(C->Frame)||(A&3)||A<C->Frame->Base||
      A<0x9c000000ULL||A>0x9e3ffffcULL) { return 0; }
   Offset=A-C->Frame->Base;
-  return Offset/C->Frame->Stride<8&&Offset%C->Frame->Stride<512;
+  return Offset/C->Frame->Stride<ENUMA_PIXEL_ROWS&&Offset%C->Frame->Stride<512;
 }
 STATIC int PixelRead(void *Opaque,ENUMA_U64 A,ENUMA_U32 *V) {
   ENUMA_PIXEL_CONTEXT *C=Opaque;
-  if(!V||!PixelAddressOk(C,A)||C->Reads>=3072) { return 0; }
+  if(!V||!PixelAddressOk(C,A)||C->Reads>=3*ENUMA_PIXEL_WORDS) { return 0; }
   C->Reads++;*V=*(volatile ENUMA_U32 *)(UINTN)A;C->Sink=*V;return 1;
 }
 STATIC int PixelWrite(void *Opaque,ENUMA_U64 A,ENUMA_U32 V) {
   ENUMA_PIXEL_CONTEXT *C=Opaque;
-  if(!PixelAddressOk(C,A)||C->Writes>=2048) { return 0; }
+  if(!PixelAddressOk(C,A)||C->Writes>=2*ENUMA_PIXEL_WORDS) { return 0; }
   C->Writes++;*(volatile ENUMA_U32 *)(UINTN)A=V;return 1;
 }
 STATIC int PixelBarrier(void *Opaque) {

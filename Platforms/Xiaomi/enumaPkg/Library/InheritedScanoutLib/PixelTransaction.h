@@ -3,6 +3,21 @@
 #ifndef ENUMA_PIXEL_TRANSACTION_H
 #define ENUMA_PIXEL_TRANSACTION_H
 #include "Evidence.h"
+#ifndef ENUMA_NATIVE_ROUTE_CPU_TEXT
+#define ENUMA_NATIVE_ROUTE_CPU_TEXT 0
+#endif
+#define ENUMA_PIXEL_ROWS (ENUMA_NATIVE_ROUTE_CPU_TEXT?32:8)
+#define ENUMA_PIXEL_WORDS (128*ENUMA_PIXEL_ROWS)
+#if ENUMA_NATIVE_ROUTE_CPU_TEXT
+#include "PixelText.h"
+#endif
+static inline ENUMA_U32 EnumaPixelPatternAt(const ENUMA_INHERITED_FRAME *F,ENUMA_U32 N,ENUMA_U32 Color) {
+#if ENUMA_NATIVE_ROUTE_CPU_TEXT
+  (void)Color;return EnumaPixelTextAt(F,N);
+#else
+  (void)F;(void)N;return Color;
+#endif
+}
 typedef int (*ENUMA_PIXEL_READ)(void *,ENUMA_U64,ENUMA_U32 *);
 typedef int (*ENUMA_PIXEL_WRITE)(void *,ENUMA_U64,ENUMA_U32);
 typedef int (*ENUMA_PIXEL_REVALIDATE)(void *,const ENUMA_INHERITED_FRAME *);
@@ -48,30 +63,30 @@ static inline ENUMA_U64 EnumaPixelAddress(const ENUMA_INHERITED_FRAME *F,ENUMA_U
 static inline ENUMA_U32 EnumaPixelTransaction(const ENUMA_INHERITED_FRAME *F,ENUMA_U32 Policy,ENUMA_U64 El,
   ENUMA_PIXEL_READ Read,ENUMA_PIXEL_WRITE Write,ENUMA_PIXEL_REVALIDATE Validate,
   ENUMA_PIXEL_BARRIER Barrier,ENUMA_PIXEL_HOLD Hold,void *Ctx) {
-  ENUMA_U32 Saved[1024],I,V,Color=0xffffffffu,AllWhite=1,PatternOk=1,HoldOk,RestoreOk=1;
+  ENUMA_U32 Saved[ENUMA_PIXEL_WORDS],I,V,Color=0xffffffffu,AllWhite=1,PatternOk=1,HoldOk,RestoreOk=1;
   if(Policy!=3||El!=4||!EnumaPixelFrameValid(F)||!Read||!Write||!Validate||!Barrier||!Hold) { return 1; }
   if(Barrier(Ctx)!=1) { return 1; }
-  for(I=0;I<1024;I++) {
+  for(I=0;I<ENUMA_PIXEL_WORDS;I++) {
     if(Read(Ctx,EnumaPixelAddress(F,I),&Saved[I])!=1) { return 1; }
     if(Saved[I]!=0xffffffffu) { AllWhite=0; }
   }
   if(Validate(Ctx,F)!=1) { return 1; }
   if(AllWhite) { Color=F->ReservedMask; } // opaque black; white otherwise
-  for(I=0;I<1024;I++) {
-    if(Write(Ctx,EnumaPixelAddress(F,I),Color)!=1) { PatternOk=0;break; }
+  for(I=0;I<ENUMA_PIXEL_WORDS;I++) {
+    if(Write(Ctx,EnumaPixelAddress(F,I),EnumaPixelPatternAt(F,I,Color))!=1) { PatternOk=0;break; }
   }
   if(Barrier(Ctx)!=1) { PatternOk=0; }
-  if(PatternOk) { for(I=0;I<1024;I++) {
-    if(Read(Ctx,EnumaPixelAddress(F,I),&V)!=1||V!=Color) { PatternOk=0;break; }
+  if(PatternOk) { for(I=0;I<ENUMA_PIXEL_WORDS;I++) {
+    if(Read(Ctx,EnumaPixelAddress(F,I),&V)!=1||V!=EnumaPixelPatternAt(F,I,Color)) { PatternOk=0;break; }
   } }
   HoldOk=Hold(Ctx,500000)==1;
   // Every path after the first write attempt tries the complete saved region.
   // Do not stop restoration at a rejected callback or a mismatching word.
-  for(I=0;I<1024;I++) {
+  for(I=0;I<ENUMA_PIXEL_WORDS;I++) {
     if(Write(Ctx,EnumaPixelAddress(F,I),Saved[I])!=1) { RestoreOk=0; }
   }
   if(Barrier(Ctx)!=1) { RestoreOk=0; }
-  for(I=0;I<1024;I++) {
+  for(I=0;I<ENUMA_PIXEL_WORDS;I++) {
     if(Read(Ctx,EnumaPixelAddress(F,I),&V)!=1||V!=Saved[I]) { RestoreOk=0; }
   }
   if(!RestoreOk) { return 4; }
