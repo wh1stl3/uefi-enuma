@@ -4,6 +4,24 @@
 #define ENUMA_DISPATCH_DETAIL_CHECKPOINT_H
 #include "EnumaDispatchCheckpoint.h"
 #include "EnumaGopResult.h"
+#ifndef ENUMA_BOOT_JOURNAL
+#define ENUMA_BOOT_JOURNAL 0
+#endif
+#if ENUMA_BOOT_JOURNAL != 0 && ENUMA_BOOT_JOURNAL != 1
+#error Invalid boot journal selector
+#endif
+#if ENUMA_BOOT_JOURNAL
+#include "EnumaBootJournal.h"
+STATIC ENUMA_BOOT_LOG EnumaDxeBootLog;
+// Core-local accessor, NOT a protocol or a cross-module exported service.
+// Called only with producer quiescent; caller supplies separate storage.
+BOOLEAN EnumaDxeBootLogSnapshot (ENUMA_BOOT_LOG *Output)
+{
+  if (Output == NULL || Output == &EnumaDxeBootLog) { return FALSE; }
+  *Output = EnumaDxeBootLog;
+  return TRUE;
+}
+#endif
 #ifndef ENUMA_DIAG_DETAIL_POINT
 #define ENUMA_DIAG_DETAIL_POINT 13
 #endif
@@ -66,6 +84,12 @@ STATIC VOID EnumaDispatchDetailCheckpoint (
   )
 {
   UINTN SelectedPoint;
+#if ENUMA_BOOT_JOURNAL
+  // Record real point/status BEFORE marker/GUID/reset filtering. No inference
+  // from timing: absent return records remain absent, including failed entry.
+  (VOID) EnumaBootLogAppend (&EnumaDxeBootLog, (UINT32)Point,
+    (UINT32)EnumaDispatchOrdinal, FileName, (UINT64)Status);
+#endif
   (VOID) FileName;
   SelectedPoint = Point;
   // Only the final CoreStartImage return and an exact diagnostic marker count.

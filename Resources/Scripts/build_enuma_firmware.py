@@ -78,6 +78,7 @@ def main(device_root=None):
     parser.add_argument('--reference', type=Path, default=SOURCE)
     parser.add_argument('--unixnu', type=Path, required=True)
     parser.add_argument('--jobs', type=int, default=4)
+    parser.add_argument('--boot-journal', action='store_true', help='DXE-local bounded RAM status journal only; no DEBUG/SEC/console/pixel transport')
     parser.add_argument('--gop-backend-selftest', action='store_true', help='offline link qualification: include non-autostart QEMU RAM-only GOP self-test; not a physical GOP candidate')
     parser.add_argument('--inherited-video-audit', action='store_true', help='read-only same-boot video audit instead of metadata SimpleFb; no GOP/pixels; requires exact bounded SimpleFb query profile')
     parser.add_argument('--inherited-video-entry-control', action='store_true', help='new isolation: same inherited-video INF/constructors, constant PASS body, no MMIO/map query')
@@ -308,6 +309,7 @@ def main(device_root=None):
         word = int(args.ramoops_canary_nonce[i*8:i*8+8], 16) if args.ramoops_canary_nonce else 0
         board['firmware']['defines']['ENUMA_RAMOOPS_NONCE_'+str(i)]=str(word)+'U'
     board['firmware']['defines']['ENUMA_GOP_SELFTEST']='1' if args.gop_backend_selftest else '0'
+    board['firmware']['defines']['ENUMA_BOOT_JOURNAL']='1' if args.boot_journal else '0'
     board['firmware']['defines']['ENUMA_NATIVE_ROUTE_CPU_TEXT']='1' if args.native_route_cpu_text else '0'
     board['firmware']['defines']['ENUMA_NATIVE_ROUTE_CPU_PATTERN']='1' if args.native_route_cpu_pattern else '0'
     board['firmware']['defines']['ENUMA_NATIVE_ROUTE_CPU_ROI']='1' if args.native_route_cpu_roi else '0'
@@ -363,6 +365,7 @@ def main(device_root=None):
         'inherited_video_entry_control':args.inherited_video_entry_control,
         'inherited_video_terminal':args.inherited_video_terminal,
         'native_route_cpu_text':args.native_route_cpu_text,'native_route_cpu_pattern':args.native_route_cpu_pattern,'native_route_cpu_roi':args.native_route_cpu_roi,'native_route_cpu_barrier':args.native_route_cpu_barrier,'native_route_cpu_read':args.native_route_cpu_read,'native_route_cpu_policy':args.native_route_cpu_policy,'native_route_cpu_attribute':args.native_route_cpu_attribute,'native_route_cpu_stage1':args.native_route_cpu_stage1,'native_route_alpha_view':args.native_route_alpha_view,'native_route_global_detail':args.native_route_global_detail,'native_route_global_output':args.native_route_global_output,'native_route_structure_detail':args.native_route_structure_detail,'native_route_structure':args.native_route_structure,'native_route_blend':args.native_route_blend,'native_route_layout':args.native_route_layout,'native_route_staging':args.native_route_staging,'native_route_detail':args.native_route_detail,'native_route_audit':args.native_route_audit,'native_observe_query':args.native_observe_query,'native_observe_control':args.native_observe_control,'native_mask_field':args.native_mask_field,
+        'boot_journal':{'enabled':args.boot_journal,'scope':'DXE-local RAM only','capacity':128,'screen_sink':False,'global_debug':False},
         'inherited_video_topology_query':args.inherited_video_topology_query,
         'inherited_video_reason_target':reason_target,'inherited_video_reason_query':args.inherited_video_reason_query,
         'ramoops_canary_nonce':args.ramoops_canary_nonce,

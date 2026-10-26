@@ -164,6 +164,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
         shutil.copyfile(source/'diagnostics/EnumaRamoopsWarmCheckpoint.h', dxe/'DxeMain/EnumaStageCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchCheckpoint.h', dxe/'Dispatcher/EnumaDispatchCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaGopResult.h', dxe/'Dispatcher/EnumaGopResult.h')
+    shutil.copyfile(source/'diagnostics/EnumaBootJournal.h', dxe/'Dispatcher/EnumaBootJournal.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchDetailCheckpoint.h', dxe/'Dispatcher/EnumaDispatchDetailCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaImageEntryCheckpoint.h', dxe/'Dispatcher/EnumaImageEntryCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchCompletionCheckpoint.h', dxe/'DxeMain/EnumaDispatchCompletionCheckpoint.h')
