@@ -370,7 +370,7 @@ def main(device_root=None):
         'inherited_video_terminal':args.inherited_video_terminal,
         'native_route_cpu_text':args.native_route_cpu_text,'native_route_cpu_pattern':args.native_route_cpu_pattern,'native_route_cpu_roi':args.native_route_cpu_roi,'native_route_cpu_barrier':args.native_route_cpu_barrier,'native_route_cpu_read':args.native_route_cpu_read,'native_route_cpu_policy':args.native_route_cpu_policy,'native_route_cpu_attribute':args.native_route_cpu_attribute,'native_route_cpu_stage1':args.native_route_cpu_stage1,'native_route_alpha_view':args.native_route_alpha_view,'native_route_global_detail':args.native_route_global_detail,'native_route_global_output':args.native_route_global_output,'native_route_structure_detail':args.native_route_structure_detail,'native_route_structure':args.native_route_structure,'native_route_blend':args.native_route_blend,'native_route_layout':args.native_route_layout,'native_route_staging':args.native_route_staging,'native_route_detail':args.native_route_detail,'native_route_audit':args.native_route_audit,'native_observe_query':args.native_observe_query,'native_observe_control':args.native_observe_control,'native_mask_field':args.native_mask_field,
         'boot_log_replay':args.boot_log_replay,
-        'boot_journal':{'enabled':args.boot_journal,'scope':'DXE-local RAM only','capacity':128,'screen_sink':False,'global_debug':False},
+        'boot_journal':{'enabled':args.boot_journal,'scope':'DXE-local RAM only','capacity':128,'screen_sink':args.boot_log_replay,'global_debug':False,'core_snapshot_protocol':args.boot_log_replay},
         'inherited_video_topology_query':args.inherited_video_topology_query,
         'inherited_video_reason_target':reason_target,'inherited_video_reason_query':args.inherited_video_reason_query,
         'ramoops_canary_nonce':args.ramoops_canary_nonce,
@@ -441,13 +441,13 @@ def main(device_root=None):
                 staged=uefi/'Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe'
                 entry='EnumaNativeObserve.c' if args.native_observe_query else ('EnumaInheritedVideoEntryControl.c' if args.inherited_video_entry_control else 'EnumaInheritedVideoAudit.c')
                 assert (staged/'SimpleFb.c').read_bytes()==(SOURCE/'diagnostics'/entry).read_bytes()
-                for name in ('InheritedScanout.h','Decode.c','Capture.c','VideoCapture.c','Topology.h','Topology.c','Evidence.h','Evidence.c','VideoResult.h','NativeObserve.h','NativeObserve.c','NativeMaskResult.h','NativeRouteResult.h','CpuStage1.h','PixelTransaction.h','PixelText.h'):
+                for name in ('InheritedScanout.h','Decode.c','Capture.c','VideoCapture.c','Topology.h','Topology.c','Evidence.h','Evidence.c','VideoResult.h','NativeObserve.h','NativeObserve.c','NativeMaskResult.h','NativeRouteResult.h','CpuStage1.h','PixelTransaction.h','PixelText.h','PixelLogPage.h'):
                     assert (staged/'InheritedVideo'/name).read_bytes()==(SOURCE/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'/name).read_bytes()
                 report['inherited_video_compiled_contract']={
                     'entry_source_sha256':hashlib.sha256((staged/'SimpleFb.c').read_bytes()).hexdigest(),
                     'all_staged_sources_equal':True,'maximum_read_callbacks':660 if args.native_route_cpu_pattern else 0 if (args.inherited_video_entry_control or args.native_observe_control) else (26 if args.native_observe_query else 330),'maximum_wait_calls':5 if args.native_route_cpu_pattern else 0 if (args.inherited_video_entry_control or args.native_observe_control) else 2,
                     'entry_constant_marker':(1 if args.native_observe_query==1 else 5) if args.native_observe_control else (1 if args.inherited_video_entry_control else None),
-                    'pixel_access':args.native_route_cpu_read,'maximum_framebuffer_reads':12288 if args.native_route_cpu_text else 3072 if args.native_route_cpu_pattern else 1024 if args.native_route_cpu_roi else 1 if args.native_route_cpu_read else 0,'framebuffer_writes':8192 if args.native_route_cpu_text else 2048 if args.native_route_cpu_pattern else 0,'cache_maintenance':False,'protocol_published':False}
+                    'pixel_access':args.native_route_cpu_read,'maximum_framebuffer_reads':73728 if args.boot_log_replay else 12288 if args.native_route_cpu_text else 3072 if args.native_route_cpu_pattern else 1024 if args.native_route_cpu_roi else 1 if args.native_route_cpu_read else 0,'framebuffer_writes':49152 if args.boot_log_replay else 8192 if args.native_route_cpu_text else 2048 if args.native_route_cpu_pattern else 0,'cache_maintenance':False,'protocol_published':False}
             if args.value_source != 'off':
                 command=(module/'GNUmakefile').read_text()
                 for name in ('ENUMA_VALUE_SOURCE','ENUMA_VALUE_CODE','ENUMA_VALUE_INDEX','ENUMA_VALUE_SHIFT'):
