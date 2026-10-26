@@ -6,6 +6,10 @@
 #include <Library/MemoryMapHelperLib.h>
 #include <Library/PcdLib.h>
 #include "EnumaGopResult.h"
+#if ENUMA_BOOT_LOG_REPLAY
+#include "EnumaBootJournalProtocol.h"
+STATIC ENUMA_BOOT_LOG mReplaySnapshot;
+#endif
 #include "InheritedVideo/Decode.c"
 #include "InheritedVideo/VideoCapture.c"
 #include "InheritedVideo/Topology.c"
@@ -216,6 +220,14 @@ EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
   if(Status==EnumaInheritedOk&&Reason==EnumaVideoReasonComplete&&mEvidence.Frame.Requirements==22) {
 #if ENUMA_NATIVE_ROUTE_CPU_PATTERN
     ENUMA_U64 El=0;ENUMA_U32 Policy=EnumaCpuStage1ArmDetailed(&mEvidence.Frame,&El);
+#if ENUMA_BOOT_LOG_REPLAY
+    EFI_GUID JournalGuid=ENUMA_BOOT_JOURNAL_PROTOCOL_GUID;
+    ENUMA_BOOT_JOURNAL_PROTOCOL *Journal=NULL;
+    if(Policy!=3||El!=4||!gBS||!gBS->LocateProtocol||
+       gBS->LocateProtocol(&JournalGuid,NULL,(VOID **)&Journal)!=EFI_SUCCESS||!Journal||
+       Journal->Version!=1||Journal->Bytes!=sizeof(*Journal)||!Journal->Snapshot||
+       !Journal->Snapshot(&mReplaySnapshot)||!EnumaLogPageFromSnapshot(&mReplaySnapshot,&mEnumaLogPage)) { return 1; }
+#endif
     return (EFI_STATUS)PixelArmProbe(&mEvidence.Frame,Policy,El);
 #elif ENUMA_NATIVE_ROUTE_CPU_ROI
     ENUMA_U64 El=0;ENUMA_U32 Policy=EnumaCpuStage1ArmDetailed(&mEvidence.Frame,&El);

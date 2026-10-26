@@ -6,13 +6,23 @@
 #ifndef ENUMA_NATIVE_ROUTE_CPU_TEXT
 #define ENUMA_NATIVE_ROUTE_CPU_TEXT 0
 #endif
-#define ENUMA_PIXEL_ROWS (ENUMA_NATIVE_ROUTE_CPU_TEXT?32:8)
-#define ENUMA_PIXEL_WORDS (128*ENUMA_PIXEL_ROWS)
+#ifndef ENUMA_BOOT_LOG_REPLAY
+#define ENUMA_BOOT_LOG_REPLAY 0
+#endif
+#define ENUMA_PIXEL_WIDTH (ENUMA_BOOT_LOG_REPLAY?256:128)
+#define ENUMA_PIXEL_ROWS (ENUMA_BOOT_LOG_REPLAY?96:(ENUMA_NATIVE_ROUTE_CPU_TEXT?32:8))
+#define ENUMA_PIXEL_WORDS (ENUMA_PIXEL_WIDTH*ENUMA_PIXEL_ROWS)
+#define ENUMA_PIXEL_HOLD_US (ENUMA_BOOT_LOG_REPLAY?2000000:500000)
+#if ENUMA_BOOT_LOG_REPLAY
+#include "PixelLogPage.h"
+#endif
 #if ENUMA_NATIVE_ROUTE_CPU_TEXT
 #include "PixelText.h"
 #endif
 static inline ENUMA_U32 EnumaPixelPatternAt(const ENUMA_INHERITED_FRAME *F,ENUMA_U32 N,ENUMA_U32 Color) {
-#if ENUMA_NATIVE_ROUTE_CPU_TEXT
+#if ENUMA_BOOT_LOG_REPLAY
+  (void)Color;return EnumaPixelLogAt(F,N);
+#elif ENUMA_NATIVE_ROUTE_CPU_TEXT
   (void)Color;return EnumaPixelTextAt(F,N);
 #else
   (void)F;(void)N;return Color;
@@ -55,7 +65,7 @@ static inline int EnumaPixelFrameValid(const ENUMA_INHERITED_FRAME *F) {
   return U==0xffffffffu;
 }
 static inline ENUMA_U64 EnumaPixelAddress(const ENUMA_INHERITED_FRAME *F,ENUMA_U32 N) {
-  return F->Base+(ENUMA_U64)(N/128)*F->Stride+(ENUMA_U64)(N%128)*4;
+  return F->Base+(ENUMA_U64)(N/ENUMA_PIXEL_WIDTH)*F->Stride+(ENUMA_U64)(N%ENUMA_PIXEL_WIDTH)*4;
 }
 // Returns1 no stores;2 pattern rejected/restored;3 hold rejected/restored;
 // 4 restoration not established (hard stop);5 CPU transaction/restoration done.
@@ -64,6 +74,9 @@ static inline ENUMA_U32 EnumaPixelTransaction(const ENUMA_INHERITED_FRAME *F,ENU
   ENUMA_PIXEL_READ Read,ENUMA_PIXEL_WRITE Write,ENUMA_PIXEL_REVALIDATE Validate,
   ENUMA_PIXEL_BARRIER Barrier,ENUMA_PIXEL_HOLD Hold,void *Ctx) {
   ENUMA_U32 Saved[ENUMA_PIXEL_WORDS],I,V,Color=0xffffffffu,AllWhite=1,PatternOk=1,HoldOk,RestoreOk=1;
+#if ENUMA_BOOT_LOG_REPLAY
+  if(!mEnumaLogPage.Ready) { return 1; }
+#endif
   if(Policy!=3||El!=4||!EnumaPixelFrameValid(F)||!Read||!Write||!Validate||!Barrier||!Hold) { return 1; }
   if(Barrier(Ctx)!=1) { return 1; }
   for(I=0;I<ENUMA_PIXEL_WORDS;I++) {
@@ -79,7 +92,7 @@ static inline ENUMA_U32 EnumaPixelTransaction(const ENUMA_INHERITED_FRAME *F,ENU
   if(PatternOk) { for(I=0;I<ENUMA_PIXEL_WORDS;I++) {
     if(Read(Ctx,EnumaPixelAddress(F,I),&V)!=1||V!=EnumaPixelPatternAt(F,I,Color)) { PatternOk=0;break; }
   } }
-  HoldOk=Hold(Ctx,500000)==1;
+  HoldOk=Hold(Ctx,ENUMA_PIXEL_HOLD_US)==1;
   // Every path after the first write attempt tries the complete saved region.
   // Do not stop restoration at a rejected callback or a mismatching word.
   for(I=0;I<ENUMA_PIXEL_WORDS;I++) {

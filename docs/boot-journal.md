@@ -17,15 +17,25 @@ No cross-reset persistence or physical RAM region is implied.
 
 Single writer only: dispatcher/image bridge execution with no concurrent AP or
 exception producer. EnumaDxeBootLogSnapshot copies into distinct caller-owned
-storage with producer quiescent. It is a Core-local C function, NOT a public UEFI
-protocol, so an application cannot yet retrieve this journal.
+storage with producer quiescent. The plain --boot-journal profile has a Core-local function only. The separate
+--boot-log-replay profile publishes the private v1 read-only Snapshot protocol
+once at the first dispatcher detail checkpoint (one attempt, no retry). Its EFIAPI
+callback copies the journal while the producer is quiescent in the caller image.
+The protocol and code live in DXE Core until ExitBootServices. No append service
+is exposed; protocol install failure causes the consumer to refuse before pixels.
 ReplayNext consumes an immutable snapshot, emits the loss header first and at most
 one event per call. Caller can cancel between calls. A rejecting sink leaves the
 cursor unchanged. All numbers are fixed-width hex; g= contains in-memory LE GUID
 bytes, or '-' when absent. It has no timestamp and does not measure execution time.
 The formatter accepts typed records only; it does not parse arbitrary log strings.
 
-The screen sink is deliberately not connected. This does not capture global DEBUG,
+The separate --boot-log-replay sink selects the newest real point13 return and
+renders three cached rows: C0d O<8hex ordinal>[+ if overwritten], S<high32 status>,
+ <low32 status>. No synthetic entry-success substitutes a returned status.
+It uses origin256x96,3x5 hex glyphs at4x scale,2s hold and full save/revalidation/
+verification/restoration/readback: <=73728 loads,49152 stores,3DSB; two Native6
+samplers <=660 MDP reads/four100ms. Only EL1 and full-range NormalWT are accepted.
+This is cached status replay and does not capture global DEBUG,
 SEC, exceptions or BDS/ConOut status. SerialPortLib stays Null. Existing Print and
 DiagDraw remain coupled and unexecuted by the early terminal. Requirements22,
 alpha, SMMU and all verified fields are unchanged.

@@ -10,17 +10,40 @@
 #if ENUMA_BOOT_JOURNAL != 0 && ENUMA_BOOT_JOURNAL != 1
 #error Invalid boot journal selector
 #endif
+#ifndef ENUMA_BOOT_LOG_REPLAY
+#define ENUMA_BOOT_LOG_REPLAY 0
+#endif
+#if ENUMA_BOOT_LOG_REPLAY < 0 || ENUMA_BOOT_LOG_REPLAY > 1
+#error Invalid log replay selector
+#endif
+#if ENUMA_BOOT_LOG_REPLAY && !ENUMA_BOOT_JOURNAL
+#error Replay requires journal
+#endif
 #if ENUMA_BOOT_JOURNAL
 #include "EnumaBootJournal.h"
 STATIC volatile ENUMA_BOOT_LOG EnumaDxeBootLog;
 // Core-local accessor, NOT a protocol or a cross-module exported service.
 // Called only with producer quiescent; caller supplies separate storage.
-BOOLEAN EnumaDxeBootLogSnapshot (ENUMA_BOOT_LOG *Output)
+BOOLEAN EFIAPI EnumaDxeBootLogSnapshot (ENUMA_BOOT_LOG *Output)
 {
   if (Output == NULL || Output == &EnumaDxeBootLog) { return FALSE; }
   *Output = EnumaDxeBootLog;
   return TRUE;
 }
+#if ENUMA_BOOT_LOG_REPLAY
+#include "EnumaBootJournalProtocol.h"
+STATIC BOOLEAN EnumaJournalPublishAttempted;
+STATIC EFI_HANDLE EnumaJournalHandle;
+STATIC EFI_STATUS EnumaJournalPublishStatus;
+STATIC ENUMA_BOOT_JOURNAL_PROTOCOL EnumaJournalProtocol={1,sizeof(ENUMA_BOOT_JOURNAL_PROTOCOL),EnumaDxeBootLogSnapshot};
+STATIC VOID EnumaJournalPublish(VOID) {
+  EFI_GUID Guid=ENUMA_BOOT_JOURNAL_PROTOCOL_GUID;
+  if(!EnumaJournalPublishAttempted) {
+    EnumaJournalPublishAttempted=TRUE;
+    EnumaJournalPublishStatus=CoreInstallProtocolInterface(&EnumaJournalHandle,&Guid,EFI_NATIVE_INTERFACE,&EnumaJournalProtocol);
+  }
+}
+#endif
 #endif
 #ifndef ENUMA_DIAG_DETAIL_POINT
 #define ENUMA_DIAG_DETAIL_POINT 13
@@ -85,6 +108,9 @@ STATIC VOID EnumaDispatchDetailCheckpoint (
 {
   UINTN SelectedPoint;
 #if ENUMA_BOOT_JOURNAL
+#if ENUMA_BOOT_LOG_REPLAY
+  EnumaJournalPublish();
+#endif
   // Record real point/status BEFORE marker/GUID/reset filtering. No inference
   // from timing: absent return records remain absent, including failed entry.
   (VOID) EnumaBootLogAppend (&EnumaDxeBootLog, (UINT32)Point,

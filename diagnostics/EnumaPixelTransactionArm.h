@@ -15,7 +15,7 @@ STATIC int PixelAddressOk(ENUMA_PIXEL_CONTEXT *C,ENUMA_U64 A) {
   if(!C||!EnumaPixelFrameValid(C->Frame)||(A&3)||A<C->Frame->Base||
      A<0x9c000000ULL||A>0x9e3ffffcULL) { return 0; }
   Offset=A-C->Frame->Base;
-  return Offset/C->Frame->Stride<ENUMA_PIXEL_ROWS&&Offset%C->Frame->Stride<512;
+  return Offset/C->Frame->Stride<ENUMA_PIXEL_ROWS&&Offset%C->Frame->Stride<ENUMA_PIXEL_WIDTH*4;
 }
 STATIC int PixelRead(void *Opaque,ENUMA_U64 A,ENUMA_U32 *V) {
   ENUMA_PIXEL_CONTEXT *C=Opaque;
@@ -34,7 +34,7 @@ STATIC int PixelBarrier(void *Opaque) {
 }
 STATIC int PixelHold(void *Opaque,ENUMA_U32 Us) {
   ENUMA_PIXEL_CONTEXT *C=Opaque;
-  if(!C||C->Holds||Us!=500000||!gBS||!gBS->Stall) { return 0; }
+  if(!C||C->Holds||Us!=ENUMA_PIXEL_HOLD_US||!gBS||!gBS->Stall) { return 0; }
   C->Holds++;return gBS->Stall(Us)==EFI_SUCCESS?1:0;
 }
 STATIC int PixelValidate(void *Opaque,const ENUMA_INHERITED_FRAME *F) {
