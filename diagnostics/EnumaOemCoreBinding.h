@@ -15,6 +15,9 @@ STATIC ENUMA_PRECALL_CAPTURE mOemCoreCapture;
 STATIC BOOLEAN mOemCoreAttempted;
 STATIC EFI_HANDLE EnumaOemStartingFv;
 STATIC EFI_HANDLE mOemProgressHandle;
+VOID EnumaOemCoreSyncSystemTable(EFI_SYSTEM_TABLE *System) {
+  if(EFI_ERROR(EnumaServiceTraceSyncSystem(System))){OemCaptureTerminal(NULL);}
+}
 VOID EnumaOemCoreAfterStart(EFI_HANDLE Handle,EFI_STATUS Status){
 #if ENUMA_OEM_PROGRESS
   if(Handle==mOemProgressHandle&&Handle==EnumaStartingImage&&mOemCoreAttempted){OemProgressReturned(Status);}

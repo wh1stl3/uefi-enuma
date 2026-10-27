@@ -25,6 +25,7 @@ typedef struct ENUMA_SERVICE_TRACE_CONTEXT {
   EFI_SYSTEM_TABLE System;
   EFI_BOOT_SERVICES Boot;
   EFI_BOOT_SERVICES *Original;
+  EFI_SYSTEM_TABLE *SourceSystem;
   UINTN ImageBase,ImageSize;
   BOOLEAN Published;
   ENUMA_SERVICE_TRACE_LOG Log;
@@ -94,7 +95,7 @@ STATIC EFI_STATUS EnumaServiceTracePrepare(ENUMA_SERVICE_TRACE *Context,EFI_SYST
   Boot=System->BootServices;
   if(System->Hdr.HeaderSize!=sizeof(*System)||!Boot||Boot->Hdr.HeaderSize!=sizeof(*Boot)||
      !Boot->RaiseTPL||!Boot->RestoreTPL||!Boot->CalculateCrc32||!Boot->LocateProtocol||!Boot->HandleProtocol||!Boot->AllocatePool){return EFI_UNSUPPORTED;}
-  ZeroMem(Context,sizeof(*Context));Context->Original=Boot;Context->ImageBase=ImageBase;Context->ImageSize=ImageSize;
+  ZeroMem(Context,sizeof(*Context));Context->Original=Boot;Context->SourceSystem=System;Context->ImageBase=ImageBase;Context->ImageSize=ImageSize;
   CopyMem(&Context->Boot,Boot,sizeof(*Boot));CopyMem(&Context->System,System,sizeof(*System));
   Context->Boot.LocateProtocol=EnumaTraceLocateProtocol;Context->Boot.HandleProtocol=EnumaTraceHandleProtocol;
   Context->Boot.AllocatePool=EnumaTraceAllocatePool;Context->Boot.Hdr.CRC32=0;
@@ -104,6 +105,18 @@ STATIC EFI_STATUS EnumaServiceTracePrepare(ENUMA_SERVICE_TRACE *Context,EFI_SYST
   Status=Boot->CalculateCrc32(&Context->System,sizeof(Context->System),&Context->System.Hdr.CRC32);
   if(EFI_ERROR(Status)){return Status;}
   Context->Published=TRUE;mEnumaServiceTrace=Context;return EFI_SUCCESS;
+}
+// Core invokes this before old configuration storage is freed and before
+// notifications. It performs no allocations or protocol calls. Inactive traces
+// are harmless; unrelated SystemTables cannot update this private view.
+STATIC EFI_STATUS EnumaServiceTraceSyncSystem(EFI_SYSTEM_TABLE *System) {
+  ENUMA_SERVICE_TRACE *C=mEnumaServiceTrace;
+  if(!C||!C->Published){return EFI_SUCCESS;}
+  if(System!=C->SourceSystem){return EFI_INVALID_PARAMETER;}
+  C->System.ConfigurationTable=System->ConfigurationTable;
+  C->System.NumberOfTableEntries=System->NumberOfTableEntries;
+  C->System.Hdr.CRC32=0;
+  return C->Original->CalculateCrc32(&C->System,sizeof(C->System),&C->System.Hdr.CRC32);
 }
 STATIC BOOLEAN EnumaServiceTraceSnapshot(ENUMA_SERVICE_TRACE_LOG *Output) {
   ENUMA_SERVICE_TRACE *C=mEnumaServiceTrace;EFI_TPL Previous;

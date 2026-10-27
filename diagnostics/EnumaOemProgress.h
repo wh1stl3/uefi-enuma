@@ -3,6 +3,10 @@
 #ifndef ENUMA_OEM_PROGRESS_H
 #define ENUMA_OEM_PROGRESS_H
 #include "EnumaOemServiceTraceView.h"
+#ifndef ENUMA_OEM_EARLY
+#define ENUMA_OEM_EARLY 0
+#endif
+#define ENUMA_PROGRESS_CALL (ENUMA_OEM_EARLY ? 1ULL : 0ULL)
 typedef struct {
   ENUMA_SERVICE_TRACE *Owner;
   UINT64 Session,SidCall;
@@ -25,7 +29,11 @@ STATIC __attribute__((noinline)) VOID OemProgressEmit(UINT32 Phase,CONST ENUMA_S
   P->Active=FALSE;
 }
 STATIC __attribute__((noinline)) VOID OemProgressObserve(ENUMA_SERVICE_TRACE *Trace,UINT64 Call,EFI_TPL Tpl,BOOLEAN Returned){
+#if ENUMA_OEM_EARLY
+  STATIC CONST EFI_GUID Sid={0xb5062be7,0x170b,0x4a32,{0xbe,0x21,0x68,0x92,0x62,0xff,0x43,0x99}};
+#else
   STATIC CONST EFI_GUID Sid={0x54b6d3b4,0x5d33,0x4f91,{0x86,0x00,0x6c,0x41,0xd5,0xde,0xb1,0x9a}};
+#endif
   ENUMA_OEM_PROGRESS_CONTEXT *P=&mOemProgress;CONST ENUMA_SERVICE_EVENT *E;BOOLEAN IsSid;
   if(Trace!=P->Owner||P->Stopped){return;}
   if(P->Active){OemProgressFail();}
@@ -34,7 +42,7 @@ STATIC __attribute__((noinline)) VOID OemProgressObserve(ENUMA_SERVICE_TRACE *Tr
   if(E->Call!=Call||E->Returned!=Returned){OemProgressFail();}
   IsSid=E->Service==EnumaServiceLocateProtocol&&E->HasGuid&&CompareMem(&E->Guid,&Sid,sizeof(Sid))==0;
   if(!Returned&&IsSid&&P->SidCall==MAX_UINT64){P->SidCall=Call;}
-  if(Call==0){
+  if(Call==ENUMA_PROGRESS_CALL){
     if(E->CallerRva==MAX_UINT64||(Returned&&!(P->Seen&(1U<<1)))){OemProgressFail();}
     OemProgressEmit(Returned?2:1,E,Tpl);
   }

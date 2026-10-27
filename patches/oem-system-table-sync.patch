@@ -1,0 +1,37 @@
+--- a/MdeModulePkg/Core/Dxe/Misc/InstallConfigurationTable.c
++++ b/MdeModulePkg/Core/Dxe/Misc/InstallConfigurationTable.c
+@@ -7,6 +7,8 @@
+ **/
+ 
+ #include "DxeMain.h"
++
++VOID EnumaOemCoreSyncSystemTable (EFI_SYSTEM_TABLE *System);
+ 
+ #define CONFIG_TABLE_SIZE_INCREASED  0x10
+ 
+@@ -70,6 +72,7 @@
+       //
+       // Signal Configuration Table change
+       //
++      EnumaOemCoreSyncSystemTable (gDxeCoreST);
+       CoreNotifySignalList (Guid);
+ 
+       return EFI_SUCCESS;
+@@ -144,7 +147,8 @@
+         //
+         // Free the old table after updating System Table to the new table pointer.
+         //
+-        CoreFreePool (OldTable);
++        EnumaOemCoreSyncSystemTable (gDxeCoreST);
++        CoreFreePool (OldTable);
+       } else {
+         //
+         // Update System Table
+@@ -173,6 +177,7 @@
+   //
+   // Signal Configuration Table change
+   //
++  EnumaOemCoreSyncSystemTable (gDxeCoreST);
+   CoreNotifySignalList (Guid);
+ 
+   return EFI_SUCCESS;

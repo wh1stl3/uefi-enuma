@@ -50,8 +50,8 @@ def main():
         from uuid import UUID
         runtime=json.loads(args.oem_run_config.read_text())
         if set(runtime)!={'trial_id','session','selected_call','profile','experiment'} or str(UUID(runtime['trial_id']))!=runtime['trial_id'] or \
-           type(runtime['session']) is not int or not 0<runtime['session']<2**64 or type(runtime['selected_call']) is not int or runtime['selected_call']!=0 or \
-           runtime['profile']!='oem-control' or runtime['experiment'] not in ('oem-first-call-preforward-v1','oem-progress-v2'):
+           type(runtime['session']) is not int or not 0<runtime['session']<2**64 or type(runtime['selected_call']) is not int or runtime['selected_call']!=(1 if runtime['experiment']=='oem-early-v3' else 0) or \
+           runtime['profile']!='oem-control' or runtime['experiment'] not in ('oem-first-call-preforward-v1','oem-progress-v2','oem-early-v3'):
             parser.error('invalid fixed-scope OEM runtime configuration')
     if is_oem != (args.oem_profile_pair is not None):
         parser.error('OEM profiles require a pair; other profiles forbid it')
@@ -197,7 +197,7 @@ def main():
                     ENUMA_RAM_PAYLOAD='0',ENUMA_GOP_SELFTEST='1')
         defs['ENUMA_DIRECT_MENU']='1' if args.direct_menu else '0'
         if is_oem: oem_helper.defines(args.profile,defs)
-        if args.oem_trace_build:board['firmware']['patches'].append('patches/oem-core-binding.patch')
+        if args.oem_trace_build:board['firmware']['patches'].extend(['patches/oem-core-binding.patch','patches/oem-system-table-sync.patch'])
         if runtime:
             defs.update(ENUMA_DIAG_STAGE='13',ENUMA_DIAG_DETAIL_POINT='13',ENUMA_DIAG_GUID_ENABLED='1',
                         ENUMA_DIAG_GUID_ONLY='1',ENUMA_DIAG_GUID_LOW64='0x4f7906c74138022f',
@@ -224,7 +224,12 @@ def main():
         preflight.prepare(root,snapshot,uefi,core,unixnu,source,vendor,out/'preflight.json')
         trace_identity=None
         if args.oem_trace_build:
-            shutil.copyfile(snapshot/'patches/oem-core-binding.patch',uefi/'patches/oem-core-binding.patch')
+            # Fixed archive stores this file as CRLF. Normalize only disposable
+            # staging for the LF patch; the archive and source checkout stay intact.
+            config_source=core/'MdeModulePkg/Core/Dxe/Misc/InstallConfigurationTable.c'
+            config_source.write_bytes(config_source.read_bytes().replace(b'\r\n',b'\n'))
+            for patch in ('oem-core-binding.patch','oem-system-table-sync.patch'):
+                shutil.copyfile(snapshot/'patches'/patch,uefi/'patches'/patch)
             target=core/'MdeModulePkg/Core/Dxe/Dispatcher'
             for name in ('EnumaOemCoreBinding.h','EnumaOemLoadedIdentity.h','EnumaOemBoardCapture.h',
                          'EnumaOemTraceTarget.h','EnumaOemServiceTrace.h','EnumaOemServiceTraceView.h',
@@ -241,7 +246,7 @@ def main():
                                 core/'UefiCpuPkg/Library/CpuExceptionHandlerLib/AArch64/EnumaUnhandledExceptionCheckpoint.h')
                 oem_binding.update(stop_before_dispatch=False,runtime_experiment=True)
                 save(out/'oem-profile-binding.json',oem_binding)
-            trace_identity.update(stage10_gate=not bool(runtime),selected_call=0,session=runtime['session'] if runtime else 1,trial_nonce=bool(runtime),
+            trace_identity.update(stage10_gate=not bool(runtime),selected_call=runtime['selected_call'] if runtime else 0,session=runtime['session'] if runtime else 1,trial_nonce=bool(runtime),
                                   board_adapter_linked=True,board_runtime_qualified=False)
             save(out/'oem-trace-identity.json',trace_identity)
         print('Preflight complete; compiling BaseTools and full enuma FD',flush=True)
