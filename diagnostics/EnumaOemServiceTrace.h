@@ -167,9 +167,11 @@ STATIC EFI_STATUS EnumaServiceTraceSyncSystem(EFI_SYSTEM_TABLE *System) {
   C->System.Hdr.CRC32=0;
   return C->Original->CalculateCrc32(&C->System,sizeof(C->System),&C->System.Hdr.CRC32);
 }
+#if !ENUMA_OEM_EXIT_CLOCK
 STATIC BOOLEAN EnumaServiceTraceSnapshot(ENUMA_SERVICE_TRACE_LOG *Output) {
   ENUMA_SERVICE_TRACE *C=mEnumaServiceTrace;EFI_TPL Previous;
   if(!C||!Output||Output==&C->Log){return FALSE;}
   Previous=C->Original->RaiseTPL(TPL_HIGH_LEVEL);CopyMem(Output,&C->Log,sizeof(*Output));C->Original->RestoreTPL(Previous);return TRUE;
 }
+#endif
 #endif

@@ -4,26 +4,40 @@
 #ifndef ENUMA_OEM_CORE_BINDING_H
 #define ENUMA_OEM_CORE_BINDING_H
 #include "EnumaOemBuildIdentity.h"
+#if ENUMA_OEM_EXIT_CLOCK && (!ENUMA_OEM_PROGRESS || !ENUMA_OEM_RAM_EVENT || !ENUMA_OEM_FAR_CHAIN)
+#error Clock scope requires RAM-only far progress
+#endif
 #include "EnumaOemTraceTarget.h"
 #include <PiDxe.h>
 #include <Protocol/GraphicsOutput.h>
 #include <Protocol/FirmwareVolume2.h>
 #include <Protocol/DevicePath.h>
 #include "EnumaOemLoadedIdentity.h"
+#if ENUMA_OEM_EXIT_CLOCK
+#include "EnumaOemClockCapture.h"
+#else
 #include "EnumaOemBoardCapture.h"
+#endif
 #include "EnumaOemProgress.h"
 #if ENUMA_OEM_FAR_CHAIN
 VOID EnumaOemFarDispatchComplete(VOID){
+#if ENUMA_OEM_EXIT_CLOCK
+  EnumaOemClockExit(EnumaOemClockClass(mOemProgress.Owner!=NULL,
+    (mOemProgress.FarFlags&64)!=0,mOemProgress.FarStatus));
+#else
   STATIC CONST EFI_GUID Guid={0x9042a9de,0x23dc,0x4a38,{0x96,0xfb,0x7a,0xde,0xd0,0x80,0x51,0x6a}};
   EFI_GRAPHICS_OUTPUT_PROTOCOL *Gop=NULL;EFI_STATUS Status;
   if(!mOemProgress.Owner||!(mOemProgress.FarFlags&64)){return;}
   Status=mOemOriginalBoot->LocateProtocol((EFI_GUID *)&Guid,NULL,(VOID **)&Gop);
   OemProgressFarFinish(Status==EFI_SUCCESS&&Gop!=NULL,
     Status==EFI_SUCCESS&&Gop!=NULL&&Gop->Mode!=NULL,gDxeCoreST->ConOut!=NULL);
+#endif
 }
 #endif
 STATIC ENUMA_SERVICE_TRACE mOemCoreTrace;
+#if !ENUMA_OEM_EXIT_CLOCK
 STATIC ENUMA_PRECALL_CAPTURE mOemCoreCapture;
+#endif
 STATIC BOOLEAN mOemCoreAttempted;
 STATIC EFI_HANDLE EnumaOemStartingFv;
 STATIC EFI_HANDLE mOemProgressHandle;
@@ -37,6 +51,7 @@ VOID EnumaOemCoreAfterStart(EFI_HANDLE Handle,EFI_STATUS Status){
   (VOID)Handle;(VOID)Status;
 #endif
 }
+#if !ENUMA_OEM_EXIT_CLOCK
 STATIC __attribute__((unused)) VOID OemRuntimeBeforeForward(ENUMA_SERVICE_TRACE *Trace,UINT64 Call,EFI_TPL Tpl){
   EnumaCaptureBeforeForward(Trace,Call,Tpl);
   // Runtime first-call experiment cannot continue without a completed CPU
@@ -45,6 +60,7 @@ STATIC __attribute__((unused)) VOID OemRuntimeBeforeForward(ENUMA_SERVICE_TRACE 
     EnumaCaptureStop(&mOemCoreCapture);OemCaptureTerminal(NULL);
   }
 }
+#endif
 EFI_STATUS EnumaOemCoreBeforeEntry(EFI_HANDLE Handle,EFI_LOADED_IMAGE_PROTOCOL *Loaded,UINTN Entry){
   STATIC CONST EFI_GUID Display={0x4138022f,0x06c7,0x4f79,{0x9c,0x94,0x7e,0x33,0xb5,0x11,0xa4,0xe7}};
   EFI_LOADED_IMAGE_PROTOCOL *Actual=NULL;VOID *Fv=NULL;EFI_STATUS Status;

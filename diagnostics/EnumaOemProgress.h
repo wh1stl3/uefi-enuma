@@ -2,7 +2,11 @@
 // Five bounded, independent observations. No status is fabricated for entry.
 #ifndef ENUMA_OEM_PROGRESS_H
 #define ENUMA_OEM_PROGRESS_H
+#if ENUMA_OEM_EXIT_CLOCK
+#include "EnumaOemServiceTrace.h"
+#else
 #include "EnumaOemServiceTraceView.h"
+#endif
 #ifndef ENUMA_OEM_EARLY
 #define ENUMA_OEM_EARLY 0
 #endif
@@ -21,6 +25,7 @@ typedef struct {
   ENUMA_SERVICE_TRACE_LOG Snapshot;
 } ENUMA_OEM_PROGRESS_CONTEXT;
 STATIC ENUMA_OEM_PROGRESS_CONTEXT mOemProgress;
+#if !ENUMA_OEM_EXIT_CLOCK
 STATIC __attribute__((noinline)) VOID OemProgressFail(VOID){
   mOemProgress.Stopped=TRUE;mOemProgress.Stop(NULL);
   for(;;){} // A returning terminal callback cannot resume OEM.
@@ -32,6 +37,7 @@ STATIC __attribute__((noinline)) VOID OemProgressEmit(UINT32 Phase,CONST ENUMA_S
   if(!P->Present(Phase,E,P->Session)){OemProgressFail();}
   P->Active=FALSE;
 }
+#endif
 #if ENUMA_OEM_RAM_EVENT
 STATIC __attribute__((noinline)) VOID OemProgressRecord(ENUMA_SERVICE_TRACE *Trace,CONST ENUMA_SERVICE_EVENT *E){
   STATIC CONST EFI_GUID Sid={0x54b6d3b4,0x5d33,0x4f91,{0x86,0x00,0x6c,0x41,0xd5,0xde,0xb1,0x9a}};
@@ -132,7 +138,7 @@ STATIC __attribute__((noinline)) VOID OemProgressReturned(EFI_STATUS Status){
   OemProgressEmit(5,&E,Tpl);
 #endif
 }
-#if ENUMA_OEM_FAR_CHAIN
+#if ENUMA_OEM_FAR_CHAIN && !ENUMA_OEM_EXIT_CLOCK
 STATIC __attribute__((noinline)) VOID OemProgressFarFinish(BOOLEAN Gop,BOOLEAN Mode,BOOLEAN Console){
   ENUMA_OEM_PROGRESS_CONTEXT *P=&mOemProgress;ENUMA_SERVICE_EVENT E;EFI_TPL Tpl;
   if(!P->Owner||P->Stopped||!(P->FarFlags&64)){return;}
