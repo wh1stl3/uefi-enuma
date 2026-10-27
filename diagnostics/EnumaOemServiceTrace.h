@@ -9,7 +9,10 @@
 #include <Library/BaseMemoryLib.h>
 #define ENUMA_SERVICE_TRACE_CAPACITY 128U
 #define ENUMA_SERVICE_TRACE_UNKNOWN_RVA MAX_UINT64
-enum { EnumaServiceLocateProtocol=1,EnumaServiceHandleProtocol,EnumaServiceAllocatePool };
+#ifndef ENUMA_OEM_REGISTRATION
+#define ENUMA_OEM_REGISTRATION 0
+#endif
+enum { EnumaServiceLocateProtocol=1,EnumaServiceHandleProtocol,EnumaServiceAllocatePool,EnumaServiceInstallConfigurationTable };
 typedef struct {
   UINT64 Sequence,Call,CallerRva,Value,Status;
   UINT32 Service;
@@ -88,6 +91,24 @@ STATIC __attribute__((noinline)) EFI_STATUS EFIAPI EnumaTraceAllocatePool(EFI_ME
   Status=mEnumaServiceTrace->Original->AllocatePool(Type,Size,Buffer);
   EnumaServiceEnd(Call,EnumaServiceAllocatePool,Caller,Size,NULL,Status);return Status;
 }
+#if ENUMA_OEM_REGISTRATION
+// Exact original OEM call at 0x5cc4, LR 0x5cc8. Other callers are transparent
+// and unrecorded so existing call ordinals retain their meaning.
+STATIC EFI_STATUS EnumaTraceInstallConfigurationAt(UINTN Caller,EFI_GUID *Guid,VOID *Table) {
+  ENUMA_SERVICE_TRACE *C=mEnumaServiceTrace;
+  UINT64 Call;EFI_STATUS Status;EFI_GUID Saved;
+  if(Caller<C->ImageBase||Caller-C->ImageBase!=0x5cc8||C->ImageSize<=0x5cc8){
+    return C->Original->InstallConfigurationTable(Guid,Table);
+  }
+  if(Guid){CopyMem(&Saved,Guid,sizeof(Saved));}
+  Call=EnumaServiceBegin(EnumaServiceInstallConfigurationTable,Caller,0,Guid?&Saved:NULL);
+  Status=C->Original->InstallConfigurationTable(Guid,Table);
+  EnumaServiceEnd(Call,EnumaServiceInstallConfigurationTable,Caller,0,Guid?&Saved:NULL,Status);return Status;
+}
+STATIC __attribute__((noinline)) EFI_STATUS EFIAPI EnumaTraceInstallConfigurationTable(EFI_GUID *Guid,VOID *Table) {
+  return EnumaTraceInstallConfigurationAt((UINTN)__builtin_return_address(0),Guid,Table);
+}
+#endif
 STATIC EFI_STATUS EnumaServiceTracePrepare(ENUMA_SERVICE_TRACE *Context,EFI_SYSTEM_TABLE *System,UINTN ImageBase,UINTN ImageSize) {
   EFI_BOOT_SERVICES *Boot;EFI_STATUS Status;
   if(!Context||!System||!ImageSize||ImageBase>MAX_UINTN-ImageSize){return EFI_INVALID_PARAMETER;}
@@ -95,10 +116,16 @@ STATIC EFI_STATUS EnumaServiceTracePrepare(ENUMA_SERVICE_TRACE *Context,EFI_SYST
   Boot=System->BootServices;
   if(System->Hdr.HeaderSize!=sizeof(*System)||!Boot||Boot->Hdr.HeaderSize!=sizeof(*Boot)||
      !Boot->RaiseTPL||!Boot->RestoreTPL||!Boot->CalculateCrc32||!Boot->LocateProtocol||!Boot->HandleProtocol||!Boot->AllocatePool){return EFI_UNSUPPORTED;}
+#if ENUMA_OEM_REGISTRATION
+  if(!Boot->InstallConfigurationTable){return EFI_UNSUPPORTED;}
+#endif
   ZeroMem(Context,sizeof(*Context));Context->Original=Boot;Context->SourceSystem=System;Context->ImageBase=ImageBase;Context->ImageSize=ImageSize;
   CopyMem(&Context->Boot,Boot,sizeof(*Boot));CopyMem(&Context->System,System,sizeof(*System));
   Context->Boot.LocateProtocol=EnumaTraceLocateProtocol;Context->Boot.HandleProtocol=EnumaTraceHandleProtocol;
   Context->Boot.AllocatePool=EnumaTraceAllocatePool;Context->Boot.Hdr.CRC32=0;
+#if ENUMA_OEM_REGISTRATION
+  Context->Boot.InstallConfigurationTable=EnumaTraceInstallConfigurationTable;
+#endif
   Status=Boot->CalculateCrc32(&Context->Boot,sizeof(Context->Boot),&Context->Boot.Hdr.CRC32);
   if(EFI_ERROR(Status)){return Status;}
   Context->System.BootServices=&Context->Boot;Context->System.Hdr.CRC32=0;

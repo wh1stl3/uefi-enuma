@@ -3,6 +3,7 @@
 // about to enter OEM must match the protocol on the scheduled image handle.
 #ifndef ENUMA_OEM_CORE_BINDING_H
 #define ENUMA_OEM_CORE_BINDING_H
+#include "EnumaOemBuildIdentity.h"
 #include "EnumaOemTraceTarget.h"
 #include <PiDxe.h>
 #include <Protocol/FirmwareVolume2.h>

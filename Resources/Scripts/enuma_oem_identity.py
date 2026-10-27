@@ -36,14 +36,16 @@ def generate(pe, output, runtime=None):
     for v in b[text[3]:text[3]+text[2]]:h=((h^v)*1099511628211)&((1<<64)-1)
     metadata=dict(pe_sha256=digest,image_size=size,entry_rva=entry,text_rva=text[1],text_size=text[2],
                   preferred_base=image_base,text_fnv64=hex(h),text_relocations=len(relocs),cryptographic_authentication=False)
-    header='// Generated from the hash-verified build-private OEM PE. Not a signature.\n'
+    header='// Generated from the hash-verified build-private OEM PE. Not a signature.\n#ifndef ENUMA_OEM_BUILD_IDENTITY_H\n#define ENUMA_OEM_BUILD_IDENTITY_H\n'
     session=runtime['session'] if runtime else 1
     header+=f'#define ENUMA_OEM_RUNTIME {1 if runtime else 0}\n#define ENUMA_OEM_SESSION 0x{session:x}ULL\n#define ENUMA_OEM_SELECTED_CALL {runtime["selected_call"] if runtime else 0}ULL\n'
-    header+=f'#define ENUMA_OEM_PROGRESS {1 if runtime and runtime["experiment"] in ("oem-progress-v2","oem-early-v3","oem-post-kernel-v4") else 0}\n'
+    header+=f'#define ENUMA_OEM_PROGRESS {1 if runtime and runtime["experiment"] in ("oem-progress-v2","oem-early-v3","oem-post-kernel-v4","oem-registration-v5") else 0}\n'
     header+=f'#define ENUMA_OEM_EARLY {1 if runtime and runtime["experiment"]=="oem-early-v3" else 0}\n'
     header+=f'#define ENUMA_OEM_POST_KERNEL {1 if runtime and runtime["experiment"]=="oem-post-kernel-v4" else 0}\n'
+    header+=f'#define ENUMA_OEM_REGISTRATION {1 if runtime and runtime["experiment"]=="oem-registration-v5" else 0}\n'
     for name,value in [('SIZE',size),('ENTRY',entry),('TEXT_RVA',text[1]),('TEXT_SIZE',text[2]),('BASE',image_base),('HASH',h)]:
         header+=f'#define ENUMA_OEM_ID_{name} 0x{value:x}ULL\n'
     header+='STATIC CONST UINT32 EnumaOemTextRelocs[]={'+','.join(hex(x) for x in relocs)+'};\n'
+    header+='#endif\n'
     Path(output).write_text(header)
     metadata['header_sha256']=sha(header.encode());metadata['runtime']=runtime;return metadata

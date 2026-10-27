@@ -9,7 +9,7 @@
 #ifndef ENUMA_OEM_POST_KERNEL
 #define ENUMA_OEM_POST_KERNEL 0
 #endif
-#define ENUMA_PROGRESS_CALL (ENUMA_OEM_POST_KERNEL ? 4ULL : (ENUMA_OEM_EARLY ? 1ULL : 0ULL))
+#define ENUMA_PROGRESS_CALL (ENUMA_OEM_REGISTRATION ? 5ULL : ENUMA_OEM_POST_KERNEL ? 4ULL : (ENUMA_OEM_EARLY ? 1ULL : 0ULL))
 typedef struct {
   ENUMA_SERVICE_TRACE *Owner;
   UINT64 Session,SidCall;
@@ -46,6 +46,7 @@ STATIC __attribute__((noinline)) VOID OemProgressObserve(ENUMA_SERVICE_TRACE *Tr
   IsSid=E->Service==EnumaServiceLocateProtocol&&E->HasGuid&&CompareMem(&E->Guid,&Sid,sizeof(Sid))==0;
   if(!Returned&&IsSid&&P->SidCall==MAX_UINT64){P->SidCall=Call;}
   if(Call==ENUMA_PROGRESS_CALL){
+    if(ENUMA_OEM_REGISTRATION&&(E->Service!=EnumaServiceInstallConfigurationTable||E->CallerRva!=0x5cc8)){OemProgressFail();}
     if(E->CallerRva==MAX_UINT64||(Returned&&!(P->Seen&(1U<<1)))){OemProgressFail();}
     OemProgressEmit(Returned?2:1,E,Tpl);
   }
