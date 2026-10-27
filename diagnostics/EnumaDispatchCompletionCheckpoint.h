@@ -21,9 +21,15 @@
 #if ENUMA_DIAG_DISPATCH_FALLBACK && (ENUMA_DIAG_STAGE != 13 || !ENUMA_DIAG_GUID_ONLY || !ENUMA_DIAG_GUID_ENABLED || ENUMA_DIAG_DETAIL_POINT == 23 || ENUMA_DIAG_DETAIL_POINT >= 26)
 #error Dispatch fallback requires a GUID-only stage 13 driver detail
 #endif
+#if defined(ENUMA_OEM_FAR_CHAIN) && ENUMA_OEM_FAR_CHAIN
+VOID EnumaOemFarDispatchComplete(VOID);
+#endif
 STATIC VOID EnumaDispatchCompletionCheckpoint (VOID)
 {
 #if ENUMA_DIAG_DISPATCH_FALLBACK
+#if defined(ENUMA_OEM_FAR_CHAIN) && ENUMA_OEM_FAR_CHAIN
+  EnumaOemFarDispatchComplete();
+#endif
   // If a target is absent/skipped or LoadImage fails, do not enter BDS.
   // Cannot recover a hung driver, exception loop or dispatcher deadlock.
   // Fixed 7 s: timing alone cannot distinguish this from a 7 s target gate.

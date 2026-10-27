@@ -107,7 +107,8 @@ STATIC __attribute__((noinline)) BOOLEAN OemBoardSink(VOID *Opaque,CONST CHAR8 *
 STATIC __attribute__((noinline)) BOOLEAN OemProgressPresent(UINT32 Phase,CONST ENUMA_SERVICE_EVENT *E,UINT64 Session){
   STATIC UINT32 Attempts;STATIC ENUMA_PRECALL_CAPTURE Capture;
   STATIC CONST CHAR8 End[]="OEM capture end ";
-  if(Attempts>=(ENUMA_OEM_MAIN_ENTRY?3U:5U)||mOemPixel.Active||!E||Phase<1||Phase>5||
+  if(Attempts>=(ENUMA_OEM_FAR_CHAIN?1U:ENUMA_OEM_MAIN_ENTRY?3U:5U)||mOemPixel.Active||!E||Phase<1||Phase>5||
+     (ENUMA_OEM_FAR_CHAIN&&Phase!=5)||
      (ENUMA_OEM_MAIN_ENTRY&&Phase!=1&&Phase!=3&&Phase!=5)){return FALSE;}
   Attempts++;
   // Each prior transaction must have restored successfully before another can

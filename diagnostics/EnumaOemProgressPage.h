@@ -10,9 +10,15 @@ STATIC BOOLEAN OemProgressPage(ENUMA_LOG_PAGE *Page,UINT32 Phase,CONST ENUMA_SER
   // Use only the existing reviewed glyph set. E/S prefix denotes entry/return;
   // G is the session token (not a GUID). Full SID GUID is fixed by the selector.
   Page->Text[0][0]=Returned?'S':'E';EnumaBootLogHex(Page->Text[0]+1,Phase,2);
+#if ENUMA_OEM_FAR_CHAIN
+  if(Phase==5){Page->Text[0][3]='C';EnumaBootLogHex(Page->Text[0]+4,E->Value,16);}
+#endif
   if(Phase!=5){Page->Text[0][3]='C';EnumaBootLogHex(Page->Text[0]+4,E->Call,16);}
   Page->Text[1][0]='Q';EnumaBootLogHex(Page->Text[1]+1,E->Sequence,16);
   if(Phase!=5){Page->Text[2][0]='O';EnumaBootLogHex(Page->Text[2]+1,E->CallerRva,16);}
+#if ENUMA_OEM_FAR_CHAIN
+  if(Phase==5){Page->Text[2][0]='O';EnumaBootLogHex(Page->Text[2]+1,E->CallerRva,16);}
+#endif
   Page->Text[3][0]=Returned?'S':'E';
   if(Returned){EnumaBootLogHex(Page->Text[3]+1,E->Status,16);}
   Page->Text[4][0]='G';EnumaBootLogHex(Page->Text[4]+1,Session,16);

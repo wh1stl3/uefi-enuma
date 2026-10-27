@@ -12,6 +12,9 @@
 #ifndef ENUMA_OEM_REGISTRATION
 #define ENUMA_OEM_REGISTRATION 0
 #endif
+#ifndef ENUMA_OEM_FAR_CHAIN
+#define ENUMA_OEM_FAR_CHAIN 0
+#endif
 #ifndef ENUMA_OEM_MAIN_ENTRY
 #define ENUMA_OEM_MAIN_ENTRY 0
 #endif

@@ -182,6 +182,9 @@ STATIC VOID EnumaDispatchDetailCheckpoint (
     CpuDeadLoop ();
   }
 #endif
+#if defined(ENUMA_OEM_FAR_CHAIN) && ENUMA_OEM_FAR_CHAIN
+  return; // new scope: defer diagnostic stop until the full dispatcher returns
+#endif
   EnumaStageCheckpoint (13);
 }
 #endif

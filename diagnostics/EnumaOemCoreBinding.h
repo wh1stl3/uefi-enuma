@@ -6,11 +6,22 @@
 #include "EnumaOemBuildIdentity.h"
 #include "EnumaOemTraceTarget.h"
 #include <PiDxe.h>
+#include <Protocol/GraphicsOutput.h>
 #include <Protocol/FirmwareVolume2.h>
 #include <Protocol/DevicePath.h>
 #include "EnumaOemLoadedIdentity.h"
 #include "EnumaOemBoardCapture.h"
 #include "EnumaOemProgress.h"
+#if ENUMA_OEM_FAR_CHAIN
+VOID EnumaOemFarDispatchComplete(VOID){
+  STATIC CONST EFI_GUID Guid={0x9042a9de,0x23dc,0x4a38,{0x96,0xfb,0x7a,0xde,0xd0,0x80,0x51,0x6a}};
+  EFI_GRAPHICS_OUTPUT_PROTOCOL *Gop=NULL;EFI_STATUS Status;
+  if(!mOemProgress.Owner||!(mOemProgress.FarFlags&64)){return;}
+  Status=mOemOriginalBoot->LocateProtocol((EFI_GUID *)&Guid,NULL,(VOID **)&Gop);
+  OemProgressFarFinish(Status==EFI_SUCCESS&&Gop!=NULL,
+    Status==EFI_SUCCESS&&Gop!=NULL&&Gop->Mode!=NULL,gDxeCoreST->ConOut!=NULL);
+}
+#endif
 STATIC ENUMA_SERVICE_TRACE mOemCoreTrace;
 STATIC ENUMA_PRECALL_CAPTURE mOemCoreCapture;
 STATIC BOOLEAN mOemCoreAttempted;
