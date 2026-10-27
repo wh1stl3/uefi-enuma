@@ -9,12 +9,12 @@
 #ifndef ENUMA_OEM_POST_KERNEL
 #define ENUMA_OEM_POST_KERNEL 0
 #endif
-#define ENUMA_PROGRESS_CALL (ENUMA_OEM_REGISTRATION ? 5ULL : ENUMA_OEM_POST_KERNEL ? 4ULL : (ENUMA_OEM_EARLY ? 1ULL : 0ULL))
+#define ENUMA_PROGRESS_CALL (ENUMA_OEM_MAIN_ENTRY ? 6ULL : ENUMA_OEM_REGISTRATION ? 5ULL : ENUMA_OEM_POST_KERNEL ? 4ULL : (ENUMA_OEM_EARLY ? 1ULL : 0ULL))
 typedef struct {
   ENUMA_SERVICE_TRACE *Owner;
   UINT64 Session,SidCall;
   UINT32 Seen;
-  BOOLEAN Active,Stopped;
+  BOOLEAN Active,Stopped,MainReturned;
   BOOLEAN (*Present)(UINT32,CONST ENUMA_SERVICE_EVENT *,UINT64);
   VOID (*Stop)(VOID *);
   ENUMA_SERVICE_TRACE_LOG Snapshot;
@@ -45,14 +45,32 @@ STATIC __attribute__((noinline)) VOID OemProgressObserve(ENUMA_SERVICE_TRACE *Tr
   if(E->Call!=Call||E->Returned!=Returned){OemProgressFail();}
   IsSid=E->Service==EnumaServiceLocateProtocol&&E->HasGuid&&CompareMem(&E->Guid,&Sid,sizeof(Sid))==0;
   if(!Returned&&IsSid&&P->SidCall==MAX_UINT64){P->SidCall=Call;}
+#if ENUMA_OEM_MAIN_ENTRY
+  if(E->Service==EnumaServiceLocateProtocol&&E->CallerRva==0x3608){
+    // Exact first main-path query, before the unwrapped protocol +48 method.
+    STATIC CONST EFI_GUID Main={0xb0760469,0x970c,0x487a,{0xa4,0xb5,0x28,0xdb,0x7b,0x45,0xce,0xf1}};
+    if(Call<6||!E->HasGuid||
+       CompareMem(&E->Guid,&Main,sizeof(Main))!=0){OemProgressFail();}
+    if(Returned){
+      if(!(P->Seen&(1U<<1))||P->MainReturned){OemProgressFail();}
+      P->MainReturned=TRUE; // retain real status in RAM; no return-side drawing
+    }else{OemProgressEmit(1,E,Tpl);}
+  }
+#else
   if(Call==ENUMA_PROGRESS_CALL){
     if(ENUMA_OEM_REGISTRATION&&(E->Service!=EnumaServiceInstallConfigurationTable||E->CallerRva!=0x5cc8)){OemProgressFail();}
     if(E->CallerRva==MAX_UINT64||(Returned&&!(P->Seen&(1U<<1)))){OemProgressFail();}
     OemProgressEmit(Returned?2:1,E,Tpl);
   }
+#endif
   if(IsSid&&Call==P->SidCall){
+#if ENUMA_OEM_MAIN_ENTRY
+    if(!P->MainReturned){OemProgressFail();}
+    if(!Returned){OemProgressEmit(3,E,Tpl);}
+#else
     if(E->CallerRva==MAX_UINT64||(Returned&&!(P->Seen&(1U<<3)))){OemProgressFail();}
     OemProgressEmit(Returned?4:3,E,Tpl);
+#endif
   }
 }
 STATIC __attribute__((noinline)) VOID OemProgressBefore(ENUMA_SERVICE_TRACE *T,UINT64 C,EFI_TPL L){OemProgressObserve(T,C,L,FALSE);}

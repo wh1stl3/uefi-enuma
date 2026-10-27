@@ -12,6 +12,9 @@
 #ifndef ENUMA_OEM_REGISTRATION
 #define ENUMA_OEM_REGISTRATION 0
 #endif
+#ifndef ENUMA_OEM_MAIN_ENTRY
+#define ENUMA_OEM_MAIN_ENTRY 0
+#endif
 enum { EnumaServiceLocateProtocol=1,EnumaServiceHandleProtocol,EnumaServiceAllocatePool,EnumaServiceInstallConfigurationTable };
 typedef struct {
   UINT64 Sequence,Call,CallerRva,Value,Status;
@@ -71,12 +74,15 @@ STATIC VOID EnumaServiceEnd(UINT64 Call,UINT32 Service,UINTN Caller,UINT64 Value
   if(C->AfterForward){C->AfterForward(C,Call,Previous);}
 }
 // Noinline is required: LR must name the original PE call site, not the tracer.
-STATIC __attribute__((noinline)) EFI_STATUS EFIAPI EnumaTraceLocateProtocol(EFI_GUID *Guid,VOID *Registration,VOID **Interface) {
-  UINTN Caller=(UINTN)__builtin_return_address(0);UINT64 Call;EFI_STATUS Status;EFI_GUID Saved;
+STATIC EFI_STATUS EnumaTraceLocateProtocolAt(UINTN Caller,EFI_GUID *Guid,VOID *Registration,VOID **Interface) {
+  UINT64 Call;EFI_STATUS Status;EFI_GUID Saved;
   if(Guid){CopyMem(&Saved,Guid,sizeof(Saved));}
   Call=EnumaServiceBegin(EnumaServiceLocateProtocol,Caller,0,Guid?&Saved:NULL);
   Status=mEnumaServiceTrace->Original->LocateProtocol(Guid,Registration,Interface);
   EnumaServiceEnd(Call,EnumaServiceLocateProtocol,Caller,0,Guid?&Saved:NULL,Status);return Status;
+}
+STATIC __attribute__((noinline)) EFI_STATUS EFIAPI EnumaTraceLocateProtocol(EFI_GUID *Guid,VOID *Registration,VOID **Interface) {
+  return EnumaTraceLocateProtocolAt((UINTN)__builtin_return_address(0),Guid,Registration,Interface);
 }
 STATIC __attribute__((noinline)) EFI_STATUS EFIAPI EnumaTraceHandleProtocol(EFI_HANDLE Handle,EFI_GUID *Guid,VOID **Interface) {
   UINTN Caller=(UINTN)__builtin_return_address(0);UINT64 Call;EFI_STATUS Status;EFI_GUID Saved;
