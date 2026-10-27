@@ -134,6 +134,9 @@ def main():
             shutil.copyfile(p,backend.WORK/name)
         backend.stage_archives(lock)
         uefi=backend.WORK/'uefi'; core=backend.WORK/'Mu_Basecore'
+        # Archive has no Git metadata. Stop discovery at this disposable tree;
+        # a Windows parent worktree gitfile is not resolvable by WSL Git.
+        subprocess.run(['git','init','-q',str(core)],check=True)
         for name in ('BootShim','Silicon','Resources/MuPatches'):
             shutil.copytree(snapshot/name,uefi/name,dirs_exist_ok=True)
         for name in ('Resources/Configs/enuma.toml','Resources/Scripts/mkbootimg.py'):
