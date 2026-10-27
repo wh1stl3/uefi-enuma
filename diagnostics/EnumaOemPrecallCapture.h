@@ -75,7 +75,7 @@ STATIC VOID EnumaCaptureBeforeForward(ENUMA_SERVICE_TRACE *Trace,UINT64 Call,EFI
   }
   if(EnumaCaptureMarker(C,TRUE)){C->State=EnumaCaptureExported;}
 }
-STATIC EFI_STATUS EnumaCaptureArm(ENUMA_PRECALL_CAPTURE *C,ENUMA_SERVICE_TRACE *Trace,
+STATIC __attribute__((unused)) EFI_STATUS EnumaCaptureArm(ENUMA_PRECALL_CAPTURE *C,ENUMA_SERVICE_TRACE *Trace,
   UINT64 Session,UINT64 SelectedCall,ENUMA_BOOT_LOG_SINK Sink,VOID *Opaque) {
   if(!C||!Trace||!Sink||!Session||SelectedCall==MAX_UINT64){return EFI_INVALID_PARAMETER;}
   // Arm once, before any target calls, on the single DXE CPU at application

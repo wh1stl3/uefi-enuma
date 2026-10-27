@@ -8,12 +8,13 @@
  
  //
  // The Driver List contains one copy of every driver that has been discovered.
-@@ -534,7 +535,9 @@
+@@ -534,7 +535,10 @@
          EnumaDispatchDetailCheckpoint (15, &DriverEntry->FileName, EFI_SUCCESS);
          EnumaStartingImage = DriverEntry->ImageHandle;
          EnumaStartingFile  = &DriverEntry->FileName;
 +        EnumaOemStartingFv = DriverEntry->FvHandle;
          Status = CoreStartImage (DriverEntry->ImageHandle, NULL, NULL);
++        EnumaOemCoreAfterStart (DriverEntry->ImageHandle, Status);
 +        EnumaOemStartingFv = NULL;
          EnumaStartingImage = NULL;
          EnumaStartingFile  = NULL;

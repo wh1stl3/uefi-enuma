@@ -51,7 +51,7 @@ def main():
         runtime=json.loads(args.oem_run_config.read_text())
         if set(runtime)!={'trial_id','session','selected_call','profile','experiment'} or str(UUID(runtime['trial_id']))!=runtime['trial_id'] or \
            type(runtime['session']) is not int or not 0<runtime['session']<2**64 or type(runtime['selected_call']) is not int or runtime['selected_call']!=0 or \
-           runtime['profile']!='oem-control' or runtime['experiment']!='oem-first-call-preforward-v1':
+           runtime['profile']!='oem-control' or runtime['experiment'] not in ('oem-first-call-preforward-v1','oem-progress-v2'):
             parser.error('invalid fixed-scope OEM runtime configuration')
     if is_oem != (args.oem_profile_pair is not None):
         parser.error('OEM profiles require a pair; other profiles forbid it')
@@ -228,7 +228,7 @@ def main():
             target=core/'MdeModulePkg/Core/Dxe/Dispatcher'
             for name in ('EnumaOemCoreBinding.h','EnumaOemLoadedIdentity.h','EnumaOemBoardCapture.h',
                          'EnumaOemTraceTarget.h','EnumaOemServiceTrace.h','EnumaOemServiceTraceView.h',
-                         'EnumaOemPrecallCapture.h','EnumaOemCapturePixel.h','EnumaBootJournalView.h'):
+                         'EnumaOemPrecallCapture.h','EnumaOemCapturePixel.h','EnumaOemProgress.h','EnumaOemProgressPage.h','EnumaBootJournalView.h'):
                 shutil.copyfile(snapshot/'diagnostics'/name,target/name)
             lib=snapshot/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'
             shutil.copytree(lib,target/'OemInherited')

@@ -9,11 +9,20 @@
 #include <Protocol/DevicePath.h>
 #include "EnumaOemLoadedIdentity.h"
 #include "EnumaOemBoardCapture.h"
+#include "EnumaOemProgress.h"
 STATIC ENUMA_SERVICE_TRACE mOemCoreTrace;
 STATIC ENUMA_PRECALL_CAPTURE mOemCoreCapture;
 STATIC BOOLEAN mOemCoreAttempted;
 STATIC EFI_HANDLE EnumaOemStartingFv;
-STATIC VOID OemRuntimeBeforeForward(ENUMA_SERVICE_TRACE *Trace,UINT64 Call,EFI_TPL Tpl){
+STATIC EFI_HANDLE mOemProgressHandle;
+VOID EnumaOemCoreAfterStart(EFI_HANDLE Handle,EFI_STATUS Status){
+#if ENUMA_OEM_PROGRESS
+  if(Handle==mOemProgressHandle&&Handle==EnumaStartingImage&&mOemCoreAttempted){OemProgressReturned(Status);}
+#else
+  (VOID)Handle;(VOID)Status;
+#endif
+}
+STATIC __attribute__((unused)) VOID OemRuntimeBeforeForward(ENUMA_SERVICE_TRACE *Trace,UINT64 Call,EFI_TPL Tpl){
   EnumaCaptureBeforeForward(Trace,Call,Tpl);
   // Runtime first-call experiment cannot continue without a completed CPU
   // capture/restore. This is a terminal diagnostic refusal, not OEM status.
@@ -40,8 +49,13 @@ EFI_STATUS EnumaOemCoreBeforeEntry(EFI_HANDLE Handle,EFI_LOADED_IMAGE_PROTOCOL *
   Status=EnumaAttachDisplayTrace(&mOemCoreTrace,EnumaStartingFile,Loaded,gDxeCoreST);
   if(EFI_ERROR(Status)){return Status;}
   mOemOriginalBoot=mOemCoreTrace.Original;
+#if ENUMA_OEM_PROGRESS
+  Status=OemProgressArm(&mOemCoreTrace,ENUMA_OEM_SESSION,OemProgressPresent,OemCaptureTerminal);
+  if(!EFI_ERROR(Status)){mOemProgressHandle=Handle;}
+#else
   Status=EnumaCaptureArm(&mOemCoreCapture,&mOemCoreTrace,ENUMA_OEM_SESSION,ENUMA_OEM_SELECTED_CALL,OemBoardSink,&mOemCoreCapture);
   if(Status==EFI_SUCCESS&&ENUMA_OEM_RUNTIME){mOemCoreTrace.BeforeForward=OemRuntimeBeforeForward;}
+#endif
   return Status;
 }
 #endif

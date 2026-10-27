@@ -39,6 +39,7 @@ def generate(pe, output, runtime=None):
     header='// Generated from the hash-verified build-private OEM PE. Not a signature.\n'
     session=runtime['session'] if runtime else 1
     header+=f'#define ENUMA_OEM_RUNTIME {1 if runtime else 0}\n#define ENUMA_OEM_SESSION 0x{session:x}ULL\n#define ENUMA_OEM_SELECTED_CALL 0ULL\n'
+    header+=f'#define ENUMA_OEM_PROGRESS {1 if runtime and runtime["experiment"]=="oem-progress-v2" else 0}\n'
     for name,value in [('SIZE',size),('ENTRY',entry),('TEXT_RVA',text[1]),('TEXT_SIZE',text[2]),('BASE',image_base),('HASH',h)]:
         header+=f'#define ENUMA_OEM_ID_{name} 0x{value:x}ULL\n'
     header+='STATIC CONST UINT32 EnumaOemTextRelocs[]={'+','.join(hex(x) for x in relocs)+'};\n'

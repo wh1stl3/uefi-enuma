@@ -32,6 +32,7 @@ typedef struct ENUMA_SERVICE_TRACE_CONTEXT {
   // BEFORE forwarding. NULL preserves the original no-output path. It must not
   // depend on the forwarded service returning. Context and observer are static.
   VOID (*BeforeForward)(struct ENUMA_SERVICE_TRACE_CONTEXT *,UINT64,EFI_TPL);
+  VOID (*AfterForward)(struct ENUMA_SERVICE_TRACE_CONTEXT *,UINT64,EFI_TPL);
 } ENUMA_SERVICE_TRACE;
 STATIC ENUMA_SERVICE_TRACE *mEnumaServiceTrace;
 
@@ -63,6 +64,7 @@ STATIC VOID EnumaServiceEnd(UINT64 Call,UINT32 Service,UINTN Caller,UINT64 Value
   Previous=C->Original->RaiseTPL(TPL_HIGH_LEVEL);
   if(Call!=MAX_UINT64){EnumaServiceRecord(C,Call,Service,Caller,Value,Guid,TRUE,Status);}
   C->Original->RestoreTPL(Previous);
+  if(C->AfterForward){C->AfterForward(C,Call,Previous);}
 }
 // Noinline is required: LR must name the original PE call site, not the tracer.
 STATIC __attribute__((noinline)) EFI_STATUS EFIAPI EnumaTraceLocateProtocol(EFI_GUID *Guid,VOID *Registration,VOID **Interface) {

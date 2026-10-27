@@ -21,6 +21,7 @@ typedef struct {
   ENUMA_LOG_PAGE Page;
   ENUMA_U32 Result;
   BOOLEAN Attempted,Active;
+  BOOLEAN PagePrepared;
   // Required by the sink adapter. Must terminate/recover outside OEM control
   // and never return; it is NOT a fabricated EFI_STATUS from the OEM service.
   VOID (*Stop)(VOID *);
@@ -30,6 +31,7 @@ typedef struct {
 STATIC BOOLEAN EnumaCapturePixelPage(ENUMA_CAPTURE_PIXEL *P) {
   ENUMA_PRECALL_CAPTURE *C=P->Capture;CONST ENUMA_SERVICE_EVENT *E=NULL;
   UINT32 I,J,N=0,K=0;CHAR8 Guid[36];
+  if(P->PagePrepared){return P->Page.Ready;}
   P->Page.Ready=FALSE;
   if(!C||C->State!=EnumaCaptureEmitting||!EnumaServiceLogValid(&C->Snapshot)){return FALSE;}
   for(I=0;I<C->Snapshot.Count;I++){

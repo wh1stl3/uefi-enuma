@@ -22,6 +22,7 @@
 #include "OemInherited/Evidence.c"
 #include "OemInherited/CpuStage1.h"
 #include "EnumaOemCapturePixel.h"
+#include "EnumaOemProgressPage.h"
 STATIC ENUMA_CAPTURE_PIXEL mOemPixel;
 STATIC ENUMA_VIDEO_EVIDENCE mOemEvidence,mOemVerify;
 STATIC ENUMA_INHERITED_LIMITS mOemLimits;
@@ -89,7 +90,7 @@ STATIC BOOLEAN OemBoardSinkInner(VOID *Opaque,CONST CHAR8 *Line,UINTN Size){
   mOemPixel.Stop=OemCaptureTerminal;
   return EnumaCapturePixelSink(&mOemPixel,Line,Size);
 }
-STATIC BOOLEAN OemBoardSink(VOID *Opaque,CONST CHAR8 *Line,UINTN Size){
+STATIC __attribute__((noinline)) BOOLEAN OemBoardSink(VOID *Opaque,CONST CHAR8 *Line,UINTN Size){
   UINT64 Saved,Affinity;BOOLEAN Result;
   if(!ENUMA_OEM_RUNTIME){return OemBoardSinkInner(Opaque,Line,Size);}
   // The first wrapper is on the BSP. Mask local asynchronous CPU writers for
@@ -102,4 +103,21 @@ STATIC BOOLEAN OemBoardSink(VOID *Opaque,CONST CHAR8 *Line,UINTN Size){
   __asm__ volatile("msr daif, %0" :: "r"(Saved) : "memory");
   return Result;
 }
+#if defined(ENUMA_OEM_PROGRESS) && ENUMA_OEM_PROGRESS
+STATIC __attribute__((noinline)) BOOLEAN OemProgressPresent(UINT32 Phase,CONST ENUMA_SERVICE_EVENT *E,UINT64 Session){
+  STATIC UINT32 Attempts;STATIC ENUMA_PRECALL_CAPTURE Capture;
+  STATIC CONST CHAR8 End[]="OEM capture end ";
+  if(Attempts>=5||mOemPixel.Active||!E||Phase<1||Phase>5){return FALSE;}
+  Attempts++;
+  // Each prior transaction must have restored successfully before another can
+  // start. Re-sample the route and CPU policy for every independent window.
+  if(mOemPixel.Attempted&&mOemPixel.Result!=5){return FALSE;}
+  ZeroMem(&mOemPixel,sizeof(mOemPixel));ZeroMem(&Capture,sizeof(Capture));
+  mOemReads=mOemWaits=mOemPixelReads=mOemWrites=mOemBarriers=mOemHolds=mOemValidations=0;
+  Capture.State=EnumaCaptureEmitting;
+  if(!OemProgressPage(&mOemPixel.Page,Phase,E,Session)){return FALSE;}
+  mOemPixel.PagePrepared=TRUE;
+  return OemBoardSink(&Capture,End,sizeof(End)-1);
+}
+#endif
 #endif
