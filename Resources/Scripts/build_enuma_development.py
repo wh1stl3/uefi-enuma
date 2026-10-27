@@ -37,11 +37,22 @@ def main():
     parser.add_argument('--profile',choices=['stage10','attributed-log','diagnostic-log','menu-window','full-menu','deferred-menu','oem-control','oem-mmu-only'],default='stage10')
     parser.add_argument('--oem-profile-pair',type=Path,help='explicit verified pair; OEM profiles remain stage10 compile-only')
     parser.add_argument('--oem-trace-build',action='store_true',help='link OEM Core/board capture behind the mandatory stage10 gate')
+    parser.add_argument('--oem-run-config',type=Path,help='explicit first-call OEM runtime experiment, never a deployment approval')
     parser.add_argument('--direct-menu',action='store_true',help='select real UniXNU BDS application for offline stage10 link checking; early stop remains')
     parser.add_argument('--jobs',type=int,default=4)
     args=parser.parse_args()
     is_oem=args.profile in ('oem-control','oem-mmu-only')
     if args.oem_trace_build and not is_oem:parser.error('--oem-trace-build requires an OEM profile')
+    if args.oem_run_config and (not args.oem_trace_build or args.profile!='oem-control'):
+        parser.error('runtime first trial requires trace build and original OEM control')
+    runtime=None
+    if args.oem_run_config:
+        from uuid import UUID
+        runtime=json.loads(args.oem_run_config.read_text())
+        if set(runtime)!={'trial_id','session','selected_call','profile','experiment'} or str(UUID(runtime['trial_id']))!=runtime['trial_id'] or \
+           type(runtime['session']) is not int or not 0<runtime['session']<2**64 or type(runtime['selected_call']) is not int or runtime['selected_call']!=0 or \
+           runtime['profile']!='oem-control' or runtime['experiment']!='oem-first-call-preforward-v1':
+            parser.error('invalid fixed-scope OEM runtime configuration')
     if is_oem != (args.oem_profile_pair is not None):
         parser.error('OEM profiles require a pair; other profiles forbid it')
     if args.direct_menu and args.profile!='stage10':
@@ -187,6 +198,10 @@ def main():
         defs['ENUMA_DIRECT_MENU']='1' if args.direct_menu else '0'
         if is_oem: oem_helper.defines(args.profile,defs)
         if args.oem_trace_build:board['firmware']['patches'].append('patches/oem-core-binding.patch')
+        if runtime:
+            defs.update(ENUMA_DIAG_STAGE='13',ENUMA_DIAG_DETAIL_POINT='13',ENUMA_DIAG_GUID_ENABLED='1',
+                        ENUMA_DIAG_GUID_ONLY='1',ENUMA_DIAG_GUID_LOW64='0x4f7906c74138022f',
+                        ENUMA_DIAG_GUID_HIGH64='0xe7a411b5337e949c',ENUMA_DIAG_DISPATCH_FALLBACK='1')
         if args.profile in ('attributed-log','diagnostic-log','menu-window','full-menu','deferred-menu'):
             # Frozen recipe is read-only provenance, not authorization for this derivative.
             recipe=root/'out/inherited-gop/qualified-dxe-log-8s-8680ea7/firmware-build.json'
@@ -220,8 +235,13 @@ def main():
             # Pixel header's local include and its dependencies share one dir.
             for p in lib.glob('*.h'):shutil.copyfile(p,target/p.name)
             identity=load(snapshot/'Resources/Scripts/enuma_oem_identity.py','oem_identity')
-            trace_identity=identity.generate(vendor/oem_helper.PE,target/'EnumaOemBuildIdentity.h')
-            trace_identity.update(stage10_gate=True,selected_call=0,session=1,trial_nonce=False,
+            trace_identity=identity.generate(vendor/oem_helper.PE,target/'EnumaOemBuildIdentity.h',runtime)
+            if runtime:
+                shutil.copyfile(snapshot/'diagnostics/EnumaOemExceptionStop.h',
+                                core/'UefiCpuPkg/Library/CpuExceptionHandlerLib/AArch64/EnumaUnhandledExceptionCheckpoint.h')
+                oem_binding.update(stop_before_dispatch=False,runtime_experiment=True)
+                save(out/'oem-profile-binding.json',oem_binding)
+            trace_identity.update(stage10_gate=not bool(runtime),selected_call=0,session=runtime['session'] if runtime else 1,trial_nonce=bool(runtime),
                                   board_adapter_linked=True,board_runtime_qualified=False)
             save(out/'oem-trace-identity.json',trace_identity)
         print('Preflight complete; compiling BaseTools and full enuma FD',flush=True)
@@ -242,13 +262,14 @@ def main():
         if any(sha(core/n)!=wanted for n,wanted in baseline.items() if n.startswith(('MdeModulePkg/','UefiCpuPkg/'))):
             raise ValueError('core patches not reverted')
         report.update(profile=args.profile,direct_menu_selected=args.direct_menu,complete=True,fd=str(fd.relative_to(root)),fd_sha256=sha(fd),
-                      oem_trace_build=args.oem_trace_build,oem_trace_identity=trace_identity,
+                      oem_trace_build=args.oem_trace_build,oem_trace_identity=trace_identity,oem_run_config=runtime,
                       source_manifest_sha256=sha(out/'source-manifest.json'),base_commit=base,
                       firmware_configuration=board['firmware'],diagnostic_omitted_oem_modules=(['UFSDxe'] if is_oem else ['CPRDxe','DisplayDxe','UFSDxe']),
                       oem_profile_binding=oem_binding,
                       diagnostic_simplefb_metadata_only=args.profile=='stage10',core_patch_reversion_checked=True,
                       gop_backend_selftest_ram_only=args.profile=='stage10',boot_journal={'enabled':True,'global_debug':False},
-                      note=('OEM stage10 compile-only; stops before dispatch; no trace or deployment qualification' if is_oem else
+                      note=('OEM original first-call runtime experiment; software qualification and live capture/recovery required' if runtime else
+                            'OEM stage10 compile-only; stops before dispatch; no deployment qualification' if is_oem else
                             'stage10 stops before BDS; selftest not auto-launched' if args.profile=='stage10' else
                             'opt-in transient 800x600 GOP; full-menu runs FV UniXNU application with private readonly config; no BDS/XNU/input; needs separate qualification' if args.profile in ('menu-window','full-menu','deferred-menu') else
                             args.profile+' bounded replay; new offline candidate, no execution approval'))

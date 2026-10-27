@@ -4,7 +4,7 @@ from pathlib import Path
 from enuma_oem_profile import ORIGINAL, PATCHED, sha
 
 
-def generate(pe, output):
+def generate(pe, output, runtime=None):
     b=Path(pe).read_bytes();digest=sha(b)
     if digest not in (ORIGINAL,PATCHED):raise ValueError('unknown Display PE')
     p=struct.unpack_from('<I',b,60)[0];optional=p+24
@@ -37,8 +37,10 @@ def generate(pe, output):
     metadata=dict(pe_sha256=digest,image_size=size,entry_rva=entry,text_rva=text[1],text_size=text[2],
                   preferred_base=image_base,text_fnv64=hex(h),text_relocations=len(relocs),cryptographic_authentication=False)
     header='// Generated from the hash-verified build-private OEM PE. Not a signature.\n'
+    session=runtime['session'] if runtime else 1
+    header+=f'#define ENUMA_OEM_RUNTIME {1 if runtime else 0}\n#define ENUMA_OEM_SESSION 0x{session:x}ULL\n#define ENUMA_OEM_SELECTED_CALL 0ULL\n'
     for name,value in [('SIZE',size),('ENTRY',entry),('TEXT_RVA',text[1]),('TEXT_SIZE',text[2]),('BASE',image_base),('HASH',h)]:
         header+=f'#define ENUMA_OEM_ID_{name} 0x{value:x}ULL\n'
     header+='STATIC CONST UINT32 EnumaOemTextRelocs[]={'+','.join(hex(x) for x in relocs)+'};\n'
     Path(output).write_text(header)
-    metadata['header_sha256']=sha(header.encode());return metadata
+    metadata['header_sha256']=sha(header.encode());metadata['runtime']=runtime;return metadata

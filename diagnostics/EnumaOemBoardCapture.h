@@ -6,6 +6,10 @@
 #include <Library/MemoryMapHelperLib.h>
 #include <Library/ResetSystemLib.h>
 #include <Library/BaseLib.h>
+#include <Library/TimerLib.h>
+#ifndef ENUMA_OEM_RUNTIME
+#define ENUMA_OEM_RUNTIME 0
+#endif
 #undef ENUMA_BOOT_LOG_REPLAY
 #undef ENUMA_BOOT_LOG_HOLD_US
 #define ENUMA_BOOT_LOG_REPLAY 3
@@ -29,6 +33,7 @@ STATIC int OemRead(VOID *C,ENUMA_U32 Offset,ENUMA_U32 *V){
 }
 STATIC int OemWait(VOID *C,ENUMA_U32 Us){
   (VOID)C;if(Us!=100000||mOemWaits>=4){return 0;}mOemWaits++;
+  if(ENUMA_OEM_RUNTIME){MicroSecondDelay(Us);return 1;}
   return mOemOriginalBoot->Stall(Us)==EFI_SUCCESS;
 }
 STATIC int OemAddress(ENUMA_U64 A){
@@ -49,6 +54,7 @@ STATIC int OemBarrier(VOID *C){
 }
 STATIC int OemHold(VOID *C,ENUMA_U32 Us){
   (VOID)C;if(mOemHolds||Us!=8000000){return 0;}mOemHolds++;
+  if(ENUMA_OEM_RUNTIME){MicroSecondDelay(Us);return 1;}
   return mOemOriginalBoot->Stall(Us)==EFI_SUCCESS;
 }
 STATIC int OemValidate(VOID *C,CONST ENUMA_INHERITED_FRAME *F){
@@ -62,7 +68,7 @@ STATIC int OemValidate(VOID *C,CONST ENUMA_INHERITED_FRAME *F){
 STATIC VOID OemCaptureTerminal(VOID *C){
   (VOID)C;ResetCold();for(;;){CpuPause();}
 }
-STATIC BOOLEAN OemBoardSink(VOID *Opaque,CONST CHAR8 *Line,UINTN Size){
+STATIC BOOLEAN OemBoardSinkInner(VOID *Opaque,CONST CHAR8 *Line,UINTN Size){
   ENUMA_PRECALL_CAPTURE *Capture=Opaque;EFI_MEMORY_REGION_DESCRIPTOR Mdp={0},Splash={0};
   STATIC CONST CHAR8 End[]="OEM capture end ";UINTN I;ENUMA_U32 Reason=0,Status;
   if(Size<sizeof(End)-1){return FALSE;}
@@ -82,5 +88,18 @@ STATIC BOOLEAN OemBoardSink(VOID *Opaque,CONST CHAR8 *Line,UINTN Size){
   mOemPixel.Validate=OemValidate;mOemPixel.Barrier=OemBarrier;mOemPixel.Hold=OemHold;
   mOemPixel.Stop=OemCaptureTerminal;
   return EnumaCapturePixelSink(&mOemPixel,Line,Size);
+}
+STATIC BOOLEAN OemBoardSink(VOID *Opaque,CONST CHAR8 *Line,UINTN Size){
+  UINT64 Saved,Affinity;BOOLEAN Result;
+  if(!ENUMA_OEM_RUNTIME){return OemBoardSinkInner(Opaque,Line,Size);}
+  // The first wrapper is on the BSP. Mask local asynchronous CPU writers for
+  // the entire bounded transaction; timer polling does not call Boot Services.
+  // This does not claim ownership against external DMA or an active AP.
+  __asm__ volatile("mrs %0, mpidr_el1" : "=r"(Affinity));
+  if(Affinity&0xff00ffffffULL){return FALSE;}
+  __asm__ volatile("mrs %0, daif\nmsr daifset, #15" : "=r"(Saved) :: "memory");
+  Result=OemBoardSinkInner(Opaque,Line,Size);
+  __asm__ volatile("msr daif, %0" :: "r"(Saved) : "memory");
+  return Result;
 }
 #endif

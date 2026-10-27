@@ -13,6 +13,14 @@ STATIC ENUMA_SERVICE_TRACE mOemCoreTrace;
 STATIC ENUMA_PRECALL_CAPTURE mOemCoreCapture;
 STATIC BOOLEAN mOemCoreAttempted;
 STATIC EFI_HANDLE EnumaOemStartingFv;
+STATIC VOID OemRuntimeBeforeForward(ENUMA_SERVICE_TRACE *Trace,UINT64 Call,EFI_TPL Tpl){
+  EnumaCaptureBeforeForward(Trace,Call,Tpl);
+  // Runtime first-call experiment cannot continue without a completed CPU
+  // capture/restore. This is a terminal diagnostic refusal, not OEM status.
+  if(ENUMA_OEM_RUNTIME&&Call==ENUMA_OEM_SELECTED_CALL&&mOemCoreCapture.State!=EnumaCaptureExported){
+    EnumaCaptureStop(&mOemCoreCapture);OemCaptureTerminal(NULL);
+  }
+}
 EFI_STATUS EnumaOemCoreBeforeEntry(EFI_HANDLE Handle,EFI_LOADED_IMAGE_PROTOCOL *Loaded,UINTN Entry){
   STATIC CONST EFI_GUID Display={0x4138022f,0x06c7,0x4f79,{0x9c,0x94,0x7e,0x33,0xb5,0x11,0xa4,0xe7}};
   EFI_LOADED_IMAGE_PROTOCOL *Actual=NULL;VOID *Fv=NULL;EFI_STATUS Status;
@@ -32,9 +40,8 @@ EFI_STATUS EnumaOemCoreBeforeEntry(EFI_HANDLE Handle,EFI_LOADED_IMAGE_PROTOCOL *
   Status=EnumaAttachDisplayTrace(&mOemCoreTrace,EnumaStartingFile,Loaded,gDxeCoreST);
   if(EFI_ERROR(Status)){return Status;}
   mOemOriginalBoot=mOemCoreTrace.Original;
-  // Compile/link scope: stage10 blocks all dispatch. These explicit selectors
-  // are placeholders bound by build metadata, never a physical trial nonce.
-  Status=EnumaCaptureArm(&mOemCoreCapture,&mOemCoreTrace,1,0,OemBoardSink,&mOemCoreCapture);
+  Status=EnumaCaptureArm(&mOemCoreCapture,&mOemCoreTrace,ENUMA_OEM_SESSION,ENUMA_OEM_SELECTED_CALL,OemBoardSink,&mOemCoreCapture);
+  if(Status==EFI_SUCCESS&&ENUMA_OEM_RUNTIME){mOemCoreTrace.BeforeForward=OemRuntimeBeforeForward;}
   return Status;
 }
 #endif
