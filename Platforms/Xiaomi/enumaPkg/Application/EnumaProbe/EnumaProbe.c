@@ -4,7 +4,6 @@
 #include <Uefi.h>
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib.h>
-#include <Library/CacheMaintenanceLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/PrintLib.h>
 #include <Library/UefiLib.h>
@@ -14,17 +13,41 @@
 // Generated in isolated staging from hash-locked DarwinBoot; never edited here.
 #include "BootVideo.h"
 #include "DarwinProbe.inc"
+#include "EnumaJournalConsole.h"
+#include "EnumaMenuConsole.h"
+#ifndef ENUMA_PROBE_JOURNAL_REPLAY
+#define ENUMA_PROBE_JOURNAL_REPLAY 0
+#endif
+#if ENUMA_PROBE_JOURNAL_REPLAY != 0 && ENUMA_PROBE_JOURNAL_REPLAY != 1
+#error Invalid late journal replay selector
+#endif
 #if ENUMA_RAM_PAYLOAD
 #include "../../Drivers/EnumaRamPayloadDxe/TransportReport.h"
 #endif
 
 #define SYSREG(Name, Value) __asm__ volatile ("mrs %0, " #Name : "=r" (Value))
+STATIC ENUMA_JOURNAL_CONSOLE mConsoleSession;
 
-STATIC VOID Line (UINTN Row, CONST CHAR16 *Text)
+STATIC EFI_STATUS Line (UINTN Row, CONST CHAR16 *Text)
 {
-  Print (L"%s\n", Text);
-  DiagDraw (Text, Row);
+  (VOID)Row;
+  return EnumaConsoleSessionWriteLine(&mConsoleSession,Text);
 }
+
+#if ENUMA_PROBE_JOURNAL_REPLAY
+STATIC ENUMA_BOOT_LOG mConsoleSnapshot;
+STATIC EFI_STATUS ReplayJournal(VOID) {
+  EFI_GUID Guid=ENUMA_BOOT_JOURNAL_PROTOCOL_GUID;
+  ENUMA_BOOT_JOURNAL_PROTOCOL *Journal=NULL;
+  EFI_STATUS Status; UINT32 Accepted=0;
+  if (!gST || !gBS || !gBS->LocateProtocol) { return EFI_NOT_READY; }
+  Status=gBS->LocateProtocol(&Guid,NULL,(VOID **)&Journal);
+  if (Status!=EFI_SUCCESS) { return Status; }
+  Status=EnumaJournalConsoleSnapshot(Journal,gST->ConOut,&mConsoleSnapshot);
+  if (Status!=EFI_SUCCESS) { return Status; }
+  return EnumaJournalConsoleDrain(&mConsoleSnapshot,gST->ConOut,&Accepted);
+}
+#endif
 
 EFI_STATUS EFIAPI EnumaProbeEntry (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 {
@@ -35,6 +58,11 @@ EFI_STATUS EFIAPI EnumaProbeEntry (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *Sys
   UINT64 El, Freq, Midr, Mpidr, Mmfr, Video[6], Best, Start, End, Aligned, Room;
   CHAR16 Text[128];
   (VOID)SystemTable;
+  // This diagnostic application requires a usable log channel before probing
+  // and entering a menu. Never hide missing/partial logs behind a menu launch.
+  mConsoleSession.Output=gST?gST->ConOut:NULL;
+  mConsoleSession.LastStatus=EnumaMenuTextConsoleCheck(mConsoleSession.Output);
+  if (mConsoleSession.LastStatus!=EFI_SUCCESS) { return mConsoleSession.LastStatus; }
   SYSREG (CurrentEL, El);
   SYSREG (CNTFRQ_EL0, Freq);
   SYSREG (MIDR_EL1, Midr);
@@ -45,6 +73,7 @@ EFI_STATUS EFIAPI EnumaProbeEntry (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *Sys
   Line (1, Text);
   UnicodeSPrint (Text, sizeof (Text), L"MIDR %lx MPIDR %lx", Midr, Mpidr);
   Line (2, Text);
+  if (mConsoleSession.LastStatus!=EFI_SUCCESS) { return mConsoleSession.LastStatus; }
   Gop = NULL;
   Status = gBS->HandleProtocol (gST->ConsoleOutHandle, &gEfiGraphicsOutputProtocolGuid, (VOID **)&Gop);
   if (EFI_ERROR (Status)) {
@@ -65,6 +94,7 @@ EFI_STATUS EFIAPI EnumaProbeEntry (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *Sys
     Line (5, Text);
   }
   Map = NULL; Capacity = 0; Best = 0; Start = 0; Room = 0;
+  if (mConsoleSession.LastStatus!=EFI_SUCCESS) { return mConsoleSession.LastStatus; }
   Status = GetMap (&Map, &Capacity, &Size, &Key, &Stride);
   if (!EFI_ERROR (Status) && (Stride < sizeof (*Map) || Size % Stride != 0)) { Status = EFI_COMPROMISED_DATA; }
   if (!EFI_ERROR (Status)) {
@@ -87,6 +117,10 @@ EFI_STATUS EFIAPI EnumaProbeEntry (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *Sys
   Line (7, Text);
   Line (8, L"MAP ONLY - NO 512M ALLOCATION TEST");
   Line (9, L"NO EXITBOOTSERVICES TEST / NO DISK WRITES");
+  if (mConsoleSession.LastStatus!=EFI_SUCCESS) {
+    if (Map!=NULL) { FreePool(Map); }
+    return mConsoleSession.LastStatus;
+  }
 #if ENUMA_RAM_PAYLOAD
   {
     EFI_GUID Guid = ENUMA_TRANSPORT_REPORT_GUID;
@@ -109,7 +143,7 @@ EFI_STATUS EFIAPI EnumaProbeEntry (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *Sys
     if (EFI_ERROR (Status) || (Report->Passed & 0x1f7fU) != 0x1f7fU) {
       Status = EFI_ERROR (Status) ? Status : EFI_NOT_READY;
     }
-    // No early return before the cache flush, including missing/failed reports.
+    // Keep the common memory-map cleanup on missing/failed payload reports.
   }
 #else
   Line (10, L"PHOTO NOW; UNIXNU MENU IN 60 SECONDS");
@@ -118,7 +152,7 @@ EFI_STATUS EFIAPI EnumaProbeEntry (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *Sys
 PayloadFinish:
 #endif
   if (Map != NULL) { FreePool (Map); }
-  if (!EFI_ERROR (VideoStatus)) { WriteBackDataCacheRange ((VOID *)(UINTN)Video[0], (UINTN)(Video[2] * Video[4])); }
+  if (mConsoleSession.LastStatus!=EFI_SUCCESS) { return mConsoleSession.LastStatus; }
 #if ENUMA_RAM_PAYLOAD
   // A short camera-readable report interval, then continue the real boot chain.
   gBS->Stall (2 * 1000 * 1000);
@@ -126,6 +160,19 @@ PayloadFinish:
 #else
   gBS->Stall (60 * 1000 * 1000);
 #endif
+#if ENUMA_PROBE_JOURNAL_REPLAY
+  Status=ReplayJournal();
+  if (Status!=EFI_SUCCESS) { mConsoleSession.LastStatus=Status;return Status; }
+  UnicodeSPrint(Text,sizeof(Text),L"DXE CACHED REPLAY %r",Status);
+  Line(0,Text);
+  // A warning/error may mean partial output: do not retry or hide it in a menu.
+  if (mConsoleSession.LastStatus!=EFI_SUCCESS) { return mConsoleSession.LastStatus; }
+#endif
+  // The pinned UniXNU text fallback dereferences Mode/QueryMode and subtracts
+  // from console dimensions. Reject a present but unusable text protocol;
+  // absence alone does not block the independent graphics/headless paths.
+  Status=EnumaMenuTextConsoleCheck(gST?gST->ConOut:NULL);
+  if (gST && gST->ConOut && Status!=EFI_SUCCESS) { return Status; }
   Status = UniXNURun (ImageHandle, UniXNUHostFirmware);
   return EFI_ERROR (Status) ? Status : EFI_ABORTED;
 }

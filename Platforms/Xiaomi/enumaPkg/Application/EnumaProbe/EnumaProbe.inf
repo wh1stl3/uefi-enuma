@@ -17,7 +17,6 @@
 [LibraryClasses]
   BaseLib
   BaseMemoryLib
-  CacheMaintenanceLib
   MemoryAllocationLib
   PrintLib
   UefiLib
@@ -27,3 +26,4 @@
 
 [Protocols]
   gEfiGraphicsOutputProtocolGuid
+

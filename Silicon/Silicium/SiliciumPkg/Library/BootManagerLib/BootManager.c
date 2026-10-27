@@ -22,6 +22,7 @@
 #include <Configuration/BootDevices.h>
 
 #include "BootManager.h"
+#include "ConsoleGop.h"
 
 //
 // Global Variables
@@ -59,39 +60,19 @@ PlatformBootManagerBeforeConsole ()
 VOID
 PostGopSetup (OUT EFI_GRAPHICS_OUTPUT_PROTOCOL **GopProtocol)
 {
-  EFI_STATUS                    Status;
-  EFI_GRAPHICS_OUTPUT_PROTOCOL *LocalGopProtocol;
+  EFI_STATUS Status;
 
   // Verify Parameters
   if (GopProtocol == NULL) {
     return;
   }
 
-  // Locate GOP Protocol
-  Status = gBS->HandleProtocol (gST->ConsoleOutHandle, &gEfiGraphicsOutputProtocolGuid, (VOID *)&LocalGopProtocol);
-  if (EFI_ERROR (Status) && Status != EFI_UNSUPPORTED) {
-    DEBUG ((EFI_D_ERROR, "%a: Failed to Locate GOP Protocol from Handle! Status = %r\n", __FUNCTION__, Status));
-    return;
+  // Borrow the provider's existing interface. Installing another alias here
+  // would outlive its owning handle and defeat provider uninstall/lifetime.
+  Status = EnumaLookupConsoleGop (gBS, gST ? gST->ConsoleOutHandle : NULL, GopProtocol);
+  if (Status != EFI_SUCCESS) {
+    DEBUG ((EFI_D_ERROR, "%a: No usable existing GOP! Status = %r\n", __FUNCTION__, Status));
   }
-
-  // Check Status
-  if (Status == EFI_UNSUPPORTED) {
-    // Locate GOP Protocol
-    Status = gBS->LocateProtocol (&gEfiGraphicsOutputProtocolGuid, NULL, (VOID *)&LocalGopProtocol);
-    if (EFI_ERROR (Status)) {
-      DEBUG ((EFI_D_ERROR, "%a: Failed to Locate GOP Protocol! Status = %r\n", __FUNCTION__, Status));
-      return;
-    }
-
-    // Install GOP Protocol
-    Status = gBS->InstallProtocolInterface (&gST->ConsoleOutHandle, &gEfiGraphicsOutputProtocolGuid, EFI_NATIVE_INTERFACE, LocalGopProtocol);
-    if (EFI_ERROR (Status)) {
-      DEBUG ((EFI_D_ERROR, "%a: Failed to Install GOP Protocol onto \"ConsoleOutHandle\"! Status = %r\n", __FUNCTION__, Status));
-    }
-  }
-
-  // Pass GOP Protocol
-  *GopProtocol = LocalGopProtocol;
 }
 
 VOID

@@ -15,6 +15,14 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def probe_memory_helpers(original):
+    # The late console uses OutputString exclusively. Do not materialize the
+    # upstream raw framebuffer renderer into EnumaProbe, even as dead code.
+    begin = original.index('STATIC\nEFI_STATUS\nGetMap (')
+    end = original.index('// Large diagnostic text straight into the GOP framebuffer:', begin)
+    return '// SPDX-License-Identifier: BSD-2-Clause-Patent\n' + original[begin:end]
+
+
 def apply_patch_series(patches):
     for target in dict.fromkeys(target for target, _ in patches):
         if not (target / '.git').exists():
@@ -33,7 +41,7 @@ def reverse_patches(patches):
             subprocess.run(['git', 'apply', '--reverse', str(patch)], cwd=target, check=True)
 
 
-def prepare(device, source, uefi, core, unixnu, reference, vendor):
+def prepare(device, source, uefi, core, unixnu, reference, vendor, report_path=None):
     device, source, uefi, core, unixnu, reference, vendor = [Path(p).resolve() for p in
         (device, source, uefi, core, unixnu, reference, vendor)]
     for writable in (uefi, core):
@@ -84,7 +92,8 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
         spec = importlib.util.spec_from_file_location('enuma_payload_contract', source / 'Resources/Scripts/enuma_payload_contract.py')
         module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
         module.generate(device, Path(os.environ['ENUMA_RAM_PAYLOAD']),
-                        uefi / 'Platforms/Xiaomi/enumaPkg/Drivers/EnumaRamPayloadDxe/PayloadContract.h')
+                        uefi / 'Platforms/Xiaomi/enumaPkg/Drivers/EnumaRamPayloadDxe/PayloadContract.h',
+                        Path(report_path).with_name('payload-contract.json') if report_path is not None else None)
     simplefb = 'Silicon/Silicium/SiliciumPkg/Drivers/SimpleFbDxe/SimpleFb.c'
     (uefi/simplefb).write_bytes((source/simplefb).read_bytes().replace(b'\r\n', b'\n'))
     target = uefi / 'Resources/Scripts/mkbootimg.py'
@@ -93,6 +102,9 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     upstream = unixnu / 'drivers/DarwinBoot/DarwinBootPkg/Driver'
     interfaces = json.loads((meta / 'interfaces.json').read_text())
     probe = uefi / 'Platforms/Xiaomi/enumaPkg/Application/EnumaProbe'
+    for name in ('EnumaBootJournal.h', 'EnumaBootJournalProtocol.h',
+                 'EnumaBootJournalView.h', 'EnumaJournalConsole.h', 'EnumaMenuConsole.h'):
+        shutil.copyfile(source / 'diagnostics' / name, probe / name)
     reused = {}
     for name in ('DarwinBoot.c', 'BootVideo.h', 'DiagFont.h'):
         relative = 'drivers/DarwinBoot/DarwinBootPkg/Driver/' + name
@@ -102,9 +114,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
         if name != 'DarwinBoot.c':
             shutil.copyfile(upstream / name, probe / name)
     original = (upstream / 'DarwinBoot.c').read_text()
-    begin = original.index('STATIC\nEFI_STATUS\nGetMap (')
-    end = original.index('STATIC\nEFI_STATUS\nAllocateWindow (', begin)
-    (probe / 'DarwinProbe.inc').write_text('// SPDX-License-Identifier: BSD-2-Clause-Patent\n' + original[begin:end])
+    (probe / 'DarwinProbe.inc').write_text(probe_memory_helpers(original))
     for relative in ('Binaries', 'raw'):
         shutil.copytree(vendor / relative, uefi / relative, dirs_exist_ok=True)
     includes = uefi / 'EnumaInputs'; includes.mkdir(exist_ok=True)
@@ -141,7 +151,7 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     sec_text = (sec/'Sec.c').read_text()
     if '__TIME__' in sec_text or '__DATE__' in sec_text or 'Source epoch %a on %a' not in sec_text:
         raise ValueError('SEC banner is not fixed to the existing source epoch')
-    for name in ('EnumaBootJournal.h','EnumaBootJournalProtocol.h','EnumaPixelTransactionArm.h','EnumaGopAudit.h', 'EnumaGopResult.h', 'EnumaScanoutAudit.h', 'EnumaScanoutDescriptor.h', 'EnumaPixelPreview.h', 'EnumaPixelPreviewArm.h', 'EnumaDsiCounters.h', 'EnumaDsiNativeProgress.h', 'EnumaScanoutRoute.h', 'EnumaScanoutGeometry.h', 'EnumaScanoutBlend.h', 'EnumaScanoutBlendReason.h', 'EnumaScanoutSoleStage.h', 'EnumaValueProbe.h'):
+    for name in ('EnumaBootJournal.h','EnumaBootJournalView.h','EnumaBootJournalProtocol.h','EnumaPixelTransactionArm.h','EnumaGopAudit.h', 'EnumaGopResult.h', 'EnumaScanoutAudit.h', 'EnumaScanoutDescriptor.h', 'EnumaPixelPreview.h', 'EnumaPixelPreviewArm.h', 'EnumaDsiCounters.h', 'EnumaDsiNativeProgress.h', 'EnumaScanoutRoute.h', 'EnumaScanoutGeometry.h', 'EnumaScanoutBlend.h', 'EnumaScanoutBlendReason.h', 'EnumaScanoutSoleStage.h', 'EnumaValueProbe.h'):
         shutil.copyfile(source/'diagnostics'/name, (uefi/simplefb).parent/name)
     if os.environ.get('ENUMA_INHERITED_VIDEO_AUDIT')=='1':
         entry='EnumaNativeObserve.c' if os.environ.get('ENUMA_NATIVE_OBSERVE_QUERY','0')!='0' else ('EnumaInheritedVideoEntryControl.c' if os.environ.get('ENUMA_INHERITED_VIDEO_ENTRY_CONTROL')=='1' else 'EnumaInheritedVideoAudit.c')
@@ -149,8 +159,16 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
         shutil.copyfile(audit_source,uefi/simplefb)
         lib=source/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'
         target=(uefi/simplefb).parent/'InheritedVideo'; target.mkdir(exist_ok=True)
-        for name in ('InheritedScanout.h','Decode.c','Capture.c','VideoCapture.c','Topology.h','Topology.c','Evidence.h','Evidence.c','VideoResult.h','NativeObserve.h','NativeObserve.c','NativeMaskResult.h','NativeRouteResult.h','CpuStage1.h','PixelTransaction.h','PixelText.h','PixelLogPage.h'):
+        for name in ('InheritedScanout.h','Decode.c','Capture.c','VideoCapture.c','Topology.h','Topology.c','Evidence.h','Evidence.c','VideoResult.h','NativeObserve.h','NativeObserve.c','NativeMaskResult.h','NativeRouteResult.h','CpuStage1.h','PixelTransaction.h','PixelText.h','PixelLogPage.h','PixelAttributedLogPage.h','PixelDiagnosticLogPage.h'):
             shutil.copyfile(lib/name,target/name)
+        if os.environ.get('ENUMA_BOUNDED_MENU')=='1':
+            for name in ('EnumaDeferredMenu.h','EnumaDeferredMenuProvider.h','EnumaBoundedMenu.c','EnumaMenuWindowArm.h','EnumaFullMenu.h','EnumaMenuApplication.h','EnumaMenuConfigFs.h'):
+                shutil.copyfile(source/'diagnostics'/name,(uefi/simplefb).parent/name)
+            shutil.copyfile(lib/'MenuWindow.h',target/'MenuWindow.h')
+            internal=unixnu/'package/UniXNUPkg/Library/UniXNULib/Internal.h'
+            shutil.copyfile(internal,(uefi/simplefb).parent/'UniXNUMenuInternal.h')
+            inf=(uefi/simplefb).parent/'SimpleFbDxe.inf'
+            inf.write_text(inf.read_text()+'\n[Sources]\n  EnumaBoundedMenu.c\n[Packages]\n  UniXNUPkg/UniXNUPkg.dec\n[LibraryClasses]\n  UniXNULib\n[Protocols]\n  gEfiLoadedImageProtocolGuid\n')
     for target in (sec, dxe/'DxeMain', dxe/'Dispatcher', dxe/'Mem'):
         shutil.copyfile(source/'diagnostics/EnumaStageCheckpoint.h', target/'EnumaStageCheckpoint.h')
     if os.environ.get('ENUMA_RAMOOPS_CANARY') == '1':
@@ -168,6 +186,8 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
     shutil.copyfile(source/'diagnostics/EnumaBootJournalProtocol.h', dxe/'Dispatcher/EnumaBootJournalProtocol.h')
     shutil.copyfile(source/'diagnostics/EnumaDispatchDetailCheckpoint.h', dxe/'Dispatcher/EnumaDispatchDetailCheckpoint.h')
     shutil.copyfile(source/'diagnostics/EnumaImageEntryCheckpoint.h', dxe/'Dispatcher/EnumaImageEntryCheckpoint.h')
+    for name in ('EnumaDeferredMenu.h','EnumaDeferredMenuDispatch.h'):
+        shutil.copyfile(source/'diagnostics'/name,dxe/'Dispatcher'/name)
     shutil.copyfile(source/'diagnostics/EnumaDispatchCompletionCheckpoint.h', dxe/'DxeMain/EnumaDispatchCompletionCheckpoint.h')
     for name in ('EnumaStageCheckpoint.h', 'EnumaUnhandledExceptionCheckpoint.h'):
         shutil.copyfile(source/'diagnostics'/name, exception/'AArch64'/name)
@@ -176,7 +196,12 @@ def prepare(device, source, uefi, core, unixnu, reference, vendor):
               'sec_fixed_source_epoch':1792540800,'sec_staged_sha256':digest(sec/'Sec.c'),
               'vendor_files_checked': len(vendor_lock), 'reference_gitlinks': dependencies,
               'probe_upstream_sha256': reused, 'core_ready_for_official_patch_series': True}
-    (device/'reports/enuma-firmware-preflight.json').write_text(json.dumps(report, indent=2)+'\n')
+    report_path = Path(report_path) if report_path is not None else device/'reports/enuma-firmware-preflight.json'
+    if report_path.resolve() != (device/'reports/enuma-firmware-preflight.json').resolve():
+        report_path.resolve().relative_to(device/'out')
+        if report_path.exists():
+            raise ValueError('Refuse to overwrite a development preflight report')
+    report_path.write_text(json.dumps(report, indent=2)+'\n')
     return report
 
 

@@ -20,6 +20,10 @@
   USE_CUSTOM_DISPLAY_DRIVER = 1
   SOC_TYPE = 2
   DEFINE ENUMA_RAM_PAYLOAD = 0
+  DEFINE ENUMA_PROBE_JOURNAL_REPLAY = 0
+  DEFINE ENUMA_BOUNDED_MENU = 0
+  DEFINE ENUMA_FULL_MENU = 0
+  DEFINE ENUMA_DEFERRED_MENU = 0
 
 # This is a source overlay, not an alioth memory-map copy. The reviewed file
 # must supply MemoryMapLib, ConfigurationMapLib, DDR/stack and GOP facts.

@@ -15,7 +15,10 @@ STATIC int PixelAddressOk(ENUMA_PIXEL_CONTEXT *C,ENUMA_U64 A) {
   if(!C||!EnumaPixelFrameValid(C->Frame)||(A&3)||A<C->Frame->Base||
      A<0x9c000000ULL||A>0x9e3ffffcULL) { return 0; }
   Offset=A-C->Frame->Base;
-  return Offset/C->Frame->Stride<ENUMA_PIXEL_ROWS&&Offset%C->Frame->Stride<ENUMA_PIXEL_WIDTH*4;
+  return Offset/C->Frame->Stride>=ENUMA_PIXEL_ORIGIN_Y&&
+    Offset/C->Frame->Stride<ENUMA_PIXEL_ORIGIN_Y+ENUMA_PIXEL_ROWS&&
+    Offset%C->Frame->Stride>=ENUMA_PIXEL_ORIGIN_X*4&&
+    Offset%C->Frame->Stride<(ENUMA_PIXEL_ORIGIN_X+ENUMA_PIXEL_WIDTH)*4;
 }
 STATIC int PixelRead(void *Opaque,ENUMA_U64 A,ENUMA_U32 *V) {
   ENUMA_PIXEL_CONTEXT *C=Opaque;

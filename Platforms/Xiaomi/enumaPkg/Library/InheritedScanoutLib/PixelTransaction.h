@@ -9,8 +9,10 @@
 #ifndef ENUMA_BOOT_LOG_REPLAY
 #define ENUMA_BOOT_LOG_REPLAY 0
 #endif
-#define ENUMA_PIXEL_WIDTH (ENUMA_BOOT_LOG_REPLAY?256:128)
-#define ENUMA_PIXEL_ROWS (ENUMA_BOOT_LOG_REPLAY?96:(ENUMA_NATIVE_ROUTE_CPU_TEXT?32:8))
+#define ENUMA_PIXEL_WIDTH (ENUMA_BOOT_LOG_REPLAY>=2?320:(ENUMA_BOOT_LOG_REPLAY?256:128))
+#define ENUMA_PIXEL_ROWS (ENUMA_BOOT_LOG_REPLAY>=2?160:(ENUMA_BOOT_LOG_REPLAY?96:(ENUMA_NATIVE_ROUTE_CPU_TEXT?32:8)))
+#define ENUMA_PIXEL_ORIGIN_X (ENUMA_BOOT_LOG_REPLAY>=2?64:0)
+#define ENUMA_PIXEL_ORIGIN_Y (ENUMA_BOOT_LOG_REPLAY>=2?96:0)
 #define ENUMA_PIXEL_WORDS (ENUMA_PIXEL_WIDTH*ENUMA_PIXEL_ROWS)
 #ifndef ENUMA_BOOT_LOG_HOLD_US
 #define ENUMA_BOOT_LOG_HOLD_US 2000000
@@ -19,7 +21,11 @@
 #error Unsupported cached log hold duration
 #endif
 #define ENUMA_PIXEL_HOLD_US (ENUMA_BOOT_LOG_REPLAY?ENUMA_BOOT_LOG_HOLD_US:500000)
-#if ENUMA_BOOT_LOG_REPLAY
+#if ENUMA_BOOT_LOG_REPLAY == 3
+#include "PixelDiagnosticLogPage.h"
+#elif ENUMA_BOOT_LOG_REPLAY == 2
+#include "PixelAttributedLogPage.h"
+#elif ENUMA_BOOT_LOG_REPLAY
 #include "PixelLogPage.h"
 #endif
 #if ENUMA_NATIVE_ROUTE_CPU_TEXT
@@ -71,7 +77,7 @@ static inline int EnumaPixelFrameValid(const ENUMA_INHERITED_FRAME *F) {
   return U==0xffffffffu;
 }
 static inline ENUMA_U64 EnumaPixelAddress(const ENUMA_INHERITED_FRAME *F,ENUMA_U32 N) {
-  return F->Base+(ENUMA_U64)(N/ENUMA_PIXEL_WIDTH)*F->Stride+(ENUMA_U64)(N%ENUMA_PIXEL_WIDTH)*4;
+  return F->Base+(ENUMA_U64)(ENUMA_PIXEL_ORIGIN_Y+N/ENUMA_PIXEL_WIDTH)*F->Stride+(ENUMA_U64)(ENUMA_PIXEL_ORIGIN_X+N%ENUMA_PIXEL_WIDTH)*4;
 }
 // Returns1 no stores;2 pattern rejected/restored;3 hold rejected/restored;
 // 4 restoration not established (hard stop);5 CPU transaction/restoration done.

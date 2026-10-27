@@ -184,7 +184,11 @@ STATIC int Wait(void *Context,ENUMA_U32 Us) {
   if(Us!=100000||mWaits>=(ENUMA_NATIVE_ROUTE_CPU_PATTERN?4:2)||!gBS||!gBS->Stall) { return 0; }
   mWaits++; return gBS->Stall(Us)==EFI_SUCCESS?1:0;
 }
-#if ENUMA_NATIVE_ROUTE_CPU_PATTERN
+#if ENUMA_BOUNDED_MENU
+STATIC ENUMA_INHERITED_LIMITS mPixelLimits;
+STATIC ENUMA_VIDEO_EVIDENCE mPixelVerify;
+#include "EnumaMenuWindowArm.h"
+#elif ENUMA_NATIVE_ROUTE_CPU_PATTERN
 #include "EnumaPixelTransactionArm.h"
 #endif
 EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
@@ -220,6 +224,16 @@ EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
   if(Status==EnumaInheritedOk&&Reason==EnumaVideoReasonComplete&&mEvidence.Frame.Requirements==22) {
 #if ENUMA_NATIVE_ROUTE_CPU_PATTERN
     ENUMA_U64 El=0;ENUMA_U32 Policy=EnumaCpuStage1ArmDetailed(&mEvidence.Frame,&El);
+#if ENUMA_BOUNDED_MENU
+    if(Policy!=3||El!=4) {return 1;}
+#if ENUMA_DEFERRED_MENU
+    // EFI_SUCCESS is the driver's actual return. Menu result is logged later
+    // under a separate Core event, after this image has completed StartImage.
+    return PublishDeferredMenu(Image,&mEvidence.Frame)==EFI_SUCCESS?EFI_SUCCESS:1;
+#else
+    return (EFI_STATUS)RunMenuWindow(&mEvidence.Frame);
+#endif
+#else
 #if ENUMA_BOOT_LOG_REPLAY
     EFI_GUID JournalGuid=ENUMA_BOOT_JOURNAL_PROTOCOL_GUID;
     ENUMA_BOOT_JOURNAL_PROTOCOL *Journal=NULL;
@@ -229,6 +243,7 @@ EFI_STATUS EFIAPI RegisterFrameBuffer(EFI_HANDLE Image,EFI_SYSTEM_TABLE *ST) {
        !Journal->Snapshot(&mReplaySnapshot)||!EnumaLogPageFromSnapshot(&mReplaySnapshot,&mEnumaLogPage)) { return 1; }
 #endif
     return (EFI_STATUS)PixelArmProbe(&mEvidence.Frame,Policy,El);
+#endif
 #elif ENUMA_NATIVE_ROUTE_CPU_ROI
     ENUMA_U64 El=0;ENUMA_U32 Policy=EnumaCpuStage1ArmDetailed(&mEvidence.Frame,&El);
     return (EFI_STATUS)EnumaCpuReadRoiArmProbe(&mEvidence.Frame,Policy,El);

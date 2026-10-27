@@ -1,11 +1,12 @@
 --- a/MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c
 +++ b/MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c
-@@ -33,6 +33,8 @@
+@@ -33,6 +33,9 @@
 
  #include "DxeMain.h"
  #include "EnumaDispatchCheckpoint.h"
 +#include "EnumaDispatchDetailCheckpoint.h"
 +#include "EnumaImageEntryCheckpoint.h"
++#include "EnumaDeferredMenuDispatch.h"
 
  //
  // The Driver List contains one copy of every driver that has been discovered.
@@ -17,7 +18,7 @@
 
          //
          // Update the driver state to reflect that it's been loaded
-@@ -519,8 +522,13 @@
+@@ -519,8 +523,14 @@
            );
          ASSERT (DriverEntry->ImageHandle != NULL);
 
@@ -29,6 +30,7 @@
 +        EnumaStartingImage = NULL;
 +        EnumaStartingFile  = NULL;
 +        EnumaDispatchDetailCheckpoint (13, &DriverEntry->FileName, Status);
++        EnumaDeferredMenuDispatch (DriverEntry->ImageHandle, &DriverEntry->FileName, Status);
 
          REPORT_STATUS_CODE_WITH_EXTENDED_DATA (
            EFI_PROGRESS_CODE,

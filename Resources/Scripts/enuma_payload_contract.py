@@ -7,7 +7,7 @@ import subprocess
 import zlib
 
 
-def generate(device, fat, target):
+def generate(device, fat, target, report_path=None):
     fat = fat.resolve()
     if not fat.is_relative_to((device / 'out').resolve()):
         raise ValueError('FAT must be inside device out/')
@@ -51,5 +51,9 @@ def generate(device, fat, target):
                   prefix_crc32=zlib.crc32(prefix), fat_crc32=zlib.crc32(raw), files=entries,
                   header_sha256=sha(target.read_bytes()), integrity='CRC32 for transport errors only; host SHA256 binds source inputs, no authentication claim',
                   new_memory_mapping=False, hardware_tested=False)
-    (device / 'reports/enuma-ram-payload-contract.json').write_text(json.dumps(report, indent=2) + '\n')
+    destination=Path(report_path) if report_path is not None else device/'reports/enuma-ram-payload-contract.json'
+    if report_path is not None:
+        destination.resolve().relative_to((device/'out').resolve())
+        if destination.exists(): raise ValueError('refuse to overwrite isolated payload report')
+    destination.write_text(json.dumps(report, indent=2) + '\n')
     return report

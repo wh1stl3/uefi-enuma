@@ -1,5 +1,8 @@
 # uefi-enuma
 
+<!-- path-migration-policy-2026-10-26 -->
+> **2026-10-26路径迁移：** 后续工作、新文档、脚本调用示例与交接统一使用 `D:/Code/PortingiOS/enuma` 下的本机型新仓库路径，不与另一机型混用。仓库位置、旧资料库及历史证据定位见[统一迁移索引](../../../PATH-MIGRATION.md)；旧记录不构成当前路径或新验证结论。
+
 Optional boot-v3 read-only FAT payload transport and a 13-stage same-boot report
 are documented in [docs/ram-payload-v3.md](docs/ram-payload-v3.md). It is disabled
 by default; build qualification does not establish device execution.

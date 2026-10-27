@@ -7,6 +7,7 @@
   LIBRARY_CLASS = InheritedGopLib
 [Sources]
   InheritedGop.c
+  InheritedGopPublish.c
 [Packages]
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
@@ -15,3 +16,7 @@
   FrameBufferBltLib
   MemoryAllocationLib
   UefiBootServicesTableLib
+
+[Protocols]
+  gEfiGraphicsOutputProtocolGuid
+  gEfiDevicePathProtocolGuid
