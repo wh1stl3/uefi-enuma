@@ -1,0 +1,56 @@
+--- a/MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c
++++ b/MdeModulePkg/Core/Dxe/Dispatcher/Dispatcher.c
+@@ -36,6 +36,7 @@
+ #include "EnumaDispatchDetailCheckpoint.h"
+ #include "EnumaImageEntryCheckpoint.h"
+ #include "EnumaDeferredMenuDispatch.h"
++#include "EnumaOemCoreBinding.h"
+ 
+ //
+ // The Driver List contains one copy of every driver that has been discovered.
+@@ -534,7 +535,9 @@
+         EnumaDispatchDetailCheckpoint (15, &DriverEntry->FileName, EFI_SUCCESS);
+         EnumaStartingImage = DriverEntry->ImageHandle;
+         EnumaStartingFile  = &DriverEntry->FileName;
++        EnumaOemStartingFv = DriverEntry->FvHandle;
+         Status = CoreStartImage (DriverEntry->ImageHandle, NULL, NULL);
++        EnumaOemStartingFv = NULL;
+         EnumaStartingImage = NULL;
+         EnumaStartingFile  = NULL;
+         EnumaDispatchDetailCheckpoint (13, &DriverEntry->FileName, Status);
+--- a/MdeModulePkg/Core/Dxe/Image/Image.c
++++ b/MdeModulePkg/Core/Dxe/Image/Image.c
+@@ -12,6 +12,7 @@
+ // DxeCore-local bridge; selection/ordinal/GUID live in Dispatcher.c only.
+ VOID EnumaImageEntryCheckpoint (UINTN Point, EFI_HANDLE Handle, EFI_STATUS Status);
+ VOID EnumaImageCanaryTableCheckpoint (EFI_HANDLE Handle, EFI_SYSTEM_TABLE *SystemTable);
++EFI_STATUS EnumaOemCoreBeforeEntry (EFI_HANDLE Handle, EFI_LOADED_IMAGE_PROTOCOL *Loaded, UINTN Entry);
+ #include "MemoryProtectionSupport.h" // MU_CHANGE
+ 
+ //
+@@ -1746,6 +1747,11 @@
+     // Call the image's entry point
+     //
+     Image->Started = TRUE;
++    Image->Status = EnumaOemCoreBeforeEntry (ImageHandle, &Image->Info, (UINTN) Image->EntryPoint);
++    if (EFI_ERROR (Image->Status)) {
++      CoreExit (ImageHandle, Image->Status, 0, NULL);
++      for (;;) { CpuPause (); } // Never enter OEM if CoreExit unexpectedly returns.
++    }
+     EnumaImageCanaryTableCheckpoint (ImageHandle, Image->Info.SystemTable);
+     EnumaImageEntryCheckpoint (20, ImageHandle, EFI_SUCCESS);
+     Image->Status  = Image->EntryPoint (ImageHandle, Image->Info.SystemTable);
+--- a/MdeModulePkg/Core/Dxe/DxeMain.inf
++++ b/MdeModulePkg/Core/Dxe/DxeMain.inf
+@@ -74,9 +74,11 @@
+ [Packages]
+   MdePkg/MdePkg.dec
+   MdeModulePkg/MdeModulePkg.dec
++  SiliciumPkg/SiliciumPkg.dec
+ 
+ [LibraryClasses]
+   ResetSystemLib
++  MemoryMapHelperLib
+   TimerLib
+   BaseMemoryLib
+   CacheMaintenanceLib

@@ -36,10 +36,12 @@ def main():
                         help='separate fixed Mu nested dependency checkouts under device out/')
     parser.add_argument('--profile',choices=['stage10','attributed-log','diagnostic-log','menu-window','full-menu','deferred-menu','oem-control','oem-mmu-only'],default='stage10')
     parser.add_argument('--oem-profile-pair',type=Path,help='explicit verified pair; OEM profiles remain stage10 compile-only')
+    parser.add_argument('--oem-trace-build',action='store_true',help='link OEM Core/board capture behind the mandatory stage10 gate')
     parser.add_argument('--direct-menu',action='store_true',help='select real UniXNU BDS application for offline stage10 link checking; early stop remains')
     parser.add_argument('--jobs',type=int,default=4)
     args=parser.parse_args()
     is_oem=args.profile in ('oem-control','oem-mmu-only')
+    if args.oem_trace_build and not is_oem:parser.error('--oem-trace-build requires an OEM profile')
     if is_oem != (args.oem_profile_pair is not None):
         parser.error('OEM profiles require a pair; other profiles forbid it')
     if args.direct_menu and args.profile!='stage10':
@@ -184,6 +186,7 @@ def main():
                     ENUMA_RAM_PAYLOAD='0',ENUMA_GOP_SELFTEST='1')
         defs['ENUMA_DIRECT_MENU']='1' if args.direct_menu else '0'
         if is_oem: oem_helper.defines(args.profile,defs)
+        if args.oem_trace_build:board['firmware']['patches'].append('patches/oem-core-binding.patch')
         if args.profile in ('attributed-log','diagnostic-log','menu-window','full-menu','deferred-menu'):
             # Frozen recipe is read-only provenance, not authorization for this derivative.
             recipe=root/'out/inherited-gop/qualified-dxe-log-8s-8680ea7/firmware-build.json'
@@ -204,6 +207,23 @@ def main():
             if args.profile in ('menu-window','full-menu','deferred-menu'):os.environ['ENUMA_BOUNDED_MENU']='1'
         preflight=load(snapshot/'Resources/Scripts/enuma_preflight.py','development_preflight')
         preflight.prepare(root,snapshot,uefi,core,unixnu,source,vendor,out/'preflight.json')
+        trace_identity=None
+        if args.oem_trace_build:
+            shutil.copyfile(snapshot/'patches/oem-core-binding.patch',uefi/'patches/oem-core-binding.patch')
+            target=core/'MdeModulePkg/Core/Dxe/Dispatcher'
+            for name in ('EnumaOemCoreBinding.h','EnumaOemLoadedIdentity.h','EnumaOemBoardCapture.h',
+                         'EnumaOemTraceTarget.h','EnumaOemServiceTrace.h','EnumaOemServiceTraceView.h',
+                         'EnumaOemPrecallCapture.h','EnumaOemCapturePixel.h','EnumaBootJournalView.h'):
+                shutil.copyfile(snapshot/'diagnostics'/name,target/name)
+            lib=snapshot/'Platforms/Xiaomi/enumaPkg/Library/InheritedScanoutLib'
+            shutil.copytree(lib,target/'OemInherited')
+            # Pixel header's local include and its dependencies share one dir.
+            for p in lib.glob('*.h'):shutil.copyfile(p,target/p.name)
+            identity=load(snapshot/'Resources/Scripts/enuma_oem_identity.py','oem_identity')
+            trace_identity=identity.generate(vendor/oem_helper.PE,target/'EnumaOemBuildIdentity.h')
+            trace_identity.update(stage10_gate=True,selected_call=0,session=1,trial_nonce=False,
+                                  board_adapter_linked=True,board_runtime_qualified=False)
+            save(out/'oem-trace-identity.json',trace_identity)
         print('Preflight complete; compiling BaseTools and full enuma FD',flush=True)
         wrappers=core/'BaseTools/BinWrappers/PosixLike'
         # WSL DrvFS already exposes new files as executable. Never chmod.
@@ -222,6 +242,7 @@ def main():
         if any(sha(core/n)!=wanted for n,wanted in baseline.items() if n.startswith(('MdeModulePkg/','UefiCpuPkg/'))):
             raise ValueError('core patches not reverted')
         report.update(profile=args.profile,direct_menu_selected=args.direct_menu,complete=True,fd=str(fd.relative_to(root)),fd_sha256=sha(fd),
+                      oem_trace_build=args.oem_trace_build,oem_trace_identity=trace_identity,
                       source_manifest_sha256=sha(out/'source-manifest.json'),base_commit=base,
                       firmware_configuration=board['firmware'],diagnostic_omitted_oem_modules=(['UFSDxe'] if is_oem else ['CPRDxe','DisplayDxe','UFSDxe']),
                       oem_profile_binding=oem_binding,
