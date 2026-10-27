@@ -51,7 +51,7 @@ def main():
         runtime=json.loads(args.oem_run_config.read_text())
         if set(runtime)!={'trial_id','session','selected_call','profile','experiment'} or str(UUID(runtime['trial_id']))!=runtime['trial_id'] or \
            type(runtime['session']) is not int or not 0<runtime['session']<2**64 or type(runtime['selected_call']) is not int or runtime['selected_call']!=(6 if runtime['experiment']=='oem-main-entry-v6' else 5 if runtime['experiment']=='oem-registration-v5' else 4 if runtime['experiment']=='oem-post-kernel-v4' else 1 if runtime['experiment']=='oem-early-v3' else 0) or \
-           runtime['profile']!='oem-control' or runtime['experiment'] not in ('oem-first-call-preforward-v1','oem-progress-v2','oem-early-v3','oem-post-kernel-v4','oem-registration-v5','oem-main-entry-v6','oem-far-chain-v7'):
+           runtime['profile']!='oem-control' or runtime['experiment'] not in ('oem-first-call-preforward-v1','oem-progress-v2','oem-early-v3','oem-post-kernel-v4','oem-registration-v5','oem-main-entry-v6','oem-far-chain-v7','oem-far-event-v8'):
             parser.error('invalid fixed-scope OEM runtime configuration')
     if is_oem != (args.oem_profile_pair is not None):
         parser.error('OEM profiles require a pair; other profiles forbid it')
@@ -198,7 +198,7 @@ def main():
         defs['ENUMA_DIRECT_MENU']='1' if args.direct_menu else '0'
         if is_oem: oem_helper.defines(args.profile,defs)
         if args.oem_trace_build:board['firmware']['patches'].extend(['patches/oem-core-binding.patch','patches/oem-system-table-sync.patch'])
-        defs['ENUMA_OEM_FAR_CHAIN']='1' if runtime and runtime['experiment']=='oem-far-chain-v7' else '0'
+        defs['ENUMA_OEM_FAR_CHAIN']='1' if runtime and runtime['experiment'] in ('oem-far-chain-v7','oem-far-event-v8') else '0'
         if runtime:
             defs.update(ENUMA_DIAG_STAGE='13',ENUMA_DIAG_DETAIL_POINT='13',ENUMA_DIAG_GUID_ENABLED='1',
                         ENUMA_DIAG_GUID_ONLY='1',ENUMA_DIAG_GUID_LOW64='0x4f7906c74138022f',

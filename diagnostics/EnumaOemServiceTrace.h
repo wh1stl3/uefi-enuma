@@ -15,6 +15,12 @@
 #ifndef ENUMA_OEM_FAR_CHAIN
 #define ENUMA_OEM_FAR_CHAIN 0
 #endif
+#ifndef ENUMA_OEM_RAM_EVENT
+#define ENUMA_OEM_RAM_EVENT 0
+#endif
+#if ENUMA_OEM_RAM_EVENT && !ENUMA_OEM_FAR_CHAIN
+#error RAM event capture requires the far-chain scope
+#endif
 #ifndef ENUMA_OEM_MAIN_ENTRY
 #define ENUMA_OEM_MAIN_ENTRY 0
 #endif
@@ -43,6 +49,10 @@ typedef struct ENUMA_SERVICE_TRACE_CONTEXT {
   // depend on the forwarded service returning. Context and observer are static.
   VOID (*BeforeForward)(struct ENUMA_SERVICE_TRACE_CONTEXT *,UINT64,EFI_TPL);
   VOID (*AfterForward)(struct ENUMA_SERVICE_TRACE_CONTEXT *,UINT64,EFI_TPL);
+#if ENUMA_OEM_RAM_EVENT
+  // Called under original TPL_HIGH_LEVEL; bounded RAM stores only, never I/O.
+  VOID (*Recorded)(struct ENUMA_SERVICE_TRACE_CONTEXT *,CONST ENUMA_SERVICE_EVENT *);
+#endif
 } ENUMA_SERVICE_TRACE;
 STATIC ENUMA_SERVICE_TRACE *mEnumaServiceTrace;
 
@@ -60,6 +70,9 @@ STATIC VOID EnumaServiceRecord(ENUMA_SERVICE_TRACE *C,UINT64 Call,UINT32 Service
   E->Status=Returned?(UINT64)Status:0;E->Value=Value;
   E->CallerRva=Caller>=C->ImageBase&&Caller-C->ImageBase<C->ImageSize?Caller-C->ImageBase:ENUMA_SERVICE_TRACE_UNKNOWN_RVA;
   E->HasGuid=Guid!=NULL;if(Guid){CopyMem(&E->Guid,Guid,sizeof(*Guid));}
+#if ENUMA_OEM_RAM_EVENT
+  if(C->Recorded){C->Recorded(C,E);}
+#endif
 }
 STATIC UINT64 EnumaServiceBegin(UINT32 Service,UINTN Caller,UINT64 Value,CONST EFI_GUID *Guid) {
   ENUMA_SERVICE_TRACE *C=mEnumaServiceTrace;EFI_TPL Previous;UINT64 Call;

@@ -32,6 +32,27 @@ STATIC __attribute__((noinline)) VOID OemProgressEmit(UINT32 Phase,CONST ENUMA_S
   if(!P->Present(Phase,E,P->Session)){OemProgressFail();}
   P->Active=FALSE;
 }
+#if ENUMA_OEM_RAM_EVENT
+STATIC __attribute__((noinline)) VOID OemProgressRecord(ENUMA_SERVICE_TRACE *Trace,CONST ENUMA_SERVICE_EVENT *E){
+  STATIC CONST EFI_GUID Sid={0x54b6d3b4,0x5d33,0x4f91,{0x86,0x00,0x6c,0x41,0xd5,0xde,0xb1,0x9a}};
+  ENUMA_OEM_PROGRESS_CONTEXT *P=&mOemProgress;BOOLEAN Returned=E->Returned;
+  if(Trace!=P->Owner||P->Stopped){return;}
+  STATIC CONST EFI_GUID Main={0xb0760469,0x970c,0x487a,{0xa4,0xb5,0x28,0xdb,0x7b,0x45,0xce,0xf1}};
+  P->FarLastRva=E->CallerRva;
+  if(E->Service==EnumaServiceInstallConfigurationTable&&E->CallerRva==0x5cc8&&Returned){
+    P->FarFlags|=2;if(E->Status==EFI_SUCCESS){P->FarFlags|=0x2000;}
+  }
+  if(E->Service==EnumaServiceLocateProtocol&&E->HasGuid){
+    if(E->CallerRva==0x3608&&CompareMem(&E->Guid,&Main,sizeof(Main))==0){
+      P->FarFlags|=Returned?8:4;if(Returned&&E->Status==EFI_SUCCESS){P->FarFlags|=0x1000;}
+    }
+    if(CompareMem(&E->Guid,&Sid,sizeof(Sid))==0){
+      P->FarFlags|=Returned?32:16;if(Returned&&E->Status==EFI_SUCCESS){P->FarFlags|=0x800;}
+    }
+  }
+}
+#endif
+#if !ENUMA_OEM_RAM_EVENT
 STATIC __attribute__((noinline)) VOID OemProgressObserve(ENUMA_SERVICE_TRACE *Trace,UINT64 Call,EFI_TPL Tpl,BOOLEAN Returned){
 #if ENUMA_OEM_EARLY
   STATIC CONST EFI_GUID Sid={0xb5062be7,0x170b,0x4a32,{0xbe,0x21,0x68,0x92,0x62,0xff,0x43,0x99}};
@@ -97,6 +118,7 @@ STATIC __attribute__((noinline)) VOID OemProgressObserve(ENUMA_SERVICE_TRACE *Tr
 }
 STATIC __attribute__((noinline)) VOID OemProgressBefore(ENUMA_SERVICE_TRACE *T,UINT64 C,EFI_TPL L){OemProgressObserve(T,C,L,FALSE);}
 STATIC __attribute__((noinline)) VOID OemProgressAfter(ENUMA_SERVICE_TRACE *T,UINT64 C,EFI_TPL L){OemProgressObserve(T,C,L,TRUE);}
+#endif
 STATIC __attribute__((noinline)) VOID OemProgressReturned(EFI_STATUS Status){
 #if ENUMA_OEM_FAR_CHAIN
   ENUMA_OEM_PROGRESS_CONTEXT *P=&mOemProgress;
@@ -128,10 +150,18 @@ STATIC EFI_STATUS OemProgressArm(ENUMA_SERVICE_TRACE *T,UINT64 Session,
   if(!T||!Session||!Present||!Stop){return EFI_INVALID_PARAMETER;}
   if(P->Owner||T->BeforeForward||T->AfterForward){return EFI_ALREADY_STARTED;}
   if(T!=mEnumaServiceTrace||!T->Published||T->Log.NextCall||T->Log.NextSequence){return EFI_NOT_READY;}
+#if ENUMA_OEM_RAM_EVENT
+  if(T->Recorded){return EFI_ALREADY_STARTED;}
+#endif
   ZeroMem(P,sizeof(*P));P->Owner=T;P->Session=Session;P->SidCall=MAX_UINT64;P->Present=Present;P->Stop=Stop;
 #if ENUMA_OEM_FAR_CHAIN
   P->FarFlags=1;P->FarLastRva=MAX_UINT64;
 #endif
-  T->BeforeForward=OemProgressBefore;T->AfterForward=OemProgressAfter;return EFI_SUCCESS;
+#if ENUMA_OEM_RAM_EVENT
+  T->Recorded=OemProgressRecord;
+#else
+  T->BeforeForward=OemProgressBefore;T->AfterForward=OemProgressAfter;
+#endif
+  return EFI_SUCCESS;
 }
 #endif
