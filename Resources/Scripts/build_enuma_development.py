@@ -34,10 +34,14 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--dependency-root',type=Path,required=True,
                         help='separate fixed Mu nested dependency checkouts under device out/')
-    parser.add_argument('--profile',choices=['stage10','attributed-log','diagnostic-log','menu-window','full-menu','deferred-menu'],default='stage10')
+    parser.add_argument('--profile',choices=['stage10','attributed-log','diagnostic-log','menu-window','full-menu','deferred-menu','oem-control','oem-mmu-only'],default='stage10')
+    parser.add_argument('--oem-profile-pair',type=Path,help='explicit verified pair; OEM profiles remain stage10 compile-only')
     parser.add_argument('--direct-menu',action='store_true',help='select real UniXNU BDS application for offline stage10 link checking; early stop remains')
     parser.add_argument('--jobs',type=int,default=4)
     args=parser.parse_args()
+    is_oem=args.profile in ('oem-control','oem-mmu-only')
+    if is_oem != (args.oem_profile_pair is not None):
+        parser.error('OEM profiles require a pair; other profiles forbid it')
     if args.direct_menu and args.profile!='stage10':
         parser.error('--direct-menu is separate from frozen log experiment profiles')
     root=args.device_root.resolve(); out=args.output.resolve()
@@ -104,6 +108,15 @@ def main():
                         data['files'][name]=sha(snapshot/name)
             data['development_derivative']=True
             save(p,data); derivatives[filename]={'original_sha256':hashlib.sha256(before).hexdigest(),'derivative_sha256':sha(p)}
+        vendor=root/'out/firmware-vendor'
+        oem_binding=None
+        if is_oem:
+            pair=args.oem_profile_pair.resolve(); pair.relative_to(root/'out')
+            oem_helper=load(snapshot/'Resources/Scripts/enuma_oem_profile.py','oem_profile')
+            vendor,oem_binding=oem_helper.bind(args.profile,pair,snapshot,out)
+            save(out/'oem-profile-binding.json',oem_binding)
+            derivatives['vendor.json']={'original_sha256':oem_binding['original_vendor_lock_sha256'],
+                                        'derivative_sha256':oem_binding['derivative_vendor_lock_sha256']}
         files={str(p.relative_to(snapshot)):sha(p) for p in snapshot.rglob('*') if p.is_file()}
         manifest={'scope':'uncommitted development snapshot, not base-commit binaries','base_commit':base,
                   'origin':str(source),'original_files':original,'snapshot_files':files,'metadata_derivatives':derivatives}
@@ -167,6 +180,7 @@ def main():
                     ENUMA_BOOT_JOURNAL='1',ENUMA_BOOT_LOG_REPLAY='0',ENUMA_BOOT_LOG_HOLD_US='2000000',
                     ENUMA_RAM_PAYLOAD='0',ENUMA_GOP_SELFTEST='1')
         defs['ENUMA_DIRECT_MENU']='1' if args.direct_menu else '0'
+        if is_oem: oem_helper.defines(args.profile,defs)
         if args.profile in ('attributed-log','diagnostic-log','menu-window','full-menu','deferred-menu'):
             # Frozen recipe is read-only provenance, not authorization for this derivative.
             recipe=root/'out/inherited-gop/qualified-dxe-log-8s-8680ea7/firmware-build.json'
@@ -186,7 +200,7 @@ def main():
             os.environ['ENUMA_RAM_PAYLOAD']=str(root/'out/full-boot/payload/payload.img')
             if args.profile in ('menu-window','full-menu','deferred-menu'):os.environ['ENUMA_BOUNDED_MENU']='1'
         preflight=load(snapshot/'Resources/Scripts/enuma_preflight.py','development_preflight')
-        preflight.prepare(root,snapshot,uefi,core,unixnu,source,root/'out/firmware-vendor',out/'preflight.json')
+        preflight.prepare(root,snapshot,uefi,core,unixnu,source,vendor,out/'preflight.json')
         print('Preflight complete; compiling BaseTools and full enuma FD',flush=True)
         wrappers=core/'BaseTools/BinWrappers/PosixLike'
         # WSL DrvFS already exposes new files as executable. Never chmod.
@@ -206,10 +220,12 @@ def main():
             raise ValueError('core patches not reverted')
         report.update(profile=args.profile,direct_menu_selected=args.direct_menu,complete=True,fd=str(fd.relative_to(root)),fd_sha256=sha(fd),
                       source_manifest_sha256=sha(out/'source-manifest.json'),base_commit=base,
-                      firmware_configuration=board['firmware'],diagnostic_omitted_oem_modules=['CPRDxe','DisplayDxe','UFSDxe'],
+                      firmware_configuration=board['firmware'],diagnostic_omitted_oem_modules=(['UFSDxe'] if is_oem else ['CPRDxe','DisplayDxe','UFSDxe']),
+                      oem_profile_binding=oem_binding,
                       diagnostic_simplefb_metadata_only=args.profile=='stage10',core_patch_reversion_checked=True,
                       gop_backend_selftest_ram_only=args.profile=='stage10',boot_journal={'enabled':True,'global_debug':False},
-                      note=('stage10 stops before BDS; selftest not auto-launched' if args.profile=='stage10' else
+                      note=('OEM stage10 compile-only; stops before dispatch; no trace or deployment qualification' if is_oem else
+                            'stage10 stops before BDS; selftest not auto-launched' if args.profile=='stage10' else
                             'opt-in transient 800x600 GOP; full-menu runs FV UniXNU application with private readonly config; no BDS/XNU/input; needs separate qualification' if args.profile in ('menu-window','full-menu','deferred-menu') else
                             args.profile+' bounded replay; new offline candidate, no execution approval'))
     except Exception as error:
