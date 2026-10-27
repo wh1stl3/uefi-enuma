@@ -21,13 +21,17 @@ typedef struct {
   UINT32 Head,Count;
   ENUMA_SERVICE_EVENT Events[ENUMA_SERVICE_TRACE_CAPACITY];
 } ENUMA_SERVICE_TRACE_LOG;
-typedef struct {
+typedef struct ENUMA_SERVICE_TRACE_CONTEXT {
   EFI_SYSTEM_TABLE System;
   EFI_BOOT_SERVICES Boot;
   EFI_BOOT_SERVICES *Original;
   UINTN ImageBase,ImageSize;
   BOOLEAN Published;
   ENUMA_SERVICE_TRACE_LOG Log;
+  // Optional development observer. Runs after restoring the caller's TPL and
+  // BEFORE forwarding. NULL preserves the original no-output path. It must not
+  // depend on the forwarded service returning. Context and observer are static.
+  VOID (*BeforeForward)(struct ENUMA_SERVICE_TRACE_CONTEXT *,UINT64,EFI_TPL);
 } ENUMA_SERVICE_TRACE;
 STATIC ENUMA_SERVICE_TRACE *mEnumaServiceTrace;
 
@@ -50,7 +54,9 @@ STATIC UINT64 EnumaServiceBegin(UINT32 Service,UINTN Caller,UINT64 Value,CONST E
   ENUMA_SERVICE_TRACE *C=mEnumaServiceTrace;EFI_TPL Previous;UINT64 Call;
   Previous=C->Original->RaiseTPL(TPL_HIGH_LEVEL);Call=C->Log.NextCall;
   if(Call!=MAX_UINT64){C->Log.NextCall++;EnumaServiceRecord(C,Call,Service,Caller,Value,Guid,FALSE,0);}
-  C->Original->RestoreTPL(Previous);return Call;
+  C->Original->RestoreTPL(Previous);
+  if(C->BeforeForward){C->BeforeForward(C,Call,Previous);}
+  return Call;
 }
 STATIC VOID EnumaServiceEnd(UINT64 Call,UINT32 Service,UINTN Caller,UINT64 Value,CONST EFI_GUID *Guid,EFI_STATUS Status) {
   ENUMA_SERVICE_TRACE *C=mEnumaServiceTrace;EFI_TPL Previous;
