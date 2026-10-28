@@ -1,0 +1,21 @@
+--- a/UefiCpuPkg/Library/CpuExceptionHandlerLib/AArch64/CpuExceptionHandlerLib.c
++++ b/UefiCpuPkg/Library/CpuExceptionHandlerLib/AArch64/CpuExceptionHandlerLib.c
+@@ -296,7 +296,7 @@
+   UINTN   CharCount;
+   INT32   Offset;
+ 
+-  EnumaUnhandledExceptionCheckpoint ();
++  EnumaUnhandledExceptionCheckpoint (ExceptionType, SystemContext);
+ 
+   if (mRecursiveException) {
+     STATIC CHAR8 CONST  Message[] = "\nRecursive exception occurred while dumping the CPU state\n";
+--- a/UefiCpuPkg/Library/CpuExceptionHandlerLib/DxeCpuExceptionHandlerLib.inf
++++ b/UefiCpuPkg/Library/CpuExceptionHandlerLib/DxeCpuExceptionHandlerLib.inf
+@@ -101,6 +101,7 @@
+   ArmLib
+   TimerLib
+   ResetSystemLib
++  UefiBootServicesTableLib
+ 
+ [Guids.RISCV64, Guids.AARCH64]
+   gEfiDebugImageInfoTableGuid

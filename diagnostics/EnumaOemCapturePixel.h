@@ -9,9 +9,15 @@
 #error OEM capture requires the reviewed 320x160 eight-second geometry
 #endif
 #include "PixelTransaction.h"
+#if !defined(ENUMA_CAPTURE_PREPARED_ONLY) || !ENUMA_CAPTURE_PREPARED_ONLY
 #include "EnumaOemPrecallCapture.h"
+#endif
 typedef struct {
+#if defined(ENUMA_CAPTURE_PREPARED_ONLY) && ENUMA_CAPTURE_PREPARED_ONLY
+  VOID *Capture; // not consumed by the prepared-page transaction
+#else
   ENUMA_PRECALL_CAPTURE *Capture;
+#endif
   ENUMA_INHERITED_FRAME Frame;
   ENUMA_U32 Policy;ENUMA_U64 El;
   ENUMA_PIXEL_READ Read;ENUMA_PIXEL_WRITE Write;ENUMA_PIXEL_REVALIDATE Validate;
@@ -29,6 +35,9 @@ typedef struct {
 } ENUMA_CAPTURE_PIXEL;
 
 STATIC BOOLEAN EnumaCapturePixelPage(ENUMA_CAPTURE_PIXEL *P) {
+#if defined(ENUMA_CAPTURE_PREPARED_ONLY) && ENUMA_CAPTURE_PREPARED_ONLY
+  return P->PagePrepared&&P->Page.Ready;
+#else
   ENUMA_PRECALL_CAPTURE *C=P->Capture;CONST ENUMA_SERVICE_EVENT *E=NULL;
   UINT32 I,J,N=0,K=0;CHAR8 Guid[36];
   if(P->PagePrepared){return P->Page.Ready;}
@@ -55,6 +64,7 @@ STATIC BOOLEAN EnumaCapturePixelPage(ENUMA_CAPTURE_PIXEL *P) {
     P->Page.Text[3][0]='C';EnumaBootLogHex(P->Page.Text[3]+1,E->Value,16);
   }
   P->Page.Sequence=E->Sequence;P->Page.Ready=TRUE;return TRUE;
+#endif
 }
 STATIC ENUMA_U32 EnumaCapturePixelAt(ENUMA_CAPTURE_PIXEL *P,UINT32 N) {
   UINT32 X=N%320,Y=N/320,Row=Y/32,Col=X/16,Gx=(X%16)/4,Gy=(Y%32)/4;
@@ -91,6 +101,7 @@ STATIC ENUMA_U32 EnumaCapturePixelRun(ENUMA_CAPTURE_PIXEL *P) {
   }
   P->Active=FALSE;P->Result=!Restored?4:(!Pattern?2:(!Held?3:5));return P->Result;
 }
+#if !defined(ENUMA_CAPTURE_PREPARED_ONLY) || !ENUMA_CAPTURE_PREPARED_ONLY
 STATIC BOOLEAN EnumaCapturePixelSink(VOID *Opaque,CONST CHAR8 *Line,UINTN Size) {
   ENUMA_CAPTURE_PIXEL *P=Opaque;UINT32 I,Result;
   STATIC CONST CHAR8 End[]="OEM capture end ";
@@ -106,6 +117,7 @@ STATIC BOOLEAN EnumaCapturePixelSink(VOID *Opaque,CONST CHAR8 *Line,UINTN Size) 
   }
   return Result==5;
 }
+#endif
 // No board sink/profile is installed. Exception/nonlocal exit needs the same
 // platform stop policy; there is no general C recovery from an MMIO fault.
 #endif
