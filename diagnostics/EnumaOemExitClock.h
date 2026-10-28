@@ -8,12 +8,16 @@
 #ifndef ENUMA_OEM_CLOCK_FORCE
 #define ENUMA_OEM_CLOCK_FORCE 0
 #endif
-#if ENUMA_OEM_CLOCK_FORCE != 0 && ENUMA_OEM_CLOCK_FORCE != 1 && ENUMA_OEM_CLOCK_FORCE != 5
+#ifndef ENUMA_OEM_GOP_MODE
+#define ENUMA_OEM_GOP_MODE 0
+#endif
+#define ENUMA_OEM_CLOCK_MAX (ENUMA_OEM_GOP_MODE ? 6U : 5U)
+#if ENUMA_OEM_CLOCK_FORCE != 0 && ENUMA_OEM_CLOCK_FORCE != 1 && ENUMA_OEM_CLOCK_FORCE != 5 && !(ENUMA_OEM_GOP_MODE && ENUMA_OEM_CLOCK_FORCE == 6)
 #error Invalid clock calibration constant
 #endif
 STATIC UINTN EnumaOemClockDelay(UINT32 Code){
   if(ENUMA_OEM_CLOCK_FORCE){Code=ENUMA_OEM_CLOCK_FORCE;}
-  if(Code<1||Code>5){Code=2;}
+  if(Code<1||Code>ENUMA_OEM_CLOCK_MAX){Code=2;}
   return 2000000U+5000000U*(Code-1);
 }
 STATIC inline UINT32 EnumaOemClockClass(BOOLEAN Owner,BOOLEAN Returned,EFI_STATUS Status){

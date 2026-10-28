@@ -19,11 +19,19 @@
 #include "EnumaOemBoardCapture.h"
 #endif
 #include "EnumaOemProgress.h"
+#if ENUMA_OEM_GOP_MODE
+#include "EnumaOemGopMode.h"
+#endif
 #if ENUMA_OEM_FAR_CHAIN
 VOID EnumaOemFarDispatchComplete(VOID){
 #if ENUMA_OEM_EXIT_CLOCK
-  EnumaOemClockExit(EnumaOemClockClass(mOemProgress.Owner!=NULL,
-    (mOemProgress.FarFlags&64)!=0,mOemProgress.FarStatus));
+  UINT32 Code=EnumaOemClockClass(mOemProgress.Owner!=NULL,
+    (mOemProgress.FarFlags&64)!=0,mOemProgress.FarStatus);
+#if ENUMA_OEM_GOP_MODE
+  if(Code==5&&OemGopAdvance(mOemProgress.Owner->Original,
+      mOemProgress.Owner->ImageBase+ENUMA_OEM_ID_TEXT_RVA,ENUMA_OEM_ID_TEXT_SIZE)){Code=6;}
+#endif
+  EnumaOemClockExit(Code);
 #else
   STATIC CONST EFI_GUID Guid={0x9042a9de,0x23dc,0x4a38,{0x96,0xfb,0x7a,0xde,0xd0,0x80,0x51,0x6a}};
   EFI_GRAPHICS_OUTPUT_PROTOCOL *Gop=NULL;EFI_STATUS Status;

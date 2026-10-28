@@ -51,7 +51,7 @@ def main():
         runtime=json.loads(args.oem_run_config.read_text())
         if set(runtime)!={'trial_id','session','selected_call','profile','experiment'} or str(UUID(runtime['trial_id']))!=runtime['trial_id'] or \
            type(runtime['session']) is not int or not 0<runtime['session']<2**64 or type(runtime['selected_call']) is not int or runtime['selected_call']!=(6 if runtime['experiment']=='oem-main-entry-v6' else 5 if runtime['experiment']=='oem-registration-v5' else 4 if runtime['experiment']=='oem-post-kernel-v4' else 1 if runtime['experiment']=='oem-early-v3' else 0) or \
-           runtime['profile']!='oem-control' or runtime['experiment'] not in ('oem-first-call-preforward-v1','oem-progress-v2','oem-early-v3','oem-post-kernel-v4','oem-registration-v5','oem-main-entry-v6','oem-far-chain-v7','oem-far-event-v8','oem-far-clock-v9','oem-far-clock-low-v9','oem-far-clock-high-v9'):
+           runtime['profile']!='oem-control' or runtime['experiment'] not in ('oem-first-call-preforward-v1','oem-progress-v2','oem-early-v3','oem-post-kernel-v4','oem-registration-v5','oem-main-entry-v6','oem-far-chain-v7','oem-far-event-v8','oem-far-clock-v9','oem-far-clock-low-v9','oem-far-clock-high-v9','oem-gop-mode-v10','oem-gop-mode-low-v10','oem-gop-mode-high-v10'):
             parser.error('invalid fixed-scope OEM runtime configuration')
     if is_oem != (args.oem_profile_pair is not None):
         parser.error('OEM profiles require a pair; other profiles forbid it')
@@ -198,9 +198,10 @@ def main():
         defs['ENUMA_DIRECT_MENU']='1' if args.direct_menu else '0'
         if is_oem: oem_helper.defines(args.profile,defs)
         if args.oem_trace_build:board['firmware']['patches'].extend(['patches/oem-core-binding.patch','patches/oem-system-table-sync.patch'])
-        defs['ENUMA_OEM_FAR_CHAIN']='1' if runtime and runtime['experiment'] in ('oem-far-chain-v7','oem-far-event-v8','oem-far-clock-v9','oem-far-clock-low-v9','oem-far-clock-high-v9') else '0'
-        defs['ENUMA_OEM_EXIT_CLOCK']='1' if runtime and runtime['experiment'] in ('oem-far-clock-v9','oem-far-clock-low-v9','oem-far-clock-high-v9') else '0'
-        defs['ENUMA_OEM_CLOCK_FORCE']=str({'oem-far-clock-low-v9':1,'oem-far-clock-high-v9':5}.get(runtime['experiment'] if runtime else '',0))
+        defs['ENUMA_OEM_FAR_CHAIN']='1' if runtime and runtime['experiment'] in ('oem-far-chain-v7','oem-far-event-v8','oem-far-clock-v9','oem-far-clock-low-v9','oem-far-clock-high-v9','oem-gop-mode-v10','oem-gop-mode-low-v10','oem-gop-mode-high-v10') else '0'
+        defs['ENUMA_OEM_EXIT_CLOCK']='1' if runtime and runtime['experiment'] in ('oem-far-clock-v9','oem-far-clock-low-v9','oem-far-clock-high-v9','oem-gop-mode-v10','oem-gop-mode-low-v10','oem-gop-mode-high-v10') else '0'
+        defs['ENUMA_OEM_GOP_MODE']='1' if runtime and runtime['experiment'].startswith('oem-gop-mode-') else '0'
+        defs['ENUMA_OEM_CLOCK_FORCE']=str({'oem-far-clock-low-v9':1,'oem-far-clock-high-v9':5,'oem-gop-mode-low-v10':1,'oem-gop-mode-high-v10':6}.get(runtime['experiment'] if runtime else '',0))
         if runtime:
             defs.update(ENUMA_DIAG_STAGE='13',ENUMA_DIAG_DETAIL_POINT='13',ENUMA_DIAG_GUID_ENABLED='1',
                         ENUMA_DIAG_GUID_ONLY='1',ENUMA_DIAG_GUID_LOW64='0x4f7906c74138022f',
@@ -234,7 +235,7 @@ def main():
             for patch in ('oem-core-binding.patch','oem-system-table-sync.patch'):
                 shutil.copyfile(snapshot/'patches'/patch,uefi/'patches'/patch)
             target=core/'MdeModulePkg/Core/Dxe/Dispatcher'
-            for name in ('EnumaOemExitClock.h','EnumaOemClockCapture.h','EnumaOemCoreBinding.h','EnumaOemLoadedIdentity.h','EnumaOemBoardCapture.h',
+            for name in ('EnumaOemGopMode.h','EnumaOemExitClock.h','EnumaOemClockCapture.h','EnumaOemCoreBinding.h','EnumaOemLoadedIdentity.h','EnumaOemBoardCapture.h',
                          'EnumaOemTraceTarget.h','EnumaOemServiceTrace.h','EnumaOemServiceTraceView.h',
                          'EnumaOemPrecallCapture.h','EnumaOemCapturePixel.h','EnumaOemProgress.h','EnumaOemProgressPage.h','EnumaBootJournalView.h'):
                 shutil.copyfile(snapshot/'diagnostics'/name,target/name)
