@@ -51,7 +51,7 @@ def main():
         runtime=json.loads(args.oem_run_config.read_text())
         if set(runtime)!={'trial_id','session','selected_call','profile','experiment'} or str(UUID(runtime['trial_id']))!=runtime['trial_id'] or \
            type(runtime['session']) is not int or not 0<runtime['session']<2**64 or type(runtime['selected_call']) is not int or runtime['selected_call']!=(6 if runtime['experiment']=='oem-main-entry-v6' else 5 if runtime['experiment']=='oem-registration-v5' else 4 if runtime['experiment']=='oem-post-kernel-v4' else 1 if runtime['experiment']=='oem-early-v3' else 0) or \
-           runtime['profile']!='oem-control' or runtime['experiment'] not in ('oem-first-call-preforward-v1','oem-progress-v2','oem-early-v3','oem-post-kernel-v4','oem-registration-v5','oem-main-entry-v6','oem-far-chain-v7','oem-far-event-v8','oem-far-clock-v9','oem-far-clock-low-v9','oem-far-clock-high-v9','oem-gop-mode-v10','oem-gop-mode-low-v10','oem-gop-mode-high-v10','oem-exception-v11'):
+           runtime['profile']!='oem-control' or runtime['experiment'] not in ('oem-first-call-preforward-v1','oem-progress-v2','oem-early-v3','oem-post-kernel-v4','oem-registration-v5','oem-main-entry-v6','oem-far-chain-v7','oem-far-event-v8','oem-far-clock-v9','oem-far-clock-low-v9','oem-far-clock-high-v9','oem-gop-mode-v10','oem-gop-mode-low-v10','oem-gop-mode-high-v10','oem-exception-v11','oem-exception-dispcc-v12'):
             parser.error('invalid fixed-scope OEM runtime configuration')
     if is_oem != (args.oem_profile_pair is not None):
         parser.error('OEM profiles require a pair; other profiles forbid it')
@@ -198,12 +198,12 @@ def main():
         defs['ENUMA_DIRECT_MENU']='1' if args.direct_menu else '0'
         if is_oem: oem_helper.defines(args.profile,defs)
         if args.oem_trace_build:board['firmware']['patches'].extend(['patches/oem-core-binding.patch','patches/oem-system-table-sync.patch'])
-        defs['ENUMA_OEM_FAR_CHAIN']='1' if runtime and runtime['experiment'] in ('oem-far-chain-v7','oem-far-event-v8','oem-far-clock-v9','oem-far-clock-low-v9','oem-far-clock-high-v9','oem-gop-mode-v10','oem-gop-mode-low-v10','oem-gop-mode-high-v10','oem-exception-v11') else '0'
-        defs['ENUMA_OEM_EXIT_CLOCK']='1' if runtime and runtime['experiment'] in ('oem-far-clock-v9','oem-far-clock-low-v9','oem-far-clock-high-v9','oem-gop-mode-v10','oem-gop-mode-low-v10','oem-gop-mode-high-v10','oem-exception-v11') else '0'
+        defs['ENUMA_OEM_FAR_CHAIN']='1' if runtime and runtime['experiment'] in ('oem-far-chain-v7','oem-far-event-v8','oem-far-clock-v9','oem-far-clock-low-v9','oem-far-clock-high-v9','oem-gop-mode-v10','oem-gop-mode-low-v10','oem-gop-mode-high-v10','oem-exception-v11','oem-exception-dispcc-v12') else '0'
+        defs['ENUMA_OEM_EXIT_CLOCK']='1' if runtime and runtime['experiment'] in ('oem-far-clock-v9','oem-far-clock-low-v9','oem-far-clock-high-v9','oem-gop-mode-v10','oem-gop-mode-low-v10','oem-gop-mode-high-v10','oem-exception-v11','oem-exception-dispcc-v12') else '0'
         defs['ENUMA_OEM_GOP_MODE']='1' if runtime and runtime['experiment'].startswith(('oem-gop-mode-','oem-exception-')) else '0'
         defs['ENUMA_OEM_CLOCK_FORCE']=str({'oem-far-clock-low-v9':1,'oem-far-clock-high-v9':5,'oem-gop-mode-low-v10':1,'oem-gop-mode-high-v10':6}.get(runtime['experiment'] if runtime else '',0))
-        defs['ENUMA_OEM_EXCEPTION']='1' if runtime and runtime['experiment']=='oem-exception-v11' else '0'
-        if runtime and runtime['experiment']=='oem-exception-v11':
+        defs['ENUMA_OEM_EXCEPTION']='1' if runtime and runtime['experiment'] in ('oem-exception-v11','oem-exception-dispcc-v12') else '0'
+        if runtime and runtime['experiment'] in ('oem-exception-v11','oem-exception-dispcc-v12'):
             board['firmware']['patches'].append('patches/oem-exception-context.patch')
             (uefi/'patches').mkdir(parents=True,exist_ok=True)
             shutil.copyfile(snapshot/'patches/oem-exception-context.patch',uefi/'patches/oem-exception-context.patch')
@@ -231,6 +231,9 @@ def main():
             if args.profile in ('menu-window','full-menu','deferred-menu'):os.environ['ENUMA_BOUNDED_MENU']='1'
         preflight=load(snapshot/'Resources/Scripts/enuma_preflight.py','development_preflight')
         preflight.prepare(root,snapshot,uefi,core,unixnu,source,vendor,out/'preflight.json')
+        if runtime and runtime['experiment']=='oem-exception-dispcc-v12':
+            # Platform map belongs to the UEFI tree, not the Mu core patch list.
+            preflight.apply_patch_series([(uefi,snapshot/'patches/display-dispcc-map.patch')])
         trace_identity=None
         if args.oem_trace_build:
             # Fixed archive stores this file as CRLF. Normalize only disposable
@@ -254,7 +257,7 @@ def main():
                 shutil.copyfile(snapshot/'diagnostics/EnumaOemExceptionStop.h',
                                 core/'UefiCpuPkg/Library/CpuExceptionHandlerLib/AArch64/EnumaUnhandledExceptionCheckpoint.h')
                 shutil.copyfile(snapshot/'diagnostics/EnumaOemExitClock.h',core/'UefiCpuPkg/Library/CpuExceptionHandlerLib/AArch64/EnumaOemExitClock.h')
-                if runtime['experiment']=='oem-exception-v11':
+                if runtime['experiment'] in ('oem-exception-v11','oem-exception-dispcc-v12'):
                     cpu=core/'UefiCpuPkg/Library/CpuExceptionHandlerLib/AArch64'
                     for name in ('EnumaOemExceptionPage.h','EnumaOemExceptionView.h','EnumaOemExceptionDisplay.h','EnumaOemCapturePixel.h','EnumaOemPrecallCapture.h','EnumaOemServiceTrace.h','EnumaOemServiceTraceView.h','EnumaBootJournalView.h','EnumaBootJournal.h'):
                         shutil.copyfile(snapshot/'diagnostics'/name,cpu/name)
