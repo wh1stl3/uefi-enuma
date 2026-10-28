@@ -6,12 +6,18 @@
 #include <Protocol/DebugSupport.h>
 #include <Guid/DebugImageInfoTable.h>
 #include <Protocol/DevicePath.h>
+#ifndef ENUMA_OEM_CONTEXT
+#define ENUMA_OEM_CONTEXT 0
+#endif
 typedef BOOLEAN (*ENUMA_EX_READ)(VOID *,UINTN,VOID *,UINTN);
 typedef struct {
   UINT64 Type,Pc,Esr,Far,Lr,Spsr,Session,Base,Bytes,Rva;
   UINT32 Owner; // 0 unavailable, 1 unique, 2 no match, 3 ambiguous, 4 busy, 5 invalid, 6 limit
   BOOLEAN GuidValid;
   EFI_GUID Guid;
+#if ENUMA_OEM_CONTEXT
+  UINT64 X0,X8,X9,X10,X20,X21,El,Ttbr0,Ttbr1,Tcr,Sctlr,ParR,ParW,ProbeValid;
+#endif
 } ENUMA_EXCEPTION_RECORD;
 STATIC BOOLEAN ExEqual(CONST VOID *A,CONST VOID *B,UINTN N){
   CONST UINT8 *X=A,*Y=B;for(UINTN I=0;I<N;I++){if(X[I]!=Y[I]){return FALSE;}}return TRUE;

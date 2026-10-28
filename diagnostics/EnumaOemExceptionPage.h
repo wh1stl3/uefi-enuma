@@ -15,6 +15,16 @@ STATIC __attribute__((noinline)) VOID ExPage(ENUMA_LOG_PAGE *P,CONST ENUMA_EXCEP
     for(UINT32 I=0;I<N;I++){if(Guid[I]!='-'){P->Text[1+K/16][2+K%16]=Guid[I];K++;}}
     P->Text[3][0]='S';EnumaBootLogHex(P->Text[3]+1,R->Spsr,16);
   }
+#if ENUMA_OEM_CONTEXT
+  if(Page>=4&&Page<=6){
+    UINT64 H=Page==4?R->X0:Page==5?R->Ttbr0:(R->El|(R->ProbeValid<<8));
+    Values[0]=Page==4?R->X8:Page==5?R->Ttbr1:R->ParR;
+    Values[1]=Page==4?R->X9:Page==5?R->Tcr:R->ParW;
+    Values[2]=Page==4?R->X10:Page==5?R->Sctlr:R->X20;
+    EnumaBootLogHex(P->Text[0]+4,H,16);
+    for(UINT32 I=0;I<3;I++){EnumaBootLogHex(P->Text[I+1]+1,Values[I],16);}
+  }
+#endif
   P->Text[4][0]='G';EnumaBootLogHex(P->Text[4]+1,R->Session,16);P->Ready=TRUE;
 }
 #endif

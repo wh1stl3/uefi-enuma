@@ -16,6 +16,9 @@
 #if !defined(ENUMA_EXCEPTION_HOST_FIXTURE)
 #include "EnumaOemExceptionDisplay.h"
 #endif
+#if ENUMA_OEM_CONTEXT && !defined(ENUMA_EXCEPTION_HOST_FIXTURE)
+#include "EnumaOemExceptionContext.h"
+#endif
 STATIC volatile BOOLEAN mExActive;
 STATIC ENUMA_EXCEPTION_RECORD mExRecord;
 STATIC __attribute__((noinline,noreturn)) VOID EnumaUnhandledExceptionCheckpoint(
@@ -26,12 +29,23 @@ STATIC __attribute__((noinline,noreturn)) VOID EnumaUnhandledExceptionCheckpoint
 #if !defined(ENUMA_EXCEPTION_HOST_FIXTURE)
   __asm__ volatile("msr daifset, #15":::"memory");
 #endif
+#if ENUMA_OEM_CONTEXT
+  if(ExSnapshot(&mExRecord,(UINTN)Type,Context.SystemContextAArch64,ENUMA_EXCEPTION_SESSION)){
+    ExContextCapture(&mExRecord,Context.SystemContextAArch64);
+    if(ExPresent(&mExRecord,1)){
+      ExFindOwner(&mExRecord,(UINTN)gST,ExReadMeta,NULL);
+      if(ExPresent(&mExRecord,2)&&ExPresent(&mExRecord,3)&&
+         ExPresent(&mExRecord,4)&&ExPresent(&mExRecord,5)){ExPresent(&mExRecord,6);}
+    }
+  }
+#else
   if(ExSnapshot(&mExRecord,(UINTN)Type,Context.SystemContextAArch64,ENUMA_EXCEPTION_SESSION)&&
      ExPresent(&mExRecord,1)){
     // Raw PC/ESR/FAR is already visible before optional ownership reads.
     ExFindOwner(&mExRecord,(UINTN)gST,ExReadMeta,NULL);
     if(ExPresent(&mExRecord,2)){ExPresent(&mExRecord,3);}
   }
+#endif
   EnumaOemClockExit(1);
 }
 #else

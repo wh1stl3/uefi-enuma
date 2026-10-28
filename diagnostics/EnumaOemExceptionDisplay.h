@@ -8,7 +8,11 @@
 #undef ENUMA_BOOT_LOG_REPLAY
 #define ENUMA_BOOT_LOG_REPLAY 3
 #undef ENUMA_BOOT_LOG_HOLD_US
+#if ENUMA_OEM_CONTEXT
+#define ENUMA_BOOT_LOG_HOLD_US 4000000
+#else
 #define ENUMA_BOOT_LOG_HOLD_US 8000000
+#endif
 #undef ENUMA_NATIVE_ROUTE_CPU_POLICY
 #define ENUMA_NATIVE_ROUTE_CPU_POLICY 1
 #define ENUMA_CAPTURE_PREPARED_ONLY 1
@@ -73,7 +77,7 @@ STATIC int ExPixelWrite(VOID *C,ENUMA_U64 A,ENUMA_U32 V){
   mExWrites++;*(volatile UINT32 *)(UINTN)A=V;return 1;
 }
 STATIC int ExBarrier(VOID *C){(VOID)C;if(mExBarriers>=3){return 0;}mExBarriers++;__asm__ volatile("dsb sy":::"memory");return 1;}
-STATIC int ExHold(VOID *C,ENUMA_U32 Us){(VOID)C;if(mExHolds||Us!=8000000){return 0;}mExHolds++;MicroSecondDelay(Us);return 1;}
+STATIC int ExHold(VOID *C,ENUMA_U32 Us){(VOID)C;if(mExHolds||Us!=ENUMA_BOOT_LOG_HOLD_US){return 0;}mExHolds++;MicroSecondDelay(Us);return 1;}
 STATIC int ExValidate(VOID *C,CONST ENUMA_INHERITED_FRAME *F){
   UINT32 Reason=0,Status;UINT64 El=0;(VOID)C;
   if(mExValidations||!EnumaPixelBytesEqual(F,&mExEvidence.Frame,sizeof(*F))){return 0;}mExValidations++;
@@ -85,7 +89,7 @@ STATIC int ExValidate(VOID *C,CONST ENUMA_INHERITED_FRAME *F){
 STATIC __attribute__((noinline)) BOOLEAN ExPresent(CONST ENUMA_EXCEPTION_RECORD *R,UINT32 Page){
   UINT32 Reason=0,Status;UINT64 Affinity;
   __asm__ volatile("mrs %0, mpidr_el1\nmsr daifset, #15":"=r"(Affinity)::"memory");
-  if(Affinity&0xff00ffffffULL||Page<1||Page>3){return FALSE;}
+  if(Affinity&0xff00ffffffULL||Page<1||Page>(ENUMA_OEM_CONTEXT?6:3)){return FALSE;}
   ZeroMem(&mExPixel,sizeof(mExPixel));
   mExReads=mExWaits=mExPixelReads=mExWrites=mExBarriers=mExHolds=mExValidations=0;
   mExLimits=(ENUMA_INHERITED_LIMITS){0};mExLimits.Width=1600;mExLimits.Height=2560;

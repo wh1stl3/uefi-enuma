@@ -5,7 +5,7 @@
 // window ownership. A callback exception/nonlocal exit cannot guarantee restore.
 #ifndef ENUMA_OEM_CAPTURE_PIXEL_H
 #define ENUMA_OEM_CAPTURE_PIXEL_H
-#if ENUMA_BOOT_LOG_REPLAY != 3 || ENUMA_BOOT_LOG_HOLD_US != 8000000
+#if ENUMA_BOOT_LOG_REPLAY != 3 || (ENUMA_BOOT_LOG_HOLD_US != 8000000 && !(ENUMA_OEM_CONTEXT && ENUMA_BOOT_LOG_HOLD_US == 4000000))
 #error OEM capture requires the reviewed 320x160 eight-second geometry
 #endif
 #include "PixelTransaction.h"
@@ -91,7 +91,7 @@ STATIC ENUMA_U32 EnumaCapturePixelRun(ENUMA_CAPTURE_PIXEL *P) {
   if(Pattern){for(I=0;I<ENUMA_PIXEL_WORDS;I++){
     if(P->Read(P->Io,EnumaPixelAddress(&P->Frame,I),&V)!=1||V!=EnumaCapturePixelAt(P,I)){Pattern=FALSE;break;}
   }}
-  Held=P->Hold(P->Io,8000000)==1;
+  Held=P->Hold(P->Io,ENUMA_BOOT_LOG_HOLD_US)==1;
   for(I=0;I<ENUMA_PIXEL_WORDS;I++){
     if(P->Write(P->Io,EnumaPixelAddress(&P->Frame,I),P->Saved[I])!=1){Restored=FALSE;}
   }
