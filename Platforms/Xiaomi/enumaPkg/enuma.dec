@@ -1,0 +1,9 @@
+##
+# enumaPkg — Xiaomi Pad 5 Pro 5G (enuma), Qualcomm SM8250-AC
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+[Defines]
+  DEC_SPECIFICATION = 0x00010005
+  PACKAGE_NAME      = enumaPkg
+  PACKAGE_GUID      = 44840A31-C9D0-4FD6-B204-47FB186CEBC1
+  PACKAGE_VERSION   = 0.1

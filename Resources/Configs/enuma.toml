@@ -1,0 +1,28 @@
+#
+# Boot Shim Configs
+#
+[boot_shim]
+requires_kernel_header = true
+
+#
+# UEFI FD Configs
+#
+# TODO REQUIRED: 基址与大小由 enuma 的 ABL/引导证据确定（同 SoC 的 pipa 用 0x9FC00000/0x300000，
+# nuwa 用 0xA7100000/0x300000 —— 都不能直接沿用）。填好后必须与
+# Platforms/Xiaomi/enumaPkg/Library/MemoryMapLib/MemoryMapLib.c 的 "UEFI FD" 行一致。
+[uefi_fd]
+base = 0x9FC00000
+size = 0x300000
+
+#
+# Android Boot Image Kernel Configs
+#
+[boot_image_kernel]
+kernel_compression = "gzip"
+append_dtb         = true
+
+#
+# Android Boot Image Configs
+#
+[boot_image]
+header_version = 1
