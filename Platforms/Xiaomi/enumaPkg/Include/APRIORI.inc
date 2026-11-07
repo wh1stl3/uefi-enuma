@@ -11,8 +11,9 @@
 #   XhciPciEmulationDxe, XhciDxe, UsbMsdDxe, UsbDeviceDxe, UsbConfigDxe,
 #   UsbInitDxe, ButtonsDxe, TsensDxe, LimitsDxe
 #
-# 复位驱动：enuma 使用厂商 ResetRuntimeDxe（Vendor.apriori.inc），替换原 pipa 在此
-# 槽位的 MdeModulePkg ResetSystemRuntimeDxe（后者仍保留在 DXE.inc 作为通用 ResetSystem API）。
+# 复位驱动：与 pipa 一致，使用 MdeModulePkg ResetSystemRuntimeDxe（DXE.inc 同样包含它）。
+# 厂商 ResetRuntimeDxe 不放入 FV：两个实现都会安装 Reset 架构协议，且此前它只出现在本文件而
+# 不在 FV 里（FVMAIN 无其 GUID，reviewer 2026-11-08 发现）。复位回 bootloader 的实际行为需实机验证。
 #
 APRIORI DXE {
   INF MdeModulePkg/Core/Dxe/DxeMain.inf
@@ -47,7 +48,7 @@ APRIORI DXE {
   INF Binaries/enuma/ScmDxe/ScmDxe.inf
   INF Binaries/enuma/DALTLMM/DALTLMM.inf
 
-  INF Binaries/enuma/ResetRuntimeDxe/ResetRuntimeDxe.inf
+  INF MdeModulePkg/Universal/ResetSystemRuntimeDxe/ResetSystemRuntimeDxe.inf
 
   INF Binaries/enuma/PmicDxe/PmicDxe.inf
 
