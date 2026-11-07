@@ -99,7 +99,7 @@ READ_LOCK_STATUS   = TRUE
   # ACPI
   INF MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe.inf
   INF MdeModulePkg/Universal/Acpi/AcpiPlatformDxe/AcpiPlatformDxe.inf
-  # TODO REQUIRED: obtain enuma ACPI tables before enabling this module.
+  # UniXNU 路径不需要 ACPI 表（shengPkg 的 FDF 也没有）；pipa/alioth 的表供 Windows 使用，故保持禁用。
   # INF RuleOverride = ACPITABLE enuma/AcpiTables.inf
 
   # Device Tree
@@ -138,3 +138,13 @@ READ_LOCK_STATUS   = TRUE
   }
 
   !include SiliciumPkg/Common.fdf.inc
+
+# enuma 厂商模块含 DXE_RUNTIME_DRIVER 类型（EnvDxe/UFSDxe/ResetRuntimeDxe，来自 enuma
+# 实机 xbl_a 的 INF 元数据）。共享的 SiliciumPkg/Common.fdf.inc 只提供
+# UEFI_DRIVER/DXE_DRIVER/UEFI_APPLICATION 的 BINARY 规则，故在此补充。
+[Rule.Common.DXE_RUNTIME_DRIVER.BINARY]
+  FILE DRIVER = $(NAMED_GUID) {
+    DXE_DEPEX    DXE_DEPEX Optional      |.depex
+    PE32         PE32                    |.efi
+    UI           STRING="$(MODULE_NAME)" Optional
+  }

@@ -44,7 +44,8 @@
   #
   # UEFI Stack
   #
-  # TODO REQUIRED: 与 FD 基址一起由 enuma 引导证据确定；当前沿用 pipa 占位。
+  # 0x9FF90000/0x40000 与 enuma 原厂 XBL uefiplat.cfg 的 "UEFI Stack" 行一致，
+  # 同 SoC 的 pipa/alioth/nabu 取值相同（用户 2026-11-08 确认保持）。
   gArmPlatformTokenSpaceGuid.PcdCPUCoresStackBase|0x9FF90000
   gArmPlatformTokenSpaceGuid.PcdCPUCorePrimaryStackSize|0x40000
 
@@ -54,9 +55,9 @@
   gSiliciumPkgTokenSpaceGuid.PcdSmbiosSystemManufacturer|"Xiaomi"
   gSiliciumPkgTokenSpaceGuid.PcdSmbiosSystemModel|"Pad 5 Pro 5G"
   gSiliciumPkgTokenSpaceGuid.PcdSmbiosSystemRetailModel|"enuma"
-  # TODO REQUIRED: enuma 的零售型号串（原厂 DMI/ro.product.model）。
-  gSiliciumPkgTokenSpaceGuid.PcdSmbiosSystemRetailSku|"REQUIRED_ENUMA_SKU"
-  gSiliciumPkgTokenSpaceGuid.PcdSmbiosSystemBoardModel|"REQUIRED_ENUMA_BOARD"
+  # SKU 取实机 ro.product.model；Board 按 alioth 规则（SKU 去掉 "M2012" 型的前缀）派生，仅影响显示。
+  gSiliciumPkgTokenSpaceGuid.PcdSmbiosSystemRetailSku|"M2105K81C"
+  gSiliciumPkgTokenSpaceGuid.PcdSmbiosSystemBoardModel|"K81C"
 
   #
   # Simple Frame Buffer
@@ -100,6 +101,11 @@
 
 [LibraryClasses.common.SEC]
   AdvancedLoggerLib|AdvLoggerPkg/Library/AdvancedLoggerLib/PeilessArm/AdvancedLoggerLib.inf
+  # Sec.c calls BaseDebugLibSerialPortConstructor() directly, so the SEC phase keeps
+  # the serial DebugLib (early screen output) and does not take the AdvancedLogger DebugLib.
+  !if $(TARGET) == DEBUG
+  DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
+  !endif
 
 [LibraryClasses.common.DXE_CORE]
   AdvancedLoggerLib|AdvLoggerPkg/Library/AdvancedLoggerLib/DxeCore/AdvancedLoggerLib.inf

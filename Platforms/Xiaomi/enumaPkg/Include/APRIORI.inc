@@ -1,8 +1,24 @@
+# enuma 厂商 DXE 模块的 APRIORI 派发顺序。
+#
+# 依据：EnumaInputs/Vendor.apriori.inc（由 UniXNU-enuma/scripts/enuma_vendor_import.py
+# 从 enuma 实机 xbl_a 的 FV / uefiplat.cfg 生成）。厂商模块使用扁平布局
+# （Binaries/enuma 下同名目录的 <Module>.inf），非厂商模块（MdeModulePkg/ArmPkg/
+# EmbeddedPkg/SiliciumPkg/FatPkg）保持 pipa 派生结构不变。
+#
+# enuma XBL 无以下 pipa 派生模块，已移除（NO-SRC，不伪造）：
+#   SdccDxe, FeatureEnablerDxe, PILProxyDxe, PILDxe, SPSSDxe, AdcDxe,
+#   UsbPwrCtrlDxe, QcomChargerDxe, ChargerExDxe, UsbfnDwc3Dxe,
+#   XhciPciEmulationDxe, XhciDxe, UsbMsdDxe, UsbDeviceDxe, UsbConfigDxe,
+#   UsbInitDxe, ButtonsDxe, TsensDxe, LimitsDxe
+#
+# 复位驱动：enuma 使用厂商 ResetRuntimeDxe（Vendor.apriori.inc），替换原 pipa 在此
+# 槽位的 MdeModulePkg ResetSystemRuntimeDxe（后者仍保留在 DXE.inc 作为通用 ResetSystem API）。
+#
 APRIORI DXE {
   INF MdeModulePkg/Core/Dxe/DxeMain.inf
   INF MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
 
-  INF Binaries/enuma/QcomPkg/Drivers/EnvDxe/EnvDxe.inf
+  INF Binaries/enuma/EnvDxe/EnvDxe.inf
 
   INF MdeModulePkg/Universal/ReportStatusCodeRouter/RuntimeDxe/ReportStatusCodeRouterRuntimeDxe.inf
   INF MdeModulePkg/Universal/StatusCodeHandler/RuntimeDxe/StatusCodeHandlerRuntimeDxe.inf
@@ -12,58 +28,53 @@ APRIORI DXE {
   INF EmbeddedPkg/MetronomeDxe/MetronomeDxe.inf
   INF ArmPkg/Drivers/TimerDxe/TimerDxe.inf
 
-  INF Binaries/enuma/QcomPkg/Drivers/SmemDxe/SmemDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/DALSYSDxe/DALSYSDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/HWIODxe/HWIODxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/ChipInfoDxe/ChipInfoDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/PlatformInfoDxe/PlatformInfoDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/HALIOMMUDxe/HALIOMMUDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/ULogDxe/ULogDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/CmdDbDxe/CmdDbDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/PwrUtilsDxe/PwrUtilsDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/NpaDxe/NpaDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/RpmhDxe/RpmhDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/PdcDxe/PdcDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/VcsDxe/VcsDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/ClockDxe/ClockDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/SPMIDxe/SPMIDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/ShmBridgeDxe/ShmBridgeDxeLA.inf
-  INF Binaries/enuma/QcomPkg/Drivers/TzDxe/ScmDxeLA.inf
-  INF Binaries/enuma/QcomPkg/Drivers/TLMMDxe/TLMMDxe.inf
+  INF Binaries/enuma/SmemDxe/SmemDxe.inf
+  INF Binaries/enuma/DALSys/DALSys.inf
+  INF Binaries/enuma/HWIODxeDriver/HWIODxeDriver.inf
+  INF Binaries/enuma/ChipInfo/ChipInfo.inf
+  INF Binaries/enuma/PlatformInfoDxeDriver/PlatformInfoDxeDriver.inf
+  INF Binaries/enuma/HALIOMMU/HALIOMMU.inf
+  INF Binaries/enuma/ULogDxe/ULogDxe.inf
+  INF Binaries/enuma/CmdDbDxe/CmdDbDxe.inf
+  INF Binaries/enuma/PwrUtilsDxe/PwrUtilsDxe.inf
+  INF Binaries/enuma/NpaDxe/NpaDxe.inf
+  INF Binaries/enuma/RpmhDxe/RpmhDxe.inf
+  INF Binaries/enuma/PdcDxe/PdcDxe.inf
+  INF Binaries/enuma/VcsDxe/VcsDxe.inf
+  INF Binaries/enuma/ClockDxe/ClockDxe.inf
+  INF Binaries/enuma/SPMI/SPMI.inf
+  INF Binaries/enuma/ShmBridgeDxe/ShmBridgeDxe.inf
+  INF Binaries/enuma/ScmDxe/ScmDxe.inf
+  INF Binaries/enuma/DALTLMM/DALTLMM.inf
 
-  INF MdeModulePkg/Universal/ResetSystemRuntimeDxe/ResetSystemRuntimeDxe.inf
+  INF Binaries/enuma/ResetRuntimeDxe/ResetRuntimeDxe.inf
 
-  INF Binaries/enuma/QcomPkg/Drivers/PmicDxe/PmicDxeLa.inf
+  INF Binaries/enuma/PmicDxe/PmicDxe.inf
 
   INF MdeModulePkg/Universal/Disk/DiskIoDxe/DiskIoDxe.inf
   INF MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
   INF MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
 
-  INF Binaries/enuma/QcomPkg/Drivers/SdccDxe/SdccDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/UFSDxe/UFSDxe.inf
+  INF Binaries/enuma/UFSDxe/UFSDxe.inf
 
   INF FatPkg/EnhancedFatDxe/Fat.inf
 
-  INF Binaries/enuma/QcomPkg/Drivers/TzDxe/TzDxeLA.inf
+  INF Binaries/enuma/TzDxe/TzDxe.inf
 
   INF MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
 
-  INF Binaries/enuma/QcomPkg/Drivers/FeatureEnablerDxe/FeatureEnablerDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/DDRInfoDxe/DDRInfoDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/SPIDxe/SPIDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/I2CDxe/I2CDxe.inf
+  INF Binaries/enuma/DDRInfoDxe/DDRInfoDxe.inf
+  INF Binaries/enuma/SPI/SPI.inf
+  INF Binaries/enuma/I2C/I2C.inf
 
 !if $(USE_CUSTOM_DISPLAY_DRIVER) == 1
-  INF Binaries/enuma/QcomPkg/Drivers/DisplayDxe/DisplayDxe.inf
+  INF Binaries/enuma/DisplayDxe/DisplayDxe.inf
 !else
   INF SiliciumPkg/Drivers/SimpleFbDxe/SimpleFbDxe.inf
 !endif
 
-  INF Binaries/enuma/QcomPkg/Drivers/PILProxyDxe/PILProxyDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/PILDxe/PILDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/SPSSDxe/SPSSDxe.inf
 !if $(USE_CUSTOM_DISPLAY_DRIVER) == 1
-  INF Binaries/enuma/QcomPkg/Drivers/CPRDxe/CPRDxe.inf
+  INF Binaries/enuma/CPRDxe/CPRDxe.inf
 !endif
 
   INF MdeModulePkg/Universal/WatchdogTimerDxe/WatchdogTimer.inf
@@ -76,30 +87,11 @@ APRIORI DXE {
   INF MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
   INF MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
 
-  INF Binaries/enuma/QcomPkg/Drivers/AdcDxe/AdcDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/UsbPwrCtrlDxe/UsbPwrCtrlDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/QcomChargerDxe/QcomChargerDxeLA.inf
-  INF Binaries/enuma/QcomPkg/Drivers/ChargerExDxe/ChargerExDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/UsbfnDwc3Dxe/UsbfnDwc3Dxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/XhciPciEmulationDxe/XhciPciEmulationDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/XhciDxe/XhciDxe.inf
-
-  INF MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe.inf
-  INF MdeModulePkg/Bus/Usb/UsbKbDxe/UsbKbDxe.inf
-  INF MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
-
-  INF Binaries/enuma/QcomPkg/Drivers/UsbMsdDxe/UsbMsdDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/UsbDeviceDxe/UsbDeviceDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/UsbConfigDxe/UsbConfigDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/UsbInitDxe/UsbInitDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/ButtonsDxe/ButtonsDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/TsensDxe/TsensDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/LimitsDxe/LimitsDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/GpiDxe/GpiDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/HashDxe/HashDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/CipherDxe/CipherDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/MacDxe/MacDxe.inf
-  INF Binaries/enuma/QcomPkg/Drivers/RNGDxe/RngDxe.inf
+  INF Binaries/enuma/GpiDxe/GpiDxe.inf
+  INF Binaries/enuma/HashDxe/HashDxe.inf
+  INF Binaries/enuma/CipherDxe/CipherDxe.inf
+  INF Binaries/enuma/MacDxe/MacDxe.inf
+  INF Binaries/enuma/RngDxe/RngDxe.inf
 
   INF EmbeddedPkg/SimpleTextInOutSerial/SimpleTextInOutSerial.inf
   INF MdeModulePkg/Universal/Console/ConPlatformDxe/ConPlatformDxe.inf
