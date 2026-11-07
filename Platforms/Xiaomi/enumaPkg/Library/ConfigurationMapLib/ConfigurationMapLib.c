@@ -2,7 +2,9 @@
  * enumaPkg 平台配置表 —— 取自 Mu-Silicium SM8250 通用值（IMEM、CPU 数、EUD、UFS 等）。
  * Sdc*GpioConfigOn/Off、SharedIMEMBaseAddr、EUDEnableAddr、SecurityFlag、NumCpusFuseAddr、
  * NumCpus、UefiMemUseThreshold 已与 enuma 原厂 XBL（xbl_a sha256 7ac67cbf…c65057）内嵌
- * uefiplat.cfg 的 [ConfigParameters] 逐项核对一致（2026-11-08，数值未改）。
+ * uefiplat.cfg 的 [ConfigParameters] 逐项核对（2026-11-08）。全表 31 项，现与 cfg 完全一致：
+ * EnableUfsIOC 取 cfg 的 0（此前沿用 pipa 的 1）。EnableLogFsSyncInRetail 保持 cfg 的 1：
+ * 厂商固件正常启动的附带写入与 stock 相同，不为此偏离（见 docs/launch-route「写入分级」）。
  */
 #include <Library/ConfigurationMapLib.h>
 
@@ -29,7 +31,7 @@ gConfigurationDescriptor[] = {
   {"Sdc1GpioConfigOff", 0xA00},
   {"Sdc2GpioConfigOff", 0xA00},
   {"EnableSDHCSwitch", 0x1},
-  {"EnableUfsIOC", 1},
+  {"EnableUfsIOC", 0}, // enuma XBL uefiplat.cfg L117 = 0 (pipa/alioth use 1)
   {"UfsSmmuConfigForOtherBootDev", 1},
   {"SecurityFlag", 0xC4},
   {"EnableLogFsSyncInRetail", 0x1},
