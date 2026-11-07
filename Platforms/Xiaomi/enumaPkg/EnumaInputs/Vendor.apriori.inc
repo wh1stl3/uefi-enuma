@@ -19,13 +19,29 @@
   INF Binaries/enuma/DALTLMM/DALTLMM.inf
   INF Binaries/enuma/ResetRuntimeDxe/ResetRuntimeDxe.inf
   INF Binaries/enuma/PmicDxe/PmicDxe.inf
+  INF Binaries/enuma/SdccDxe/SdccDxe.inf
   INF Binaries/enuma/UFSDxe/UFSDxe.inf
   INF Binaries/enuma/TzDxe/TzDxe.inf
+  INF Binaries/enuma/FeatureEnablerDxe/FeatureEnablerDxe.inf
   INF Binaries/enuma/DDRInfoDxe/DDRInfoDxe.inf
   INF Binaries/enuma/SPI/SPI.inf
   INF Binaries/enuma/I2C/I2C.inf
   INF Binaries/enuma/DisplayDxe/DisplayDxe.inf
+  INF Binaries/enuma/PILProxyDxe/PILProxyDxe.inf
+  INF Binaries/enuma/PILDxe/PILDxe.inf
+  INF Binaries/enuma/SPSSDxe/SPSSDxe.inf
   INF Binaries/enuma/CPRDxe/CPRDxe.inf
+  INF Binaries/enuma/AdcDxe/AdcDxe.inf
+  INF Binaries/enuma/UsbPwrCtrlDxe/UsbPwrCtrlDxe.inf
+  INF Binaries/enuma/QcomChargerDxeLA/QcomChargerDxeLA.inf
+  INF Binaries/enuma/ChargerExDxe/ChargerExDxe.inf
+  INF Binaries/enuma/UsbfnDwc3Dxe/UsbfnDwc3Dxe.inf
+  INF Binaries/enuma/XhciPciEmulation/XhciPciEmulation.inf
+  INF Binaries/enuma/XhciDxe/XhciDxe.inf
+  INF Binaries/enuma/UsbConfigDxe/UsbConfigDxe.inf
+  INF Binaries/enuma/ButtonsDxe/ButtonsDxe.inf
+  INF Binaries/enuma/TsensDxe/TsensDxe.inf
+  INF Binaries/enuma/LimitsDxe/LimitsDxe.inf
   INF Binaries/enuma/GpiDxe/GpiDxe.inf
   INF Binaries/enuma/HashDxe/HashDxe.inf
   INF Binaries/enuma/CipherDxe/CipherDxe.inf

@@ -1,5 +1,8 @@
 [Components]
+  Binaries/enuma/AdcDxe/AdcDxe.inf
+  Binaries/enuma/ButtonsDxe/ButtonsDxe.inf
   Binaries/enuma/CPRDxe/CPRDxe.inf
+  Binaries/enuma/ChargerExDxe/ChargerExDxe.inf
   Binaries/enuma/ChipInfo/ChipInfo.inf
   Binaries/enuma/CipherDxe/CipherDxe.inf
   Binaries/enuma/ClockDxe/ClockDxe.inf
@@ -9,26 +12,42 @@
   Binaries/enuma/DDRInfoDxe/DDRInfoDxe.inf
   Binaries/enuma/DisplayDxe/DisplayDxe.inf
   Binaries/enuma/EnvDxe/EnvDxe.inf
+  Binaries/enuma/FeatureEnablerDxe/FeatureEnablerDxe.inf
   Binaries/enuma/GpiDxe/GpiDxe.inf
   Binaries/enuma/HALIOMMU/HALIOMMU.inf
   Binaries/enuma/HWIODxeDriver/HWIODxeDriver.inf
   Binaries/enuma/HashDxe/HashDxe.inf
   Binaries/enuma/I2C/I2C.inf
+  Binaries/enuma/LimitsDxe/LimitsDxe.inf
   Binaries/enuma/MacDxe/MacDxe.inf
   Binaries/enuma/NpaDxe/NpaDxe.inf
+  Binaries/enuma/PILDxe/PILDxe.inf
+  Binaries/enuma/PILProxyDxe/PILProxyDxe.inf
   Binaries/enuma/PdcDxe/PdcDxe.inf
   Binaries/enuma/PlatformInfoDxeDriver/PlatformInfoDxeDriver.inf
   Binaries/enuma/PmicDxe/PmicDxe.inf
   Binaries/enuma/PwrUtilsDxe/PwrUtilsDxe.inf
+  Binaries/enuma/QcomChargerDxeLA/QcomChargerDxeLA.inf
   Binaries/enuma/ResetRuntimeDxe/ResetRuntimeDxe.inf
   Binaries/enuma/RngDxe/RngDxe.inf
   Binaries/enuma/RpmhDxe/RpmhDxe.inf
   Binaries/enuma/SPI/SPI.inf
   Binaries/enuma/SPMI/SPMI.inf
+  Binaries/enuma/SPSSDxe/SPSSDxe.inf
   Binaries/enuma/ScmDxe/ScmDxe.inf
+  Binaries/enuma/SdccDxe/SdccDxe.inf
   Binaries/enuma/ShmBridgeDxe/ShmBridgeDxe.inf
   Binaries/enuma/SmemDxe/SmemDxe.inf
+  Binaries/enuma/TsensDxe/TsensDxe.inf
   Binaries/enuma/TzDxe/TzDxe.inf
   Binaries/enuma/UFSDxe/UFSDxe.inf
   Binaries/enuma/ULogDxe/ULogDxe.inf
+  Binaries/enuma/UsbConfigDxe/UsbConfigDxe.inf
+  Binaries/enuma/UsbDeviceDxe/UsbDeviceDxe.inf
+  Binaries/enuma/UsbInitDxe/UsbInitDxe.inf
+  Binaries/enuma/UsbMsdDxe/UsbMsdDxe.inf
+  Binaries/enuma/UsbPwrCtrlDxe/UsbPwrCtrlDxe.inf
+  Binaries/enuma/UsbfnDwc3Dxe/UsbfnDwc3Dxe.inf
   Binaries/enuma/VcsDxe/VcsDxe.inf
+  Binaries/enuma/XhciDxe/XhciDxe.inf
+  Binaries/enuma/XhciPciEmulation/XhciPciEmulation.inf
