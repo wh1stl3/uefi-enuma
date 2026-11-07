@@ -83,6 +83,12 @@ READ_LOCK_STATUS   = TRUE
   !include Include/DXE.inc
   !include Include/RAW.inc
 
+  INF UniXNUPkg/Application/UniXNU/UniXNU.inf
+  INF UniXNUPkg/Driver/UniXNUDxe/UniXNUDxe.inf
+  INF UniXNUPkg/Driver/UniXNURamDiskDxe/UniXNURamDiskDxe.inf
+  INF UniXNUPkg/Driver/AdvancedLogDxe/AdvancedLogDxe.inf
+  INF DarwinBootPkg/Driver/DarwinBoot.inf
+
   # RAM Manager
   INF SiliciumPkg/Drivers/RamManagerDxe/RamManagerDxe.inf
 
@@ -93,7 +99,8 @@ READ_LOCK_STATUS   = TRUE
   # ACPI
   INF MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe.inf
   INF MdeModulePkg/Universal/Acpi/AcpiPlatformDxe/AcpiPlatformDxe.inf
-  # TODO REQUIRED: enuma �?ACPI 表（enuma/AcpiTables.inf）取得后再启�?  # INF RuleOverride = ACPITABLE enuma/AcpiTables.inf
+  # TODO REQUIRED: obtain enuma ACPI tables before enabling this module.
+  # INF RuleOverride = ACPITABLE enuma/AcpiTables.inf
 
   # Device Tree
   #INF EmbeddedPkg/Drivers/DtPlatformDxe/DtPlatformDxe.inf

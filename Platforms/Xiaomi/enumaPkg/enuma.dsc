@@ -35,6 +35,7 @@
 !include KonaPkg/KonaPkg.dsc.inc
 
 [PcdsFixedAtBuild]
+  gUniXNUPkgTokenSpaceGuid.PcdUniXNUDeviceModel|"enuma"
   #
   # DDR Memory
   #
@@ -71,6 +72,7 @@
   gQcomPkgTokenSpaceGuid.PcdPlatformType|"LA"
 
 [LibraryClasses]
+  UniXNULib|UniXNUPkg/Library/UniXNULib/UniXNULib.inf
   #
   # Memory Libraries
   #
@@ -81,7 +83,39 @@
   #
   ConfigurationMapLib|enumaPkg/Library/ConfigurationMapLib/ConfigurationMapLib.inf
 
+  #
+  # Advanced Logger (firmware log exporter, Tools -> Advanced Logger)
+  #
+  # The in-memory log buffer is allocated dynamically by the DXE Core logger
+  # instance; PcdAdvancedLoggerBase stays at its default 0 (no fabricated fixed
+  # address). The hardware port routes logger output to the platform SerialPortLib
+  # (FrameBufferSerialPortLib in DEBUG) so early screen output is preserved.
+  AdvancedLoggerAccessLib|AdvLoggerPkg/Library/AdvancedLoggerAccessLib/AdvancedLoggerAccessLib.inf
+  AdvancedLoggerHdwPortLib|AdvLoggerPkg/Library/AdvancedLoggerHdwPortLib/AdvancedLoggerHdwPortLib.inf
+  QrEncoderLib|MsGraphicsPkg/Library/QrEncoderLib/QrEncoderLib.inf
+  AssertLib|AdvLoggerPkg/Library/AssertLib/AssertLib.inf
+!if $(TARGET) == DEBUG
+  DebugLib|AdvLoggerPkg/Library/BaseDebugLibAdvancedLogger/BaseDebugLibAdvancedLogger.inf
+!endif
+
+[LibraryClasses.common.SEC]
+  AdvancedLoggerLib|AdvLoggerPkg/Library/AdvancedLoggerLib/PeilessArm/AdvancedLoggerLib.inf
+
+[LibraryClasses.common.DXE_CORE]
+  AdvancedLoggerLib|AdvLoggerPkg/Library/AdvancedLoggerLib/DxeCore/AdvancedLoggerLib.inf
+
+[LibraryClasses.common.DXE_DRIVER, LibraryClasses.common.UEFI_DRIVER, LibraryClasses.common.UEFI_APPLICATION]
+  AdvancedLoggerLib|AdvLoggerPkg/Library/AdvancedLoggerLib/Dxe/AdvancedLoggerLib.inf
+
+[LibraryClasses.common.DXE_RUNTIME_DRIVER]
+  AdvancedLoggerLib|AdvLoggerPkg/Library/AdvancedLoggerLib/Runtime/AdvancedLoggerLib.inf
+
 [Components]
+  UniXNUPkg/Application/UniXNU/UniXNU.inf
+  UniXNUPkg/Driver/UniXNUDxe/UniXNUDxe.inf
+  UniXNUPkg/Driver/UniXNURamDiskDxe/UniXNURamDiskDxe.inf
+  UniXNUPkg/Driver/AdvancedLogDxe/AdvancedLogDxe.inf
+  DarwinBootPkg/Driver/DarwinBoot.inf
   #
   # ACPI Tables
   #
