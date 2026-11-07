@@ -1,7 +1,8 @@
 /*
  * enumaPkg 平台配置表 —— 取自 Mu-Silicium SM8250 通用值（IMEM、CPU 数、EUD、UFS 等）。
- * TODO REQUIRED：Sdc*GpioConfigOn/Off、SharedIMEMBaseAddr、EUDEnableAddr、SecurityFlag
- * 需按 enuma 原厂固件核对后再用于实机。
+ * Sdc*GpioConfigOn/Off、SharedIMEMBaseAddr、EUDEnableAddr、SecurityFlag、NumCpusFuseAddr、
+ * NumCpus、UefiMemUseThreshold 已与 enuma 原厂 XBL（xbl_a sha256 7ac67cbf…c65057）内嵌
+ * uefiplat.cfg 的 [ConfigParameters] 逐项核对一致（2026-11-08，数值未改）。
  */
 #include <Library/ConfigurationMapLib.h>
 
