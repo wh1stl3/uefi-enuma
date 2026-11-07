@@ -1,0 +1,29 @@
+#
+# Boot Shim Configs
+#
+[boot_shim]
+requires_kernel_header = true
+
+#
+# UEFI FD Configs
+#
+# 0x9FC00000/0x300000 与 enuma 原厂 XBL uefiplat.cfg 的 "UEFI FD" 行一致，同 SoC 的
+# pipa/alioth/nabu 取值相同（用户 2026-11-08 确认保持）。nuwa 的 0xA7100000 属 SM8550，不适用。
+# 须与 Platforms/Xiaomi/enumaPkg/Library/MemoryMapLib/MemoryMapLib.c 的 "UEFI FD" 行一致。
+# ABL 是否接受该 boot.img 尚未实机验证（首次 fastboot boot）。
+[uefi_fd]
+base = 0x9FC00000
+size = 0x300000
+
+#
+# Android Boot Image Kernel Configs
+#
+[boot_image_kernel]
+kernel_compression = "gzip"
+append_dtb         = true
+
+#
+# Android Boot Image Configs
+#
+[boot_image]
+header_version = 1

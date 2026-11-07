@@ -9,3 +9,6 @@ BootShim.elf
 
 Mu-*.*
 *:Zone.Identifier
+/.cache/
+/Binaries/enuma/
+/Platforms/Xiaomi/enumaPkg/FdtBlob/*.dtb
