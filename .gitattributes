@@ -1,0 +1,2 @@
+*.sh text eol=lf
+build_uefi.py text eol=lf
