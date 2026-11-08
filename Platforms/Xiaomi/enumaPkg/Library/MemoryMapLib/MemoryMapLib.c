@@ -19,6 +19,16 @@
  * UEFI FD 0x9FC00000/0x300000 与 cfg 一致、同 SoC 的 pipa/alioth/nabu 相同（用户 2026-11-08
  * 确认保持），须与 Resources/Configs/enuma.toml 的 [uefi_fd] 一致（预检检查）。
  *
+ * DXE Heap 2（0x93200000/0x05700000）：实验性新增（用户 2026-11-08 当轮确认）。原因：2026-11-08
+ * 首次上机日志显示 DXE 从 FeatureEnablerDxe 起连续 AllocatePoolPages 失败（8–94 页成对），后续 59 个
+ * FV 模块（TzDxe/GpiDxe/I2C/SPI/DisplayDxe/ButtonsDxe/DDRInfoDxe/ConSplitterDxe/GraphicsConsoleDxe/
+ * BdsDxe/RamManagerDxe/SmbiosDxe/Usb*、Charger* 等）加载不进去，最终 DxeCore DxeMain.c(581) ASSERT：
+ * DXE 堆 0x98900000/0x03300000（51 MiB，XBL cfg 值）先被 SEC 解压的两份 FV（各约 7.2 MiB）+ DxeCore +
+ * 厂商驱动（ShmBridgeDxe 等）耗尽。依据 Android /proc/iomem 的 System RAM 92700000-b03fffff 与 PIL
+ * Reserved 末端（0x93200000），本行填补 0x93200000–0x98900000（87 MiB），与 DXE Heap 行合并为
+ * 0x93200000–0x9BBFFFFF（约 138 MiB）。属性与 DXE Heap 行一致。属实验：该区间是否含 ABL/TZ 活数据
+ * 未证明（未上机验证）；nuwa 同断言是靠改大 DXE 堆解决。
+ *
  * PENDING-STAGE4：Kernel 预留（0xA0000000/0x10000000，Reserv）与 [payload.adt]
  * owned_memory_size 窗口的关系待阶段 4 实测：DarwinBoot AllocateWindow 在 EfiConventionalMemory
  * 里分配，失败时屏幕显示 "NO WINDOW <size> BIG RUN <bytes> @ <addr>" 与 "FREE ..." 行，据此核对。
@@ -44,6 +54,7 @@ gMemoryDescriptor[] = {
   {"SMEM",              0x80900000, 0x00200000, AddMem, MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
   {"TZApps",            0x82400000, 0x03A00000, HobOnlyNoCacheSetting, MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
   {"PIL Reserved",      0x86000000, 0x0D200000, AddMem, MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN}, // cfg L19
+  {"DXE Heap 2",        0x93200000, 0x05700000, AddMem, SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN}, // experiment (2026-11-08, see header)
   {"DXE Heap",          0x98900000, 0x03300000, AddMem, SYS_MEM, SYS_MEM_CAP, Conv,   WRITE_BACK_XN},
   {"Sched Heap",        0x9BC00000, 0x00400000, AddMem, SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK_XN}, // cfg L21
   {"Display Reserved",  0x9C000000, 0x02400000, AddMem, MEM_RES, SYS_MEM_CAP, Reserv, WRITE_THROUGH_XN},

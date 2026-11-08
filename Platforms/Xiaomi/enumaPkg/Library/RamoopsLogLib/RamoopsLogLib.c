@@ -85,6 +85,10 @@
 #define IMEM_RESTART_REASON   0x146BF65C                      // qcom,msm-imem-restart_reason
 #define RESTART_BOOTLOADER    0x77665500
 
+// Hold after the "restarting into fastboot" line is written and before the actual reset, so the last log lines stay
+// on screen long enough to read or record. The previous run's reset happened too fast to capture them.
+#define RAMOOPS_RESTART_DELAY_US  8000000
+
 #define SCM_WDOG_DEBUG_OFF    0xC2000109                      // SCM_SIP_FNID (SCM_SVC_BOOT, SCM_WDOG_DEBUG_BOOT_PART), atomic, SMC64
 #define SCM_HALT_PMIC_ARB     0xC2000901                      // SCM_SIP_FNID (SCM_SVC_PWR, SCM_IO_DISABLE_PMIC_ARBITER)
 #define PSCI_SYSTEM_RESET     0x84000009
@@ -352,6 +356,11 @@ RestartIntoFastboot (VOID)
   AppendText ("RamLog: restarting into fastboot, PON 0x");
   AppendHex (Code);
   AppendText (Code == 0 ? " (warm)\n" : " (not prepared, the log may be lost)\n");
+
+  // Let the last lines (already in DDR and on the framebuffer) stay visible/recordable before the reset. TimerLib's
+  // MicroSecondDelay is already used below and in SetWarmReset, so it is available at this ASSERT point; the delay is
+  // bounded and mRestarting (set above) guards against any recursive ASSERT during it.
+  MicroSecondDelay (RAMOOPS_RESTART_DELAY_US);
 
   MmioWrite32 (IMEM_RESTART_REASON, RESTART_BOOTLOADER);
 

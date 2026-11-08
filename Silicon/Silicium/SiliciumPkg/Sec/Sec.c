@@ -160,6 +160,7 @@ SecMain (VOID)
   }
 
   DEBUG ((EFI_D_WARN, "SEC: memory HOBs done\n"));
+  DEBUG ((EFI_D_WARN, "SEC: entry x0 = 0x%lx\n", gSecEntryArg0));
 
   // Build CPU HOB
   BuildCpuHob (ArmGetPhysicalAddressBits (), PcdGet8 (PcdPrePiCpuIoSize));
