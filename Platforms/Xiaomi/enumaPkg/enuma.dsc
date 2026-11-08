@@ -80,6 +80,12 @@
   MemoryMapLib|enumaPkg/Library/MemoryMapLib/MemoryMapLib.inf
 
   #
+  # Debug output also in the stock kernel's ramoops console zone (0xB0000000); an ASSERT restarts into fastboot with a
+  # warm reset, so the log survives a hang that the user ends with the keys
+  #
+  RamLogLib|enumaPkg/Library/RamoopsLogLib/RamoopsLogLib.inf
+
+  #
   # QCOM Libraries
   #
   ConfigurationMapLib|enumaPkg/Library/ConfigurationMapLib/ConfigurationMapLib.inf

@@ -13,6 +13,7 @@
 #include <Library/PrePiHobListPointerLib.h>
 #include <Library/CacheMaintenanceLib.h>
 #include <Library/MemoryMapHelperLib.h>
+#include <Library/RamLogLib.h>
 #include <Library/TimerLib.h>
 #include <Library/HobLib.h>
 
@@ -129,6 +130,10 @@ VOID
 SecMain (VOID)
 {
   EFI_STATUS Status;
+
+  // Start this Boot's Memory Log before the first Line, and before any platform code, so a crash in PlatformInitialize
+  // is still captured. Device-memory writes only; SecEntry already cleaned and disabled the data cache.
+  RamLogReset ();
 
   // Do Platform Specific Initialization
   PlatformInitialize ();

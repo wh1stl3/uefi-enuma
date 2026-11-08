@@ -58,6 +58,10 @@ gMemoryDescriptor[] = {
   {"Log Buffer",        0x9FFF7000, 0x00008000, AddMem, SYS_MEM, SYS_MEM_CAP, RtData, WRITE_BACK_XN}, // cfg L31
   {"Info Blk",          0x9FFFF000, 0x00001000, AddMem, SYS_MEM, SYS_MEM_CAP, RtData, WRITE_BACK_XN},
   {"Kernel",            0xA0000000, 0x10000000, AddMem, SYS_MEM, SYS_MEM_CAP, Reserv, WRITE_BACK_XN}, // cfg L33
+  // The stock kernel's ramoops area (ramoops_memreserve=4M, console zone 0xB0000000/0x200000): RamoopsLogLib keeps
+  // the debug output in the console zone. Reserved so neither RamManagerDxe nor the XNU loader hands it out, and
+  // mapped uncached so the firmware's device-memory writes (IoLib) reach DDR and survive a PMIC warm reset.
+  {"RAMOOPS",           0xB0000000, 0x00400000, AddMem, MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
 
   // Other Memory Regions
   {"IMEM Base",         0x14680000, 0x00040000, NoHob,  MMAP_IO, INITIALIZED, Conv,   NS_DEVICE},
