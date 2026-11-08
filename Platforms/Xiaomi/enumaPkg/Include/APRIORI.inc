@@ -19,6 +19,11 @@
 # 厂商 ResetRuntimeDxe 不放入 FV：两个实现都会安装 Reset 架构协议，且此前它只出现在本文件而
 # 不在 FV 里（FVMAIN 无其 GUID，reviewer 2026-11-08 发现）。复位回 bootloader 的实际行为需实机验证。
 #
+# FeatureEnablerDxe 已移除（2026-11-08 实机）：TzDxe 提供 QSEECOM 后，FeatureEnablerDxe 加载
+# featenabler TA 时 QseeComDxe.c +131 `Status == 0` 断言（ERROR C90000002:V03000007 I0
+# 6925FAD3-E243-4B69-AD61-3F978C8ABC60）。Windows 功能使能 TA，UniXNU 用不到；二进制与 INF
+# 保留在 Binaries/enuma/FeatureEnablerDxe，只是不进 FV。
+#
 APRIORI DXE {
   INF MdeModulePkg/Core/Dxe/DxeMain.inf
   INF MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
@@ -69,7 +74,6 @@ APRIORI DXE {
 
   INF MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
 
-  INF Binaries/enuma/FeatureEnablerDxe/FeatureEnablerDxe.inf
   INF Binaries/enuma/DDRInfoDxe/DDRInfoDxe.inf
   INF Binaries/enuma/SPI/SPI.inf
   INF Binaries/enuma/I2C/I2C.inf

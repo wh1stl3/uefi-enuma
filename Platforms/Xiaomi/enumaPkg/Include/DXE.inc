@@ -13,6 +13,11 @@
 #   XhciPciEmulation, XhciDxe, UsbMsdDxe, UsbDeviceDxe, UsbConfigDxe,
 #   UsbInitDxe, ButtonsDxe, TsensDxe, LimitsDxe
 #
+# FeatureEnablerDxe 已移除（2026-11-08 实机）：TzDxe 提供 QSEECOM 后，FeatureEnablerDxe 加载
+# featenabler TA 时 QseeComDxe.c +131 `Status == 0` 断言（ERROR C90000002:V03000007 I0
+# 6925FAD3-E243-4B69-AD61-3F978C8ABC60）。Windows 功能使能 TA，UniXNU 用不到；二进制与 INF
+# 保留在 Binaries/enuma/FeatureEnablerDxe，只是不进 FV。
+#
   INF MdeModulePkg/Core/Dxe/DxeMain.inf
   INF MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
   INF ArmPkg/Drivers/CpuDxe/CpuDxe.inf
@@ -74,7 +79,6 @@
   INF Binaries/enuma/SdccDxe/SdccDxe.inf
   INF Binaries/enuma/UFSDxe/UFSDxe.inf
   INF Binaries/enuma/DALTLMM/DALTLMM.inf
-  INF Binaries/enuma/FeatureEnablerDxe/FeatureEnablerDxe.inf
 
 !if $(USE_CUSTOM_DISPLAY_DRIVER) == 1
 	INF Binaries/enuma/DisplayDxe/DisplayDxe.inf

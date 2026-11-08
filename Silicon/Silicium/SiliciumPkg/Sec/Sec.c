@@ -13,6 +13,7 @@
 #include <Library/PrePiHobListPointerLib.h>
 #include <Library/CacheMaintenanceLib.h>
 #include <Library/MemoryMapHelperLib.h>
+#include <Library/RamLogLib.h>
 #include <Library/TimerLib.h>
 #include <Library/HobLib.h>
 
@@ -130,6 +131,10 @@ SecMain (VOID)
 {
   EFI_STATUS Status;
 
+  // Start this Boot's Memory Log before the first Line, and before any platform code, so a crash in PlatformInitialize
+  // is still captured. Device-memory writes only; SecEntry already cleaned and disabled the data cache.
+  RamLogReset ();
+
   // Do Platform Specific Initialization
   PlatformInitialize ();
 
@@ -155,6 +160,7 @@ SecMain (VOID)
   }
 
   DEBUG ((EFI_D_WARN, "SEC: memory HOBs done\n"));
+  DEBUG ((EFI_D_WARN, "SEC: entry x0 = 0x%lx\n", gSecEntryArg0));
 
   // Build CPU HOB
   BuildCpuHob (ArmGetPhysicalAddressBits (), PcdGet8 (PcdPrePiCpuIoSize));
