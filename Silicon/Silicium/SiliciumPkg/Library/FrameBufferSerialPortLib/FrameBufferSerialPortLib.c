@@ -312,36 +312,36 @@ SerialPortWrite (
     ArmDisableInterrupts ();
   }
 
-  // Keep a Copy in Memory first: a Platform Instance may restart here on an ASSERT
-  RamLogWrite (Buffer, NumberOfBytes);
-
   // Get Frame Buffer Memory
   Status = GetFrameBufferMemory (&FbBase, &FbLength);
-  if (EFI_ERROR (Status)) {
-    if (InterruptState) {
-      ArmEnableInterrupts ();
+
+  // Write the bytes to the frame buffer first, so an ASSERT's last line (and the restart that
+  // RamLogWrite may trigger below) stays on screen. The flush runs here, before RamLogWrite, so
+  // the glyphs are already in DDR when a platform instance resets from inside RamLogWrite.
+  if (!EFI_ERROR (Status)) {
+    // Use the Geometry of the Frame Buffer that is really scanned out
+    LoadGeometry (FbBase, FbLength);
+
+    // Write Debug Message to Frame Buffer
+    for (UINTN i = 0; i < NumberOfBytes; i++) {
+      WriteFrameBuffer (FbBase, FbLength, Buffer[i]);
     }
 
-    return 0;
+    // Flush Frame Buffer
+    WriteBackInvalidateDataCacheRange ((VOID *)mFbGeometry.Base, (UINTN)FB_PITCH * FB_HEIGHT);
   }
 
-  // Use the Geometry of the Frame Buffer that is really scanned out
-  LoadGeometry (FbBase, FbLength);
-
-  // Write Debug Message to Frame Buffer
-  for (UINTN i = 0; i < NumberOfBytes; i++) {
-    WriteFrameBuffer (FbBase, FbLength, *Buffer++);
-  }
+  // Keep a Copy in Memory: a Platform Instance may restart here on an ASSERT. It still runs for
+  // every write (even when the frame buffer is not available yet) and after the frame buffer
+  // flush, so no ramoops byte is lost.
+  RamLogWrite (Buffer, NumberOfBytes);
 
   // Enable Interrupts
   if (InterruptState) {
     ArmEnableInterrupts ();
   }
 
-  // Flush Frame Buffer
-  WriteBackInvalidateDataCacheRange ((VOID *)mFbGeometry.Base, (UINTN)FB_PITCH * FB_HEIGHT);
-
-  return NumberOfBytes;
+  return EFI_ERROR (Status) ? 0 : NumberOfBytes;
 }
 
 UINTN
