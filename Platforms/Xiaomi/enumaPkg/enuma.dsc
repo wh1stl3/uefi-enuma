@@ -23,7 +23,9 @@
   BUILD_TARGETS                  = RELEASE|DEBUG
   SKUID_IDENTIFIER               = DEFAULT
   FLASH_DEFINITION               = enumaPkg/enuma.fdf
-  USE_CUSTOM_DISPLAY_DRIVER      = 1
+  # 2026-11-08 实机：厂商 DisplayDxe 一进入即挂住并熄灭屏幕，且 ABL 留下的显示一直可用
+  #（SEC/DXE 日志在屏上可见），故放弃自定义显示驱动，改回 SimpleFbDxe。
+  USE_CUSTOM_DISPLAY_DRIVER      = 0
 
   #
   # 0 = SM8250
