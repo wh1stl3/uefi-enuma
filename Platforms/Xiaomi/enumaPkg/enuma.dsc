@@ -39,6 +39,8 @@
 [PcdsFixedAtBuild]
   gUniXNUPkgTokenSpaceGuid.PcdUniXNUDeviceModel|"enuma"
   #
+  # UniXNULog defaults to 0x40 (DEBUG_INFO) which the global PcdDebugPrintErrorLevel=0x8007EE0F drops; use the enabled DEBUG_LOAD (0x4) so UNIXNU: lines reach AdvancedLogger/ramoops.
+  gUniXNUPkgTokenSpaceGuid.PcdUniXNUDebugLevel|0x00000004
   # DDR Memory
   #
   gArmTokenSpaceGuid.PcdSystemMemoryBase|0x80000000
